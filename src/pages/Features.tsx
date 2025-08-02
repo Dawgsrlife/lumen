@@ -41,6 +41,14 @@ const Features: React.FC = () => {
       {/* Animated background */}
       <AnimatedBackground />
       
+      {/* Additional floating background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-20 left-20 w-32 h-32 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+        <div className="absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+        <div className="absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+        <div className="absolute top-1/3 right-1/3 w-20 h-20 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+      </div>
+      
       {/* Cute Mascot */}
       <LumenMascot currentPage="/features" />
 

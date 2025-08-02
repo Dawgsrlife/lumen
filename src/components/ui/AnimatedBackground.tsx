@@ -17,11 +17,11 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
         if (canvasRef.current && !particlesRef.current) {
           particlesRef.current = Particles.init({
             selector: canvasRef.current,
-            maxParticles: 80,
-            sizeVariations: 3,
-            speed: 0.3,
-            color: ['#FBBF24', '#8B5CF6'], // Lumen primary and secondary colors
-            minDistance: 140,
+            maxParticles: 100,
+            sizeVariations: 4,
+            speed: 0.4,
+            color: ['#FBBF24', '#8B5CF6', '#F59E0B'], // Lumen primary and secondary colors
+            minDistance: 120,
             connectParticles: true,
             responsive: [
               {

@@ -8,6 +8,14 @@ const About: React.FC = () => {
       {/* Animated background */}
       <AnimatedBackground />
       
+      {/* Additional floating background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-24 left-24 w-36 h-36 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+        <div className="absolute bottom-28 right-20 w-28 h-28 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+        <div className="absolute top-1/2 right-1/4 w-20 h-20 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+        <div className="absolute top-1/3 left-1/3 w-24 h-24 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+      </div>
+      
       {/* Cute Mascot */}
       <LumenMascot currentPage="/about" />
 
