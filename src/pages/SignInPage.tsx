@@ -79,9 +79,10 @@ const SignInPage: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Welcome Heading */}
           <div ref={headingRef} className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 space-y-400" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Welcome Back
             </h1>
+            <div className="mb-4"></div>
             <p className="text-lg text-gray-600 leading-relaxed">
               Continue your journey towards mental wellness and growth.
             </p>
@@ -150,7 +151,6 @@ const SignInPage: React.FC = () => {
                   footer: 'hidden',
                   footerAction: 'hidden',
                   footerActionText: 'hidden',
-                  footerActionLink: 'hidden',
                   
                   // Additional cleanup
                   formField: 'mb-4',

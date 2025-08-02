@@ -150,7 +150,6 @@ const SignUpPage: React.FC = () => {
                   footer: 'hidden',
                   footerAction: 'hidden',
                   footerActionText: 'hidden',
-                  footerActionLink: 'hidden',
                   
                   // Additional cleanup
                   formField: 'mb-4',
