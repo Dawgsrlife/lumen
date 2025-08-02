@@ -247,8 +247,8 @@ const LandingPage: React.FC = () => {
       {/* Lumen Brand Intro */}
       <LumenIntro show={showIntro} />
       
-      {/* Cute Mascot */}
-      <LumenMascot currentPage="/" />
+      {/* Cute Mascot - only show after intro */}
+      {showContent && <LumenMascot currentPage="/" />}
       
       {/* Landing Page Content - show directly after intro */}
       {showContent && (
