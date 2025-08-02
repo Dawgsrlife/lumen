@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { AnimatedBackground } from '../components/ui';
 
 const Contact: React.FC = () => {
   const teamMembers = [
@@ -10,15 +11,12 @@ const Contact: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Subtle background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-24 right-32 w-20 h-20 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
-        <div className="absolute bottom-28 left-20 w-16 h-16 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative">
+      {/* Animated background */}
+      <AnimatedBackground />
 
       {/* Header */}
-      <nav className="relative z-10 flex justify-between items-center p-8 max-w-7xl mx-auto">
+      <nav className="relative z-10 flex justify-between items-center p-8 w-full">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)]"></div>
           <span className="text-xl font-bold text-gray-900">Lumen</span>

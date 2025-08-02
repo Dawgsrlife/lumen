@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 import { useAuth } from '@clerk/clerk-react';
 import { Navigate } from 'react-router-dom';
 
-import { LumenIntro } from '../components/ui';
+import { LumenIntro, AnimatedBackground } from '../components/ui';
 
 const LandingPage: React.FC = () => {
   const { isSignedIn, isLoaded } = useAuth();
@@ -150,6 +150,9 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      {/* Animated background */}
+      <AnimatedBackground />
+      
       {/* Lumen Brand Intro */}
       <LumenIntro show={showIntro} />
       
@@ -157,7 +160,7 @@ const LandingPage: React.FC = () => {
       {showContent && (
         <>
           {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--lumen-gradient-start)]/5 via-white/80 to-[var(--lumen-gradient-end)]/5"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--lumen-gradient-start)]/5 via-white/80 to-[var(--lumen-gradient-end)]/5 z-10"></div>
           
           {/* Animated background elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -193,13 +196,13 @@ const LandingPage: React.FC = () => {
               
               {/* Left Content */}
               <motion.div 
-                className="space-y-16"
+                className="space-y-20"
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.3 }}
               >
                 {/* Main Headline */}
-                <div className="space-y-8">
+                <div className="space-y-12">
                   <motion.h1 
                     ref={headingRef}
                     className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900"
@@ -209,18 +212,16 @@ const LandingPage: React.FC = () => {
                     <span className="block hero-line">Feel, Heal, and Grow.</span>
                   </motion.h1>
                   
-                  {/* Subtitle */}
+                  {/* Elevator Pitch */}
                   <motion.p 
                     ref={textRef}
                     className="text-xl leading-relaxed text-gray-600 max-w-lg hero-line"
                   >
-                    Transform emotions into healing through personalized games and AI-powered insights.
+                    Lumen listens when no one else does. It understands your words and feelings, then gently guides you with calming games and health insights tailored just for what you're going through.
                   </motion.p>
-                  
-
                 </div>
                 
-                {/* CTA Button - Color coordinated with orb */}
+                {/* CTA Button - Clean animations */}
                 <motion.div ref={buttonRef}>
                   <motion.button
                     onClick={() => window.location.href = '/sign-in'}
@@ -230,14 +231,13 @@ const LandingPage: React.FC = () => {
                       boxShadow: '0 8px 32px rgba(251, 191, 36, 0.25), 0 4px 16px rgba(139, 92, 246, 0.15)'
                     }}
                     whileHover={{ 
-                      scale: 1.05,
-                      boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4), 0 6px 20px rgba(139, 92, 246, 0.25)'
+                      scale: 1.02,
+                      boxShadow: '0 12px 40px rgba(251, 191, 36, 0.35), 0 6px 20px rgba(139, 92, 246, 0.2)'
                     }}
-                    whileTap={{ scale: 0.98 }}
+                    whileTap={{ scale: 0.99 }}
                     transition={{ 
-                      type: "spring", 
-                      stiffness: 400, 
-                      damping: 17 
+                      duration: 0.2,
+                      ease: "easeOut"
                     }}
                   >
                     Begin Your Journey
