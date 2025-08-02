@@ -332,7 +332,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 0, scale: 0.9, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="absolute -top-16 -left-40 max-w-sm z-50"
+            className="fixed bottom-48 right-80 max-w-sm z-50"
           >
             <div 
               className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
