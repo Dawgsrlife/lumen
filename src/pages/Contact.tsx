@@ -30,26 +30,26 @@ const Contact: React.FC = () => {
         </div>
       </nav>
 
-      {/* Minimalist Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-8 py-20">
+      {/* Full Width Content - Properly Centered */}
+      <div className="relative z-10 w-full px-8 py-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-16"
+          className="text-center space-y-16 max-w-none force-center-text"
         >
-          <div className="space-y-8">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
+          <div className="space-y-8 max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Contact
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 leading-relaxed mx-auto">
               Built by a passionate team of developers and designers.
             </p>
           </div>
           
           {/* Simple Team List */}
           <motion.div 
-            className="space-y-6"
+            className="space-y-6 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -57,16 +57,16 @@ const Contact: React.FC = () => {
             {teamMembers.map((member, index) => (
               <motion.div
                 key={member.email}
-                className="text-center space-y-2"
+                className="text-center space-y-2 mx-auto"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 * index }}
               >
-                <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
-                <p className="text-gray-600">{member.role}</p>
+                <h3 className="text-lg font-semibold text-gray-900 text-center">{member.name}</h3>
+                <p className="text-gray-600 text-center">{member.role}</p>
                 <a 
                   href={`mailto:${member.email}`}
-                  className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                  className="text-sm text-gray-500 hover:text-gray-700 transition-colors block text-center"
                 >
                   {member.email}
                 </a>

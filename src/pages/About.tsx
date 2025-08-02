@@ -29,7 +29,7 @@ const About: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-16 max-w-none"
+          className="text-center space-y-16 max-w-none force-center-text"
         >
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
             About Lumen

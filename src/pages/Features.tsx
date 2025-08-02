@@ -62,7 +62,7 @@ const Features: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-16"
+          className="text-center space-y-16 force-center-text"
         >
           <div className="space-y-8 max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>

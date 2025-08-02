@@ -116,6 +116,29 @@ body {
   background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
 }
 
+/* Page-level centering utilities */
+.page-content {
+  text-align: center;
+}
+
+.page-content * {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-content .text-left {
+  text-align: left;
+}
+
+.page-content .text-right {
+  text-align: right;
+}
+
+/* Force center alignment for all text content */
+.force-center-text * {
+  text-align: center !important;
+}
+
 /* Custom animations */
 @keyframes stainFlow {
   0%, 100% { 
