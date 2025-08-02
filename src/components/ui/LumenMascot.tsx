@@ -331,12 +331,13 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 0, scale: 0.9, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="fixed bottom-72 right-24 max-w-sm z-[9999]"
+            className="fixed bottom-72 right-24 max-w-sm z-[99999]"
           >
             <div 
-              className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
+              className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-2xl border-2 border-yellow-300 relative"
               style={{
-                background: 'linear-gradient(135deg, rgba(254, 240, 138, 0.95) 0%, rgba(251, 191, 36, 0.2) 100%)'
+                background: 'linear-gradient(135deg, rgba(254, 240, 138, 0.98) 0%, rgba(251, 191, 36, 0.3) 100%)',
+                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.5) inset'
               }}
             >
               {/* X Close button */}
@@ -370,4 +371,5 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   );
 };
 
+export default LumenMascot;
 export default LumenMascot;
