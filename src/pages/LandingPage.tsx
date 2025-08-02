@@ -311,20 +311,9 @@ const LandingPage: React.FC = () => {
                 <div ref={buttonRef}>
                   <button
                     onClick={() => window.location.href = '/sign-in'}
-                    className="hero-button px-8 py-4 rounded-xl font-semibold text-white shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
-                    style={{
-                      background: 'linear-gradient(135deg, var(--lumen-primary) 0%, var(--lumen-secondary) 100%)',
-                      boxShadow: '0 8px 32px rgba(251, 191, 36, 0.25), 0 4px 16px rgba(139, 92, 246, 0.15)'
-                    }}
-                    onMouseEnter={(e) => {
-                      gsap.to(e.target, { scale: 1.05, duration: 0.3, ease: "back.out(1.7)" });
-                    }}
-                    onMouseLeave={(e) => {
-                      gsap.to(e.target, { scale: 1, duration: 0.3, ease: "back.out(1.7)" });
-                    }}
+                    className="hero-button px-8 py-4 rounded-lg font-medium text-gray-900 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors duration-200 shadow-sm"
                   >
                     Begin Your Journey
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
                   </button>
                 </div>
               </div>
