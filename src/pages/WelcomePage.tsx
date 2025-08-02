@@ -10,7 +10,7 @@ const WelcomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center max-w-4xl mx-auto px-6">
+      <div className="text-center w-full max-w-6xl mx-auto px-8">
         {/* Welcome Message */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

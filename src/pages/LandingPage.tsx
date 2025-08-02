@@ -1,11 +1,29 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@clerk/clerk-react';
+import { Navigate } from 'react-router-dom';
 import { Button } from '../components/ui';
 
 const LandingPage: React.FC = () => {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  // Show loading while Clerk is initializing
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lumen-primary"></div>
+      </div>
+    );
+  }
+
+  // If user is signed in, redirect to dashboard
+  if (isSignedIn) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center max-w-4xl mx-auto px-6">
+      <div className="text-center w-full max-w-6xl mx-auto px-8">
         {/* Placeholder for Figma design */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

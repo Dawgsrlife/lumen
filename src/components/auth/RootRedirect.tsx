@@ -15,9 +15,9 @@ const RootRedirect: React.FC = () => {
     );
   }
 
-  // If signed in, redirect to welcome page
+  // If signed in, redirect to dashboard
   if (isSignedIn) {
-    return <Navigate to="/welcome" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // If not signed in, show landing page
