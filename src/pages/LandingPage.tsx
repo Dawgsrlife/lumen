@@ -1,108 +1,137 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 import { useAuth } from '@clerk/clerk-react';
 import { Navigate } from 'react-router-dom';
-import { AnimatedBackground } from 'animated-backgrounds';
-import { Button, LumenIcon, AnimatedBall } from '../components/ui';
+
+import { LumenIntro } from '../components/ui';
 
 const LandingPage: React.FC = () => {
   const { isSignedIn, isLoaded } = useAuth();
+  const [showIntro, setShowIntro] = useState(true);
   const [showContent, setShowContent] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+
   const headingRef = useRef<HTMLHeadingElement>(null);
   const iconRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLParagraphElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const leftBorderRef = useRef<HTMLDivElement>(null);
-  const rightBorderRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
+
+  const startLandingAnimations = () => {
+    // GSAP animations for hero text to make it pop sharply
+    const ctx = gsap.context(() => {
+      // Hero text lines with staggered animation for sharp contrast
+      gsap.from(".hero-line", {
+        y: 40,
+        opacity: 0,
+        duration: 1.2,
+        ease: "power2.out",
+        stagger: 0.3,
+        delay: 0.5,
+      });
+
+      // Logo/brand animation
+      gsap.from(".logo", {
+        opacity: 0,
+        scale: 0.9,
+        duration: 1,
+        ease: "power2.out",
+        delay: 0.2,
+      });
+
+      // Floating particles animation - smooth, minimalist movement
+      gsap.to(".floating-particle", {
+        y: "random(-30, 30)",
+        x: "random(-20, 20)",
+        rotation: "random(-180, 180)",
+        duration: "random(4, 8)",
+        ease: "power1.inOut",
+        repeat: -1,
+        yoyo: true,
+        stagger: {
+          amount: 2,
+          from: "random"
+        }
+      });
+
+      // Subtle floating motion for particles
+      gsap.to(".floating-particle", {
+        scale: "random(0.8, 1.2)",
+        opacity: "random(0.3, 0.7)",
+        duration: "random(3, 6)",
+        ease: "power2.inOut",
+        repeat: -1,
+        yoyo: true,
+        stagger: 1
+      });
+
+      // Flying element that crosses the screen - minimalist and elegant
+      gsap.to(".flying-element", {
+        x: "100vw",
+        duration: 15,
+        ease: "none",
+        repeat: -1,
+        delay: 2
+      });
+
+      // Add subtle rotation and scale to flying element
+      gsap.to(".flying-element", {
+        rotation: 360,
+        scale: "random(0.8, 1.2)",
+        duration: 8,
+        ease: "power2.inOut",
+        repeat: -1,
+        yoyo: true
+      });
+
+      // Gentle background element animation
+      gsap.to(".animated-bg-element", {
+        y: "random(-20, 20)",
+        x: "random(-15, 15)",
+        scale: "random(0.9, 1.1)",
+        duration: "random(8, 12)",
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+        stagger: 2
+      });
+    });
+
+    // Background fade
+    if (backgroundRef.current) {
+      gsap.to(backgroundRef.current, {
+        opacity: 1,
+        duration: 1.2,
+        ease: "power2.out"
+      });
+    }
+
+    return () => ctx.revert();
+  };
 
   useEffect(() => {
     if (!isLoaded) return;
 
-    // Start with ball animation, then show content
-    const handleBallAnimationComplete = () => {
+    console.log('🚀 Landing page loaded, starting intro sequence');
+    
+    // Show intro for 2.2 seconds, then go directly to content
+    const introTimeout = setTimeout(() => {
+      console.log('✨ Intro complete, showing content');
+      setShowIntro(false);
       setShowContent(true);
       
-      // Start the landing page animations after ball dissolves
+      // Start landing animations shortly after content appears
       setTimeout(() => {
+        console.log('🎨 Starting landing animations');
         startLandingAnimations();
-      }, 200);
-    };
+      }, 300);
+    }, 2200);
 
-    const startLandingAnimations = () => {
-      // GSAP Timeline for incredible animations
-      const tl = gsap.timeline({ ease: "power3.out" });
-
-      // Initial state - everything hidden
-      gsap.set([headingRef.current, iconRef.current, textRef.current, buttonRef.current], {
-        opacity: 0,
-        y: 60
-      });
-
-      gsap.set([leftBorderRef.current, rightBorderRef.current], {
-        scaleY: 0,
-        transformOrigin: "top"
-      });
-
-      gsap.set(backgroundRef.current, {
-        opacity: 0
-      });
-
-      // Background fade in
-      tl.to(backgroundRef.current, {
-        opacity: 1,
-        duration: 2,
-        ease: "power2.out"
-      })
-      // Side borders animate in
-      .to([leftBorderRef.current, rightBorderRef.current], {
-        scaleY: 1,
-        duration: 1.2,
-        ease: "power2.out"
-      }, "-=1.5")
-      // Heading appears with stagger
-      .to(headingRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power2.out"
-      }, "-=0.8")
-      // Icon appears with rotation
-      .to(iconRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power2.out"
-      }, "-=0.6")
-      // Text fades in
-      .to(textRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power2.out"
-      }, "-=0.4")
-      // Button appears
-      .to(buttonRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power2.out"
-      }, "-=0.6")
-      // Icon floating animation
-      .to(iconRef.current, {
-        y: -10,
-        duration: 2,
-        ease: "power1.inOut",
-        yoyo: true,
-        repeat: -1
-      }, "-=0.4");
-    };
-
-    // Start the ball animation immediately
-    handleBallAnimationComplete();
-
+    return () => clearTimeout(introTimeout);
   }, [isLoaded]);
 
   if (!isLoaded) {
@@ -117,190 +146,140 @@ const LandingPage: React.FC = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  console.log('🔍 Render state:', { showIntro, showContent, isLoaded, isSignedIn });
+
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* 3D Ball Animation */}
-      <AnimatedBall onAnimationComplete={() => setShowContent(true)} />
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      {/* Lumen Brand Intro */}
+      <LumenIntro show={showIntro} />
       
-      {/* Landing Page Content - only show after ball animation */}
+      {/* Landing Page Content - show directly after intro */}
       {showContent && (
         <>
-          {/* Subtle White Base */}
-          <div className="absolute inset-0 bg-white"></div>
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--lumen-gradient-start)]/5 via-white/80 to-[var(--lumen-gradient-end)]/5"></div>
           
-          {/* Interactive Stain Background */}
-          <div className="absolute inset-0 z-5 pointer-events-auto">
-            <AnimatedBackground 
-              animationName="particleNetwork"
-              interactive={true}
-              interactionConfig={{
-                effect: 'attract',
-                strength: 0.8,
-                radius: 300,
-                continuous: true,
-                multiTouch: true
-              }}
-              style={{ 
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                opacity: 0.1,
-                mixBlendMode: 'multiply',
-                pointerEvents: 'auto',
-                zIndex: 5
-              }}
-            />
+          {/* Animated background elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="animated-bg-element absolute top-20 left-20 w-32 h-32 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+            <div className="animated-bg-element absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+            <div className="animated-bg-element absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
           </div>
           
-          {/* Ultra-subtle Stain Overlay */}
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/5 via-purple-50/3 to-pink-50/4"></div>
-            
-            {/* Stain-like blobs with irregular shapes */}
-            <div className="absolute inset-0">
-              <div 
-                className="absolute w-[800px] h-[600px] bg-gradient-radial from-blue-100/8 via-purple-100/4 to-transparent blur-3xl"
-                style={{
-                  left: '-15%',
-                  top: '-10%',
-                  borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%',
-                  animation: 'stainFlow 60s ease-in-out infinite',
-                }}
-              />
-              <div 
-                className="absolute w-[700px] h-[900px] bg-gradient-radial from-purple-100/6 via-pink-100/4 to-transparent blur-3xl"
-                style={{
-                  right: '-10%',
-                  bottom: '-15%',
-                  borderRadius: '30% 60% 70% 40% / 40% 50% 60% 50%',
-                  animation: 'stainFlow 80s ease-in-out infinite reverse',
-                }}
-              />
-              <div 
-                className="absolute w-[500px] h-[400px] bg-gradient-radial from-cyan-100/5 via-blue-100/3 to-transparent blur-3xl"
-                style={{
-                  left: '60%',
-                  top: '70%',
-                  borderRadius: '50% 60% 40% 70% / 30% 40% 60% 70%',
-                  animation: 'stainFlow 100s ease-in-out infinite',
-                }}
-              />
-            </div>
-          </div>
+          {/* Minimalist Layout - Inspired by modern design */}
+          <div className="relative z-50 min-h-screen">
+            {/* Readable Header Navigation */}
+            <motion.nav 
+              className="flex justify-between items-center p-8 max-w-7xl mx-auto"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)]"></div>
+                <span className="text-xl font-bold text-gray-900">Lumen</span>
+              </div>
+              
+              <div className="hidden md:flex space-x-8">
+                <a href="/" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
+                <a href="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
+                <a href="/features" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">FEATURES</a>
+                <a href="/contact" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">CONTACT</a>
+              </div>
+            </motion.nav>
 
-          {/* Side borders with subtle gradient */}
-          <div 
-            ref={leftBorderRef}
-            className="fixed left-0 top-0 w-16 h-full bg-gradient-to-b from-slate-300/70 to-slate-400/50 backdrop-blur-sm transform origin-top z-10"
-          ></div>
-          <div 
-            ref={rightBorderRef}
-            className="fixed right-0 top-0 w-16 h-full bg-gradient-to-b from-slate-300/70 to-slate-400/50 backdrop-blur-sm transform origin-top z-10"
-          ></div>
-          
-          {/* Main content container - perfectly centered with proper spacing */}
-          <div 
-            ref={containerRef}
-            className="relative z-20 min-h-screen flex flex-col justify-center items-center px-8 pointer-events-none"
-          >
-            <div className="text-center w-full max-w-6xl">
-              {/* Heading with proper vertical spacing and full width */}
-              <motion.div
-                ref={headingRef}
-                className="mb-24 w-full"
+            {/* Clean Grid Layout - Left Content, Right Visual */}
+            <div className="grid lg:grid-cols-2 gap-20 items-center max-w-7xl mx-auto px-8 py-16">
+              
+              {/* Left Content */}
+              <motion.div 
+                className="space-y-16"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, delay: 0.3 }}
               >
-                <h1 
-                  className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-slate-900 leading-tight tracking-wide w-full"
-                  style={{ 
-                    fontFamily: 'Iowan Old Style, serif'
-                  }}
-                >
-                  Brighten Your<br />
-                  Mind, One<br />
-                  Feeling at a<br />
-                  Time
-                </h1>
-              </motion.div>
+                {/* Main Headline */}
+                <div className="space-y-8">
+                  <motion.h1 
+                    ref={headingRef}
+                    className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900"
+                    style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                  >
+                    <span className="block hero-line">Light the Mind.</span>
+                    <span className="block hero-line">Feel, Heal, and Grow.</span>
+                  </motion.h1>
+                  
+                  {/* Subtitle */}
+                  <motion.p 
+                    ref={textRef}
+                    className="text-xl leading-relaxed text-gray-600 max-w-lg hero-line"
+                  >
+                    Transform emotions into healing through personalized games and AI-powered insights.
+                  </motion.p>
+                  
 
-              {/* Custom Lumen Icon - cleanly separated with proper margins */}
-              <motion.div
-                ref={iconRef}
-                className="mb-24 flex justify-center"
-              >
-                <div className="relative">
-                  {/* Shadow behind icon */}
-                  <div className="absolute inset-0 bg-slate-400/20 rounded-full blur-xl transform scale-110"></div>
-                  <LumenIcon size="xl" animated={true} />
                 </div>
+                
+                {/* CTA Button - Color coordinated with orb */}
+                <motion.div ref={buttonRef}>
+                  <motion.button
+                    onClick={() => window.location.href = '/sign-in'}
+                    className="px-8 py-4 rounded-xl font-semibold text-white shadow-lg transition-all duration-300"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--lumen-primary) 0%, var(--lumen-secondary) 100%)',
+                      boxShadow: '0 8px 32px rgba(251, 191, 36, 0.25), 0 4px 16px rgba(139, 92, 246, 0.15)'
+                    }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4), 0 6px 20px rgba(139, 92, 246, 0.25)'
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: 400, 
+                      damping: 17 
+                    }}
+                  >
+                    Begin Your Journey
+                  </motion.button>
+                </motion.div>
               </motion.div>
 
-              {/* Descriptive text with better spacing and wider width */}
-              <motion.div
-                ref={textRef}
-                className="mb-24 w-full"
+              {/* Right Visual - Minimal Floating Elements */}
+              <motion.div 
+                ref={iconRef}
+                className="relative flex items-center justify-center lg:justify-end"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.2, delay: 0.6 }}
               >
-                <p 
-                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif text-slate-800 leading-relaxed mx-auto"
+                {/* Clean visual space with floating particles */}
+                <div className="relative w-80 h-80 flex items-center justify-center">
+                  {/* Floating particles using GSAP */}
+                  <div className="floating-particle absolute top-16 right-20 w-4 h-4 rounded-full opacity-60" 
+                       style={{ background: 'var(--lumen-primary)' }}></div>
+                  <div className="floating-particle absolute bottom-20 left-16 w-3 h-3 rounded-full opacity-40" 
+                       style={{ background: 'var(--lumen-secondary)' }}></div>
+                  <div className="floating-particle absolute top-32 left-20 w-2 h-2 rounded-full opacity-50" 
+                       style={{ background: 'var(--lumen-primary)' }}></div>
+                  
+                  {/* Central focus element */}
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[var(--lumen-primary)]/20 to-[var(--lumen-secondary)]/20 backdrop-blur-sm border border-white/30"></div>
+                </div>
+                
+                {/* Flying element that crosses screen */}
+                <div 
+                  className="flying-element fixed top-1/3 -left-20 w-6 h-6 rounded-full opacity-20 pointer-events-none"
                   style={{ 
-                    fontFamily: 'Iowan Old Style, serif',
-                    width: '95%'
+                    background: 'linear-gradient(45deg, var(--lumen-primary), var(--lumen-secondary))',
+                    boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)'
                   }}
-                >
-                  Transform emotions into healing through<br />
-                  personalized games and AI-powered<br />
-                  insights
-                </p>
-              </motion.div>
-
-              {/* Professional CTA button - properly spaced */}
-              <motion.div
-                ref={buttonRef}
-                className="mb-16 pointer-events-auto"
-              >
-                <Button 
-                  size="lg"
-                  className="text-2xl px-20 py-12 bg-gradient-to-r from-slate-900 to-slate-800 text-white hover:from-slate-800 hover:to-slate-700 transition-all duration-300 transform hover:scale-105 shadow-2xl rounded-3xl border-0 font-bold tracking-wide pointer-events-auto"
-                  onClick={() => window.location.href = '/sign-in'}
-                >
-                  Begin Your Journey
-                </Button>
+                ></div>
               </motion.div>
             </div>
           </div>
         </>
       )}
-
-      {/* Custom CSS for stain-like flowing animations */}
-      <style jsx>{`
-        @keyframes stainFlow {
-          0%, 100% { 
-            transform: translate(0, 0) scale(1) rotate(0deg);
-            opacity: 0.03;
-            borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%';
-          }
-          25% { 
-            transform: translate(15px, -10px) scale(1.08) rotate(2deg);
-            opacity: 0.06;
-            borderRadius: '40% 60% 50% 50% / 30% 60% 40% 70%';
-          }
-          50% { 
-            transform: translate(-8px, 12px) scale(0.95) rotate(-1deg);
-            opacity: 0.04;
-            borderRadius: '70% 30% 60% 40% / 50% 40% 60% 50%';
-          }
-          75% { 
-            transform: translate(12px, 8px) scale(1.03) rotate(1deg);
-            opacity: 0.07;
-            borderRadius: '50% 50% 40% 60% / 70% 30% 50% 50%';
-          }
-        }
-        
-        .bg-gradient-radial {
-          background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
-        }
-      `}</style>
     </div>
   );
 };
