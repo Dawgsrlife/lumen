@@ -139,24 +139,21 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Duolingo-style encouraging messages that appear randomly
+  // Always show encouraging messages - cycle through the 5 messages randomly
   useEffect(() => {
     if (!isVisible) return;
     
-    // Show first message quickly for testing
-    const initialTimeout = setTimeout(() => {
+    // Show first message immediately
+    const showRandomMessage = () => {
       const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
       setEncouragingMessage(randomMessage);
-      setTimeout(() => setEncouragingMessage(''), 5000);
-    }, 3000); // Show after 3 seconds
+    };
     
-    const encouragingTimer = setInterval(() => {
-      if (Math.random() > 0.3) { // 70% chance each interval (higher chance)
-        const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
-        setEncouragingMessage(randomMessage);
-        setTimeout(() => setEncouragingMessage(''), 5000); // Hide after 5 seconds
-      }
-    }, Math.random() * 10000 + 8000); // Between 8-18 seconds (more frequent)
+    // Show first message after 2 seconds
+    const initialTimeout = setTimeout(showRandomMessage, 2000);
+    
+    // Rotate through random messages every 8 seconds
+    const encouragingTimer = setInterval(showRandomMessage, 8000);
     
     return () => {
       clearTimeout(initialTimeout);
