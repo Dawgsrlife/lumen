@@ -129,12 +129,12 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     }
   }, [currentPage, isVisible]);
 
-  // Random eye expressions
+  // Random eye expressions including winking!
   useEffect(() => {
-    const expressions = ['happy', 'excited', 'cheerful'];
+    const expressions = ['happy', 'excited', 'cheerful', 'winking', 'smiling'];
     const interval = setInterval(() => {
       setEyeExpression(expressions[Math.floor(Math.random() * expressions.length)]);
-    }, 3000);
+    }, 4000); // Slightly longer for better effect
     
     return () => clearInterval(interval);
   }, []);
@@ -192,14 +192,21 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   // Don't render if not visible
   if (!isVisible) return null;
 
-  const getEyeStyle = (expression: string) => {
+  const getEyeStyle = (expression: string, isLeftEye: boolean = true) => {
     switch (expression) {
       case 'excited':
-        return { width: '6px', height: '6px', transform: 'scaleY(1.2)' };
+        return { width: '10px', height: '12px', transform: 'scaleY(1.2)' };
       case 'cheerful':
-        return { width: '4px', height: '7px', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%' };
-      default:
-        return { width: '5px', height: '5px' };
+        return { width: '8px', height: '11px', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%' };
+      case 'winking':
+        // Left eye winks, right eye stays open
+        return isLeftEye 
+          ? { width: '10px', height: '3px', borderRadius: '50%', transform: 'scaleY(0.3)' }
+          : { width: '10px', height: '10px' };
+      case 'smiling':
+        return { width: '8px', height: '8px', borderRadius: '50% 50% 50% 50% / 70% 70% 30% 30%' };
+      default: // happy
+        return { width: '10px', height: '10px' };
     }
   };
 
@@ -240,20 +247,26 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               <div className="absolute -top-2 left-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform -rotate-12"></div>
               <div className="absolute -top-2 right-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform rotate-12"></div>
               
-              {/* BIG ADORABLE EYES - The key to cuteness! */}
+              {/* BIG ADORABLE EYES - The key to cuteness! Now with winking! */}
               <div className="absolute top-5 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                {/* Left Eye */}
                 <div 
-                  className="bg-gray-900 rounded-full relative shadow-lg"
-                  style={{...getEyeStyle(eyeExpression), width: '10px', height: '10px'}}
+                  className="bg-gray-900 rounded-full relative shadow-lg transition-all duration-300"
+                  style={getEyeStyle(eyeExpression, true)}
                 >
-                  {/* Multiple highlights for sparkly eyes */}
-                  <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>
-                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-80"></div>
-                  <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-white rounded-full opacity-60"></div>
+                  {/* Multiple highlights for sparkly eyes - hide when winking */}
+                  {eyeExpression !== 'winking' && (
+                    <>
+                      <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>
+                      <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-80"></div>
+                      <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-white rounded-full opacity-60"></div>
+                    </>
+                  )}
                 </div>
+                {/* Right Eye */}
                 <div 
-                  className="bg-gray-900 rounded-full relative shadow-lg"
-                  style={{...getEyeStyle(eyeExpression), width: '10px', height: '10px'}}
+                  className="bg-gray-900 rounded-full relative shadow-lg transition-all duration-300"
+                  style={getEyeStyle(eyeExpression, false)}
                 >
                   {/* Multiple highlights for sparkly eyes */}
                   <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>
@@ -268,14 +281,28 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               {/* Perfect little nose */}
               <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-gray-800 rounded-full"></div>
               
-              {/* BIG HAPPY SMILE - Very visible and cute */}
-              <div className="absolute top-11.5 left-1/2 transform -translate-x-1/2 w-6 h-3">
-                <div className="w-3 h-1.5 border-b-2 border-gray-800 rounded-full absolute left-0"></div>
-                <div className="w-3 h-1.5 border-b-2 border-gray-800 rounded-full absolute right-0"></div>
+              {/* DYNAMIC HAPPY SMILE - Changes with expression! */}
+              <div className={`absolute top-11.5 left-1/2 transform -translate-x-1/2 transition-all duration-300 ${
+                eyeExpression === 'excited' ? 'w-7 h-4' : 
+                eyeExpression === 'winking' ? 'w-5 h-2' : 
+                'w-6 h-3'
+              }`}>
+                <div className={`border-b-2 border-gray-800 rounded-full absolute left-0 ${
+                  eyeExpression === 'excited' ? 'w-3.5 h-2' : 
+                  eyeExpression === 'winking' ? 'w-2.5 h-1' : 
+                  'w-3 h-1.5'
+                }`}></div>
+                <div className={`border-b-2 border-gray-800 rounded-full absolute right-0 ${
+                  eyeExpression === 'excited' ? 'w-3.5 h-2' : 
+                  eyeExpression === 'winking' ? 'w-2.5 h-1' : 
+                  'w-3 h-1.5'
+                }`}></div>
               </div>
               
-              {/* Little tongue for extra cuteness */}
-              <div className="absolute top-12.5 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-pink-400 rounded-full"></div>
+              {/* Little tongue for extra cuteness - shows more when excited */}
+              <div className={`absolute top-12.5 left-1/2 transform -translate-x-1/2 bg-pink-400 rounded-full transition-all duration-300 ${
+                eyeExpression === 'excited' ? 'w-2 h-1.5' : 'w-1.5 h-1'
+              }`}></div>
               
               {/* PROMINENT cheek blush - kawaii style */}
               <div className="absolute top-7 left-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
