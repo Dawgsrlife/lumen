@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AnimatedBackground, LumenMascot } from '../components/ui';
+import { AnimatedBackground, LumenMascot, LumenIcon } from '../components/ui';
 
 const Features: React.FC = () => {
   const features = [
@@ -41,13 +41,21 @@ const Features: React.FC = () => {
       {/* Animated background */}
       <AnimatedBackground />
       
+      {/* Additional floating background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-20 left-20 w-32 h-32 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+        <div className="absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+        <div className="absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+        <div className="absolute top-1/3 right-1/3 w-20 h-20 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+      </div>
+      
       {/* Cute Mascot */}
       <LumenMascot currentPage="/features" />
 
       {/* Header */}
       <nav className="relative z-10 flex justify-between items-center p-8 w-full">
         <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)]"></div>
+          <LumenIcon size="sm" />
           <span className="text-xl font-bold text-gray-900">Lumen</span>
         </a>
         
@@ -59,21 +67,25 @@ const Features: React.FC = () => {
         </div>
       </nav>
 
-      {/* Full Width Content */}
-      <div className="relative z-10 w-full px-8 py-24 lg:py-32">
+      {/* Full Width Content - Properly Centered */}
+      <div className="relative z-10 w-full px-6 sm:px-10 py-24 sm:py-32 lg:py-40">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-24 force-center-text"
+          className="text-center space-y-12 max-w-5xl mx-auto px-4"
         >
-          <div className="space-y-20 max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
+          <div className="space-y-16">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Features
             </h1>
-            <p className="text-xl text-gray-600 leading-relaxed">
-              Lumen listens when no one else does. It understands your words and feelings, then gently guides you with calming games and health insights tailored just for what you're going through.
-            </p>
+            <div className="mb-8"></div>
+            {/* Description */}
+            <div className="space-y-8 max-w-3xl mx-auto px-4 sm:px-6">
+              <p className="text-xl text-gray-700 leading-relaxed font-medium">
+                Lumen listens when no one else does. It understands your words and feelings, then gently guides you with calming games and health insights tailored just for what you're going through.
+              </p>
+            </div>
           </div>
           
           {/* Enhanced Feature Grid */}
@@ -103,18 +115,22 @@ const Features: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
+            className="pt-8"
           >
             <motion.a
               href="/contact"
-              className="inline-block px-8 py-4 rounded-xl font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300"
+              className="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-all duration-200 shadow-sm"
               whileHover={{ 
-                scale: 1.02,
-                backgroundColor: '#f3f4f6'
+                scale: 1.01,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
               }}
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
             >
               Get In Touch
+              <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </motion.a>
           </motion.div>
         </motion.div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSpring, animated } from '@react-spring/web';
+import { sample } from 'lodash';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LumenMascotProps {
@@ -11,34 +12,82 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showGreeting, setShowGreeting] = useState(false);
   const [greetingText, setGreetingText] = useState('');
+  const [isWaving, setIsWaving] = useState(false);
+  const [eyeExpression, setEyeExpression] = useState('happy');
+  const [encouragingMessage, setEncouragingMessage] = useState('');
+
+  // Pool of encouraging messages (Duolingo style!)
+  const encouragingMessages = [
+    "You're doing amazing! Every step counts towards better mental health! 🌟",
+    "I believe in you! Your journey to wellness is inspiring! 💪",
+    "Small steps lead to big changes. Keep going, you've got this! 🌱",
+    "Your commitment to self-care is beautiful. I'm proud of you! 🦋",
+    "Remember: progress, not perfection. You're exactly where you need to be! ✨"
+  ];
 
   // Different greetings for different pages
   const getGreeting = (page: string) => {
     const greetings = {
-      '/': "Welcome! I'm here to brighten your journey! ✨",
-      '/about': "Learning about us? You're in good hands! 💙",
-      '/features': "Excited to explore? I can't wait to show you! 🎮",
-      '/contact': "Want to say hello? Our team would love to hear from you! 👋"
+      '/': "Hey there! I'm Foxie, your clever companion. Ready to brighten your mind?",
+      '/about': "Learning about Lumen? Smart choice! I'm here to guide you through it all.",
+      '/features': "Ooh, exploring features? I love showing off what we can do together!",
+      '/contact': "Want to meet the team? They're as awesome as you'd expect!",
+      '/sign-in': "Welcome back! I'm so excited to see you again. Let's continue your journey!",
+      '/sign-up': "Hey there, new friend! I'm Foxie, and I can't wait to be your wellness companion!"
     };
-    return greetings[page as keyof typeof greetings] || "Hi there! I'm so glad you're here! 😊";
+    return greetings[page as keyof typeof greetings] || "Hi! I'm Foxie, your friendly Lumen guide!";
   };
 
-  // Spring animation for floating movement
+  // Spring animation for floating movement with bounce
   const mascotSpring = useSpring({
-    transform: `translate(${position.x}px, ${position.y + Math.sin(Date.now() * 0.002) * 3}px)`,
-    config: { tension: 200, friction: 50 }
+    transform: `translate(${position.x}px, ${position.y + Math.sin(Date.now() * 0.003) * 5}px)`,
+    config: { tension: 180, friction: 40 }
   });
 
-  // Pulsing glow effect
-  const glowSpring = useSpring({
-    from: { scale: 1, opacity: 0.6 },
+  // Dynamic waving animation with curves and rhythm changes
+  const waveSpring = useSpring({
+    from: { transform: 'rotate(10deg)' },
     to: async (next) => {
-      while (true) {
-        await next({ scale: 1.1, opacity: 0.8 });
-        await next({ scale: 1, opacity: 0.6 });
+      if (isWaving) {
+        // Sudden energetic wave sequence
+        await next({ transform: 'rotate(-45deg)', config: { tension: 400, friction: 10 } });
+        await next({ transform: 'rotate(25deg)', config: { tension: 200, friction: 15 } });
+        await next({ transform: 'rotate(-35deg)', config: { tension: 350, friction: 12 } });
+        await next({ transform: 'rotate(15deg)', config: { tension: 150, friction: 20 } });
+        // Slow settle
+        await next({ transform: 'rotate(-15deg)', config: { tension: 100, friction: 25 } });
+        await next({ transform: 'rotate(5deg)', config: { tension: 80, friction: 30 } });
+        // Rest position
+        await next({ transform: 'rotate(10deg)', config: { tension: 120, friction: 35 } });
+      } else {
+        await next({ transform: 'rotate(10deg)' });
       }
     },
-    config: { duration: 2000 }
+    config: { tension: 200, friction: 20 }
+  });
+
+  // Body wiggle animation
+  const bodySpring = useSpring({
+    from: { transform: 'rotate(-1deg)' },
+    to: async (next) => {
+      while (true) {
+        await next({ transform: 'rotate(1deg)' });
+        await next({ transform: 'rotate(-1deg)' });
+      }
+    },
+    config: { duration: 1500 }
+  });
+
+  // Tail wagging
+  const tailSpring = useSpring({
+    from: { transform: 'rotate(-30deg)' },
+    to: async (next) => {
+      while (true) {
+        await next({ transform: 'rotate(30deg)' });
+        await next({ transform: 'rotate(-30deg)' });
+      }
+    },
+    config: { duration: 400 }
   });
 
   // Position mascot on screen
@@ -49,8 +98,8 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       
       // Position in bottom right, but not too close to edges
       setPosition({
-        x: viewportWidth - 120,
-        y: viewportHeight - 150
+        x: viewportWidth - 140,
+        y: viewportHeight - 160
       });
     };
 
@@ -71,64 +120,183 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     if (isVisible) {
       setGreetingText(getGreeting(currentPage));
       setShowGreeting(true);
+      setIsWaving(true);
       
-      // Hide greeting after 4 seconds
+      // Stop waving after 2 seconds, hide greeting after 4 seconds
+      setTimeout(() => setIsWaving(false), 2000);
       const timer = setTimeout(() => setShowGreeting(false), 4000);
       return () => clearTimeout(timer);
     }
   }, [currentPage, isVisible]);
 
+  // Random eye expressions
+  useEffect(() => {
+    const expressions = ['happy', 'excited', 'cheerful', 'joyful', 'smiling'];
+    const interval = setInterval(() => {
+      setEyeExpression(expressions[Math.floor(Math.random() * expressions.length)]);
+    }, 4000); // Slightly longer for better effect
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Always show encouraging messages - cycle through the 5 messages randomly
+  useEffect(() => {
+    if (!isVisible) return;
+    
+    // Show first message immediately
+    const showRandomMessage = () => {
+      const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
+      console.log('🎯 Setting encouraging message:', randomMessage);
+      setEncouragingMessage(randomMessage);
+    };
+    
+    // Set initial message RIGHT NOW (no delay)
+    showRandomMessage();
+    
+    // Rotate through random messages every 8 seconds
+    const encouragingTimer = setInterval(showRandomMessage, 8000);
+    
+    return () => {
+      clearInterval(encouragingTimer);
+    };
+  }, [isVisible]);
+
+  // Removed duplicate encouraging message logic - handled above
+
   // Don't render if not visible
   if (!isVisible) return null;
 
+  // Debug log
+  console.log('🦊 Foxie render - encouragingMessage:', encouragingMessage);
+
+  const getEyeStyle = (expression: string, isLeftEye: boolean = true) => {
+    switch (expression) {
+      case 'excited':
+        return { width: '12px', height: '12px', transform: 'scaleY(1.1)' };
+      case 'cheerful':
+        return { width: '9px', height: '10px', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%' };
+      case 'joyful':
+        // Replace winking with joyful squinty eyes (both eyes)
+        return { width: '8px', height: '6px', borderRadius: '50% 50% 50% 50% / 70% 70% 30% 30%', transform: 'scaleY(0.8)' };
+      case 'smiling':
+        return { width: '9px', height: '9px', borderRadius: '50% 50% 50% 50% / 65% 65% 35% 35%' };
+      default: // happy
+        return { width: '10px', height: '10px' };
+    }
+  };
+
   return (
-    <div className="fixed z-50 pointer-events-none">
+    <div className="fixed z-50 pointer-events-auto">
       {/* Mascot Character */}
       <animated.div
         style={mascotSpring}
         className="relative"
       >
-        {/* Glow Effect */}
-        <animated.div
-          style={{
-            ...glowSpring,
-            background: 'radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, rgba(139, 92, 246, 0.2) 70%, transparent 100%)',
-            filter: 'blur(8px)',
-            width: '80px',
-            height: '80px',
-            transform: 'translate(-10px, -10px)'
-          }}
-          className="absolute inset-0 rounded-full"
-        />
-        
-        {/* Main Mascot Body */}
-        <div 
-          className="relative w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300"
-          style={{
-            background: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #8B5CF6 100%)',
-            boxShadow: '0 8px 32px rgba(251, 191, 36, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3)'
-          }}
+        {/* Foxie the Fox - Professional & Adorable */}
+        <animated.div 
+          style={bodySpring}
+          className="relative w-20 h-24 cursor-pointer group"
           onClick={() => {
             setShowGreeting(true);
+            setIsWaving(true);
+            setTimeout(() => setIsWaving(false), 2000);
             setTimeout(() => setShowGreeting(false), 3000);
           }}
         >
-          {/* Eyes */}
-          <div className="flex space-x-2 mb-1">
-            <div className="w-2 h-2 bg-gray-800 rounded-full animate-pulse"></div>
-            <div className="w-2 h-2 bg-gray-800 rounded-full animate-pulse"></div>
+          {/* Soft ambient glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-300/15 to-orange-400/15 rounded-full blur-lg"></div>
+          
+          {/* ACTUALLY CUTE Fox - Big head, big eyes, kawaii style! */}
+          <div className="relative w-20 h-20 group-hover:scale-105 transition-transform duration-300">
+            
+            {/* Fox Head - BIGGER and cuter proportions (anime style) */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gradient-to-br from-orange-200 via-orange-300 to-orange-400 rounded-full shadow-lg">
+              {/* Head highlight - more prominent */}
+              <div className="absolute top-3 left-4 w-4 h-3 bg-white/80 rounded-full blur-[1px]"></div>
+              
+              {/* Cute Fox Ears - Perfect proportions */}
+              <div className="absolute -top-3 left-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-orange-400 transform -rotate-12"></div>
+              <div className="absolute -top-3 right-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-orange-400 transform rotate-12"></div>
+              
+              {/* Ear insides - pink and adorable */}
+              <div className="absolute -top-2 left-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform -rotate-12"></div>
+              <div className="absolute -top-2 right-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform rotate-12"></div>
+              
+              {/* BIG ADORABLE EYES - Always sparkly and happy! */}
+              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                {/* Left Eye */}
+                <div 
+                  className="bg-gray-900 rounded-full relative shadow-lg transition-all duration-300"
+                  style={getEyeStyle(eyeExpression, true)}
+                >
+                  {/* Multiple highlights for sparkly eyes - always visible! */}
+                  <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>
+                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-80"></div>
+                  <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-white rounded-full opacity-60"></div>
+                </div>
+                {/* Right Eye */}
+                <div 
+                  className="bg-gray-900 rounded-full relative shadow-lg transition-all duration-300"
+                  style={getEyeStyle(eyeExpression, false)}
+                >
+                  {/* Multiple highlights for sparkly eyes */}
+                  <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>
+                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-80"></div>
+                  <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-white rounded-full opacity-60"></div>
+                </div>
+              </div>
+              
+              {/* Cute little snout */}
+              <div className="absolute top-9 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-gradient-to-b from-orange-100 to-orange-200 rounded-full shadow-sm"></div>
+              
+              {/* Perfect little nose */}
+              <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-gray-800 rounded-full"></div>
+              
+              {/* BIG OBVIOUS HAPPY SMILE - Actually visible! */}
+              <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-8 h-4">
+                {/* Simple curved smile that's ALWAYS visible */}
+                <div className="absolute left-1 top-1 w-6 h-3 border-b-3 border-gray-800 rounded-full"></div>
+                {/* Make it even more obvious with a bigger curve */}
+                <div className="absolute left-0.5 top-0.5 w-7 h-4 border-b-2 border-gray-700 rounded-full opacity-60"></div>
+              </div>
+              
+              {/* Little tongue sticking out - always visible and cute */}
+              <div className="absolute top-12.5 left-1/2 transform -translate-x-1/2 w-2 h-1.5 bg-pink-400 rounded-full"></div>
+              
+              {/* PROMINENT cheek blush - kawaii style */}
+              <div className="absolute top-7 left-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
+              <div className="absolute top-7 right-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
+              
+              {/* White chest marking */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-5 h-4 bg-white/95 rounded-full"></div>
+            </div>
+            
+            {/* Fox Body - Much lower positioned so you can see the mouth! */}
+            <div className="absolute top-14 left-1/2 transform -translate-x-1/2 w-12 h-9 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full shadow-md">
+              <div className="absolute top-1.5 left-2 w-2 h-2 bg-white/60 rounded-full blur-[0.5px]"></div>
+            </div>
+            
+            {/* Fluffy tail - bigger and fluffier */}
+            <animated.div 
+              style={tailSpring}
+              className="absolute -right-2 top-7 w-4 h-7 bg-gradient-to-b from-orange-300 to-orange-500 rounded-full origin-bottom shadow-md"
+            >
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-3 bg-white/95 rounded-full"></div>
+              <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white/50 rounded-full blur-[0.5px]"></div>
+            </animated.div>
+            
+            {/* Waving paw - properly shaped and positioned for lower body */}
+            <animated.div 
+              style={waveSpring}
+              className="absolute -left-1 top-16 w-2.5 h-4 bg-orange-200 rounded-full origin-bottom shadow-md border border-orange-300"
+            ></animated.div>
+            
+            {/* Other paws - positioned for much lower body */}
+            <div className="absolute left-2 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            <div className="absolute right-2 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            <div className="absolute right-4 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
           </div>
-          
-          {/* Smile */}
-          <div 
-            className="absolute bottom-3 w-6 h-3 border-b-2 border-gray-800 rounded-full"
-            style={{ borderBottomColor: '#1F2937' }}
-          />
-          
-          {/* Sparkles around mascot */}
-          <div className="absolute -top-2 -right-2 text-yellow-300 text-xs animate-ping">✨</div>
-          <div className="absolute -bottom-1 -left-2 text-purple-300 text-xs animate-ping" style={{ animationDelay: '1s' }}>⭐</div>
-        </div>
+        </animated.div>
       </animated.div>
 
       {/* Speech Bubble */}
@@ -138,12 +306,12 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="absolute -top-20 -left-40 max-w-xs"
+            className="absolute -top-24 -left-48 max-w-xs"
           >
             <div 
-              className="bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-gray-200 relative"
+              className="bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-orange-300 relative"
               style={{
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(251, 191, 36, 0.1) 100%)'
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 140, 0, 0.1) 100%)'
               }}
             >
               <p className="text-sm text-gray-800 font-medium leading-relaxed">
@@ -152,7 +320,41 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               
               {/* Speech bubble tail */}
               <div 
-                className="absolute -bottom-2 left-8 w-4 h-4 bg-white/95 transform rotate-45 border-r border-b border-gray-200"
+                className="absolute -bottom-2 left-10 w-4 h-4 bg-white/95 transform rotate-45 border-r border-b border-orange-300"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Duolingo-style Encouraging Text Box - Separate from speech bubble */}
+      {/* 🚨 FORCING TEXT BOX TO SHOW FOR DEBUG */}
+      <AnimatePresence>
+        {true && (
+          <motion.div
+            initial={{ opacity: 1, scale: 1, x: 0 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.9, x: 100 }}
+            className="fixed top-10 left-10 max-w-xs z-[9999] bg-red-500 border-4 border-red-800"
+          >
+            <div 
+              className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
+              style={{
+                background: 'linear-gradient(135deg, rgba(254, 240, 138, 0.95) 0%, rgba(251, 191, 36, 0.2) 100%)'
+              }}
+            >
+              {/* Sparkle icon */}
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-white text-xs">✨</span>
+              </div>
+              
+              <p className="text-sm text-gray-800 font-semibold leading-relaxed pr-4">
+                🚨 FORCED DEBUG TEXT BOX - IF YOU SEE THIS, POSITIONING IS WORKING!
+              </p>
+              
+              {/* Encouraging box tail */}
+              <div 
+                className="absolute -bottom-2 right-8 w-4 h-4 bg-yellow-200 transform rotate-45 border-r-2 border-b-2 border-yellow-300"
               />
             </div>
           </motion.div>

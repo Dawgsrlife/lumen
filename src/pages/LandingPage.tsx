@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -8,7 +7,7 @@ gsap.registerPlugin(ScrollTrigger);
 import { useAuth } from '@clerk/clerk-react';
 import { Navigate } from 'react-router-dom';
 
-import { LumenIntro, AnimatedBackground, LumenMascot } from '../components/ui';
+import { LumenIntro, AnimatedBackground, LumenMascot, LumenIcon } from '../components/ui';
 
 const LandingPage: React.FC = () => {
   const { isSignedIn, isLoaded } = useAuth();
@@ -19,12 +18,12 @@ const LandingPage: React.FC = () => {
   const iconRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-  const backgroundRef = useRef<HTMLDivElement>(null);
 
   const startLandingAnimations = () => {
     // GSAP animations for hero text to make it pop sharply
     const ctx = gsap.context(() => {
-      // Set initial states
+      // Set initial states for content and main container
+      gsap.set("#main-content", { opacity: 0 });
       gsap.set(".hero-line", { 
         y: 100, 
         opacity: 0, 
@@ -53,6 +52,13 @@ const LandingPage: React.FC = () => {
       // Create timeline for dramatic entrance
       const tl = gsap.timeline();
 
+      // First, fade in the main content container
+      tl.to("#main-content", {
+        opacity: 1,
+        duration: 0.1,
+        ease: "none"
+      });
+
       // Hero headline container animation
       tl.to(".hero-line", {
         y: 0,
@@ -74,13 +80,7 @@ const LandingPage: React.FC = () => {
         ease: "back.out(2.5)",
         stagger: 0.08,
       }, "-=1")
-      // Text glow effect
-      .to(".hero-line", {
-        textShadow: "0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(139, 92, 246, 0.4)",
-        duration: 0.8,
-        ease: "power2.inOut",
-        stagger: 0.1,
-      }, "-=0.8")
+
       // Subtitle with elastic bounce
       .to(".hero-subtext", {
         y: 0,
@@ -108,36 +108,26 @@ const LandingPage: React.FC = () => {
         repeat: -1,
         yoyo: true
       }, "-=1")
-      // Add dramatic text reveal effect with color shift
-      .to(".hero-line", {
-        backgroundImage: "linear-gradient(90deg, #FBBF24 0%, #8B5CF6 50%, #FBBF24 100%)",
-        backgroundSize: "200% 100%",
-        backgroundPosition: "100% 0",
-        backgroundClip: "text",
-        WebkitBackgroundClip: "text",
-        color: "transparent",
-        duration: 1.5,
-        ease: "power2.inOut",
-        stagger: 0.2
-      }, "-=1.5")
-      // Animate the gradient
-      .to(".hero-line", {
-        backgroundPosition: "0% 0",
-        duration: 2,
-        ease: "power2.inOut",
-        stagger: 0.1,
-        repeat: -1,
-        yoyo: true
-      }, "-=0.5");
+      // Keep text clean and readable - no gradient effects
 
-      // Logo/brand animation with dramatic scale
+      // Logo/brand animation - clean and professional
       gsap.from(".logo", {
         opacity: 0,
-        scale: 0.5,
-        rotation: -180,
-        duration: 1.5,
-        ease: "back.out(1.7)",
-        delay: 0.1,
+        y: -20,
+        scale: 0.95,
+        duration: 0.8,
+        ease: "power2.out",
+        delay: 0.2,
+      });
+
+      // Nav links animation - same style as logo with slight stagger
+      gsap.from(".nav-link", {
+        opacity: 0,
+        y: -20,
+        duration: 0.6,
+        ease: "power2.out",
+        delay: 0.3,
+        stagger: 0.1, // Each link animates 0.1s after the previous
       });
 
       // Floating particles animation - smooth, minimalist movement
@@ -198,14 +188,13 @@ const LandingPage: React.FC = () => {
       });
     });
 
-    // Background fade
-    if (backgroundRef.current) {
-      gsap.to(backgroundRef.current, {
-        opacity: 1,
-        duration: 1.2,
-        ease: "power2.out"
-      });
-    }
+    // Background elements fade in
+    gsap.to(".animated-bg-element", {
+      opacity: 0.1,
+      duration: 1.2,
+      ease: "power2.out",
+      delay: 0.5
+    });
 
     return () => ctx.revert();
   };
@@ -215,18 +204,25 @@ const LandingPage: React.FC = () => {
 
     console.log('🚀 Landing page loaded, starting intro sequence');
     
-    // Show intro for 2.2 seconds, then go directly to content
+    // Show intro for 3.5 seconds, then start fade-out
     const introTimeout = setTimeout(() => {
-      console.log('✨ Intro complete, showing content');
+      console.log('✨ Starting intro fade-out');
       setShowIntro(false);
-      setShowContent(true);
       
-      // Start landing animations shortly after content appears
+      // Wait for intro to completely fade out (1.2s) before showing content
       setTimeout(() => {
-        console.log('🎨 Starting landing animations');
-        startLandingAnimations();
-      }, 300);
-    }, 2200);
+        console.log('✨ Intro fully faded, showing content');
+        setShowContent(true);
+        
+        // Start landing animations shortly after content appears
+        setTimeout(() => {
+          console.log('🎨 Starting landing animations');
+          const cleanup = startLandingAnimations();
+          // Store cleanup function for later use if needed
+          return cleanup;
+        }, 300);
+      }, 1200); // Wait for LumenIntro exit animation to complete
+    }, 3500);
 
     return () => clearTimeout(introTimeout);
   }, [isLoaded]);
@@ -253,8 +249,8 @@ const LandingPage: React.FC = () => {
       {/* Lumen Brand Intro */}
       <LumenIntro show={showIntro} />
       
-      {/* Cute Mascot */}
-      <LumenMascot currentPage="/" />
+      {/* Cute Mascot - only show after intro */}
+      {showContent && <LumenMascot currentPage="/" />}
       
       {/* Landing Page Content - show directly after intro */}
       {showContent && (
@@ -270,26 +266,21 @@ const LandingPage: React.FC = () => {
           </div>
           
           {/* Minimalist Layout - Inspired by modern design */}
-          <div className="relative z-50 min-h-screen">
+          <div className="relative z-50 min-h-screen opacity-0" id="main-content">
             {/* Readable Header Navigation */}
-            <motion.nav 
-              className="flex justify-between items-center p-8 max-w-7xl mx-auto"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
-                <div className="w-8 h-8 rounded bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)]"></div>
+            <nav className="flex justify-between items-center p-8 max-w-7xl mx-auto">
+              <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer logo">
+                <LumenIcon size="sm" />
                 <span className="text-xl font-bold text-gray-900">Lumen</span>
               </a>
               
               <div className="hidden md:flex space-x-8">
-                <a href="/" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
-                <a href="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
-                <a href="/features" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">FEATURES</a>
-                <a href="/contact" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">CONTACT</a>
+                <a href="/" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
+                <a href="/about" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
+                <a href="/features" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">FEATURES</a>
+                <a href="/contact" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">CONTACT</a>
               </div>
-            </motion.nav>
+            </nav>
 
             {/* Clean Grid Layout - Left Content, Right Visual */}
             <div className="grid lg:grid-cols-2 gap-20 items-center max-w-7xl mx-auto px-8 py-24 lg:py-32">
@@ -326,35 +317,144 @@ const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 
-                {/* CTA Button - Dramatic animations */}
+                {/* CTA Button - INSANE ATTENTION-GRABBING MASTERPIECE */}
                 <div ref={buttonRef}>
                   <button
-                    onClick={() => window.location.href = '/sign-in'}
-                    className="hero-button px-8 py-4 rounded-xl font-semibold text-white shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
+                    onClick={(e) => {
+                      // INSANE click animation
+                      const target = e.target as HTMLElement;
+                      gsap.to(target, {
+                        scale: 0.95,
+                        duration: 0.1,
+                        ease: "power2.out",
+                        onComplete: () => {
+                          gsap.to(target, {
+                            scale: 1.1,
+                            duration: 0.3,
+                            ease: "back.out(2.5)",
+                            onComplete: () => {
+                              gsap.to(target, {
+                                scale: 1,
+                                duration: 0.2,
+                                ease: "power2.out",
+                                onComplete: () => {
+                                  // Explosive burst effect before navigation
+                                  gsap.set(target, {
+                                    boxShadow: "0 0 100px rgba(245, 158, 11, 1), 0 0 200px rgba(124, 58, 237, 0.8)"
+                                  });
+                                  setTimeout(() => window.location.href = '/sign-in', 200);
+                                }
+                              });
+                            }
+                          });
+                        }
+                      });
+                    }}
+                    className="hero-button relative overflow-hidden px-10 py-5 rounded-2xl font-bold text-white text-lg tracking-wide transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl hover:shadow-3xl group cursor-pointer"
                     style={{
-                      background: 'linear-gradient(135deg, var(--lumen-primary) 0%, var(--lumen-secondary) 100%)',
-                      boxShadow: '0 8px 32px rgba(251, 191, 36, 0.25), 0 4px 16px rgba(139, 92, 246, 0.15)'
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 25%, #dc2626 50%, #7c3aed 75%, #3b82f6 100%)',
+                      backgroundSize: '300% 300%',
+                      animation: 'gradientShift 3s ease infinite',
+                      boxShadow: '0 10px 30px rgba(245, 158, 11, 0.4), 0 0 40px rgba(124, 58, 237, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                     }}
                     onMouseEnter={(e) => {
-                      gsap.to(e.target, { scale: 1.05, duration: 0.3, ease: "back.out(1.7)" });
+                      const target = e.target as HTMLElement;
+                      gsap.to(target, {
+                        scale: 1.08,
+                        rotateZ: 1,
+                        duration: 0.3,
+                        ease: "back.out(1.7)"
+                      });
+                      const glowElement = target.querySelector('.button-glow') as HTMLElement;
+                      if (glowElement) {
+                        gsap.to(glowElement, {
+                          opacity: 1,
+                          scale: 1.2,
+                          duration: 0.3
+                        });
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      gsap.to(e.target, { scale: 1, duration: 0.3, ease: "back.out(1.7)" });
+                      const target = e.target as HTMLElement;
+                      gsap.to(target, {
+                        scale: 1,
+                        rotateZ: 0,
+                        duration: 0.3,
+                        ease: "power2.out"
+                      });
+                      const glowElement = target.querySelector('.button-glow') as HTMLElement;
+                      if (glowElement) {
+                        gsap.to(glowElement, {
+                          opacity: 0.6,
+                          scale: 1,
+                          duration: 0.3
+                        });
+                      }
                     }}
                   >
-                    Begin Your Journey
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
+                    {/* Animated background glow */}
+                    <div 
+                      className="button-glow absolute inset-0 rounded-2xl opacity-60"
+                      style={{
+                        background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #ec4899, #8b5cf6, #06b6d4)',
+                        backgroundSize: '400% 400%',
+                        animation: 'gradientRotate 2s linear infinite',
+                        filter: 'blur(8px)',
+                        zIndex: -1
+                      }}
+                    ></div>
+                    
+                    {/* Shimmer effect */}
+                    <div 
+                      className="absolute inset-0 rounded-2xl"
+                      style={{
+                        background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%)',
+                        backgroundSize: '200% 200%',
+                        animation: 'shimmer 2s ease-in-out infinite'
+                      }}
+                    ></div>
+                    
+                    {/* Floating particles inside button */}
+                    <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                      <div 
+                        className="absolute w-2 h-2 bg-white/60 rounded-full"
+                        style={{
+                          top: '20%',
+                          left: '15%',
+                          animation: 'float 3s ease-in-out infinite'
+                        }}
+                      ></div>
+                      <div 
+                        className="absolute w-1.5 h-1.5 bg-yellow-200/70 rounded-full"
+                        style={{
+                          top: '60%',
+                          right: '20%',
+                          animation: 'float 4s ease-in-out infinite reverse'
+                        }}
+                      ></div>
+                      <div 
+                        className="absolute w-1 h-1 bg-purple-200/80 rounded-full"
+                        style={{
+                          bottom: '25%',
+                          left: '70%',
+                          animation: 'float 3.5s ease-in-out infinite 1s'
+                        }}
+                      ></div>
+                    </div>
+                    
+                    {/* Button text with sparkle */}
+                    <span className="relative z-10 flex items-center justify-center space-x-2">
+                      <span>Begin Your Journey</span>
+                      <span>❤️‍🔥</span>
+                    </span>
                   </button>
                 </div>
               </div>
 
               {/* Right Visual - Minimal Floating Elements */}
-              <motion.div 
+              <div 
                 ref={iconRef}
                 className="relative flex items-center justify-center lg:justify-end"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1.2, delay: 0.6 }}
               >
                 {/* Clean visual space with floating particles */}
                 <div className="relative w-80 h-80 flex items-center justify-center">
@@ -378,7 +478,7 @@ const LandingPage: React.FC = () => {
                     boxShadow: '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(139, 92, 246, 0.4)'
                   }}
                 ></div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </>

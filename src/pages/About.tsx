@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AnimatedBackground, LumenMascot } from '../components/ui';
+import { AnimatedBackground, LumenMascot, LumenIcon } from '../components/ui';
 
 const About: React.FC = () => {
   return (
@@ -8,54 +8,100 @@ const About: React.FC = () => {
       {/* Animated background */}
       <AnimatedBackground />
       
+      {/* Additional floating background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-24 left-24 w-36 h-36 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+        <div className="absolute bottom-28 right-20 w-28 h-28 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+        <div className="absolute top-1/2 right-1/4 w-20 h-20 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+        <div className="absolute top-1/3 left-1/3 w-24 h-24 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
+      </div>
+      
       {/* Cute Mascot */}
       <LumenMascot currentPage="/about" />
 
       {/* Header */}
       <nav className="relative z-10 flex justify-between items-center p-8 w-full">
-        <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)]"></div>
+        <motion.a 
+          href="/" 
+          className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer"
+          initial={{ opacity: 0, y: -20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+        >
+          <LumenIcon size="sm" />
           <span className="text-xl font-bold text-gray-900">Lumen</span>
-        </a>
+        </motion.a>
         
         <div className="hidden md:flex space-x-8">
-          <a href="/" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">HOME</a>
-          <a href="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
-          <a href="/features" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">FEATURES</a>
-          <a href="/contact" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">CONTACT</a>
+          <motion.a 
+            href="/" 
+            className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+          >
+            HOME
+          </motion.a>
+          <motion.a 
+            href="/about" 
+            className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+          >
+            ABOUT
+          </motion.a>
+          <motion.a 
+            href="/features" 
+            className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.5 }}
+          >
+            FEATURES
+          </motion.a>
+          <motion.a 
+            href="/contact" 
+            className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
+          >
+            CONTACT
+          </motion.a>
         </div>
       </nav>
 
       {/* Full Width Content - Properly Centered */}
-      <div className="relative z-10 w-full px-8 py-24 lg:py-32">
+      <div className="relative z-10 w-full px-6 sm:px-10 py-24 sm:py-32 lg:py-40">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-24 max-w-none force-center-text"
+          className="text-center space-y-12 max-w-5xl mx-auto px-4"
         >
-          <div className="space-y-20">
+          <div className="space-y-16">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               About Lumen
             </h1>
-            
+            <div className="mb-8"></div>
             {/* Emotionally Resonant Description */}
-            <div className="space-y-8 max-w-4xl mx-auto">
-            <p className="text-xl text-gray-600 leading-relaxed">
-              We know what it feels like when the world seems too heavy, when your thoughts spiral, or when you just need someone to understand. Lumen is here for those moments when no one else is.
-            </p>
-            
-            <p className="text-lg text-gray-600 leading-relaxed">
-              You deserve a space where your feelings matter, where you're not judged, and where healing happens at your own pace. Lumen creates that space for you. Every word you share, every emotion you express is met with genuine understanding and gentle guidance tailored just for what you're experiencing right now.
-            </p>
-            
-            <p className="text-lg text-gray-600 leading-relaxed">
-              When you're feeling overwhelmed, our calming games help you breathe again. When sadness feels endless, gentle activities bring color back to your world. When anxiety takes over, soothing exercises guide you back to peace. You're never alone in this journey.
-            </p>
-            
-            <p className="text-lg text-gray-600 leading-relaxed">
-              Your progress isn't measured by perfection, but by small, meaningful steps forward. Every login, every moment you choose to care for yourself, every game you play is a victory worth celebrating. Lumen sees your strength, even when you don't.
-            </p>
+            <div className="space-y-8 max-w-3xl mx-auto px-4 sm:px-6">
+              <p className="text-xl text-gray-700 leading-relaxed font-medium">
+                We know what it feels like when the world seems too heavy, when your thoughts spiral, or when you just need someone to understand. Lumen is here for those moments when no one else is.
+              </p>
+              <div className="mb-4"></div>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                You deserve a space where your feelings matter, where you're not judged, and where healing happens at your own pace. Lumen creates that space for you. Every word you share, every emotion you express is met with genuine understanding and gentle guidance tailored just for what you're experiencing right now.
+              </p>
+              <div className="mb-2"></div>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                When you're feeling overwhelmed, our calming games help you breathe again. When sadness feels endless, gentle activities bring color back to your world. When anxiety takes over, soothing exercises guide you back to peace. You're never alone in this journey.
+              </p>
+              
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Your progress isn't measured by perfection, but by small, meaningful steps forward. Every login, every moment you choose to care for yourself, every game you play is a victory worth celebrating. Lumen sees your strength, even when you don't.
+              </p>
             </div>
           </div>
           
@@ -67,15 +113,18 @@ const About: React.FC = () => {
           >
             <motion.a
               href="/features"
-              className="inline-block px-8 py-4 rounded-xl font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300"
+              className="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-all duration-200 shadow-sm"
               whileHover={{ 
-                scale: 1.02,
-                backgroundColor: '#f3f4f6'
+                scale: 1.01,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
               }}
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
             >
               Explore Features
+              <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </motion.a>
           </motion.div>
         </motion.div>
