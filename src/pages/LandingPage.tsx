@@ -444,9 +444,8 @@ const LandingPage: React.FC = () => {
                     
                     {/* Button text with sparkle */}
                     <span className="relative z-10 flex items-center justify-center space-x-2">
-                      <span>✨</span>
                       <span>Begin Your Journey</span>
-                      <span>🚀</span>
+                      <span>❤️‍🔥</span>
                     </span>
                   </button>
                 </div>
