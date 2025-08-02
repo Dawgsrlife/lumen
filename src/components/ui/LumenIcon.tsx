@@ -21,45 +21,27 @@ const LumenIcon: React.FC<LumenIconProps> = ({
 
   const IconContent = () => (
     <div className={`relative ${sizeClasses[size]} ${className}`}>
-      {/* Outer glow ring */}
-      <div className="absolute inset-0 bg-gradient-to-r from-lumen-primary/20 to-lumen-secondary/20 rounded-full blur-sm"></div>
+      {/* Outer glow */}
+      <div className="absolute inset-0 rounded-full blur-md opacity-30"
+           style={{
+             background: 'radial-gradient(circle, rgba(251, 191, 36, 0.6) 0%, rgba(139, 92, 246, 0.4) 70%, transparent 100%)'
+           }} />
       
-      {/* Main icon container */}
-      <div className="relative w-full h-full bg-gradient-to-br from-white to-gray-50 rounded-full shadow-lg border border-gray-100 flex items-center justify-center">
-        {/* Inner light rays */}
-        <div className="absolute inset-2 bg-gradient-to-br from-lumen-primary/10 via-transparent to-lumen-secondary/10 rounded-full"></div>
+      {/* Main circular orb */}
+      <div 
+        className="relative w-full h-full rounded-full shadow-lg"
+        style={{
+          background: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #8B5CF6 100%)'
+        }}
+      >
+        {/* Inner highlight */}
+        <div className="absolute top-1 left-1 w-2 h-2 bg-white rounded-full opacity-60 blur-[1px]" />
         
-        {/* Central light source */}
-        <div className="relative z-10">
-          {/* Light bulb base */}
-          <div className="w-3/5 h-3/5 bg-gradient-to-br from-lumen-primary to-lumen-secondary rounded-full relative">
-            {/* Light bulb glow */}
-            <div className="absolute inset-1 bg-white/80 rounded-full"></div>
-            
-            {/* Light rays emanating */}
-            <div className="absolute -inset-2">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-1 h-4 bg-gradient-to-t from-lumen-primary/60 to-transparent"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    transform: `translate(-50%, -50%) rotate(${i * 45}deg) translateY(-8px)`,
-                  }}
-                />
-              ))}
-            </div>
-            
-            {/* Filament */}
-            <div className="absolute inset-2 flex items-center justify-center">
-              <div className="w-1 h-2 bg-gray-600 rounded-full"></div>
-            </div>
-          </div>
-          
-          {/* Base stand */}
-          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-1 bg-gray-400 rounded-full"></div>
-        </div>
+        {/* Subtle inner glow */}
+        <div className="absolute inset-1 rounded-full opacity-20"
+             style={{
+               background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, transparent 50%)'
+             }} />
       </div>
     </div>
   );

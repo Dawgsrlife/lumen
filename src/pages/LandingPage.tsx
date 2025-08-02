@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 import { useAuth } from '@clerk/clerk-react';
 import { Navigate } from 'react-router-dom';
 
-import { LumenIntro, AnimatedBackground, LumenMascot } from '../components/ui';
+import { LumenIntro, AnimatedBackground, LumenMascot, LumenIcon } from '../components/ui';
 
 const LandingPage: React.FC = () => {
   const { isSignedIn, isLoaded } = useAuth();
@@ -273,7 +273,7 @@ const LandingPage: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
-                <div className="w-8 h-8 rounded bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)]"></div>
+                <LumenIcon size="sm" />
                 <span className="text-xl font-bold text-gray-900">Lumen</span>
               </a>
               

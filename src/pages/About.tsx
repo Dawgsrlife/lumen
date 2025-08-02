@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AnimatedBackground, LumenMascot } from '../components/ui';
+import { AnimatedBackground, LumenMascot, LumenIcon } from '../components/ui';
 
 const About: React.FC = () => {
   return (
@@ -14,7 +14,7 @@ const About: React.FC = () => {
       {/* Header */}
       <nav className="relative z-10 flex justify-between items-center p-8 w-full">
         <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)]"></div>
+          <LumenIcon size="sm" />
           <span className="text-xl font-bold text-gray-900">Lumen</span>
         </a>
         
@@ -27,28 +27,28 @@ const About: React.FC = () => {
       </nav>
 
       {/* Full Width Content - Properly Centered */}
-      <div className="relative z-10 w-full px-8 py-32 lg:py-40">
+      <div className="relative z-10 w-full px-6 sm:px-10 py-24 sm:py-32 lg:py-40">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-32 max-w-none force-center-text"
+          className="text-center space-y-12 max-w-5xl mx-auto px-4"
         >
-          <div className="space-y-24">
+          <div className="space-y-16">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               About Lumen
             </h1>
-            
+            <div className="mb-8"></div>
             {/* Emotionally Resonant Description */}
-            <div className="space-y-12 max-w-4xl mx-auto">
+            <div className="space-y-8 max-w-3xl mx-auto px-4 sm:px-6">
               <p className="text-xl text-gray-700 leading-relaxed font-medium">
                 We know what it feels like when the world seems too heavy, when your thoughts spiral, or when you just need someone to understand. Lumen is here for those moments when no one else is.
               </p>
-              
+              <div className="mb-4"></div>
               <p className="text-lg text-gray-600 leading-relaxed">
                 You deserve a space where your feelings matter, where you're not judged, and where healing happens at your own pace. Lumen creates that space for you. Every word you share, every emotion you express is met with genuine understanding and gentle guidance tailored just for what you're experiencing right now.
               </p>
-              
+              <div className="mb-2"></div>
               <p className="text-lg text-gray-600 leading-relaxed">
                 When you're feeling overwhelmed, our calming games help you breathe again. When sadness feels endless, gentle activities bring color back to your world. When anxiety takes over, soothing exercises guide you back to peace. You're never alone in this journey.
               </p>
