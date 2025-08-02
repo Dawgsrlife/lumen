@@ -7,10 +7,12 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Header, Footer } from './components/layout';
 import { ErrorBoundary, LoadingSpinner } from './components/ui';
 import { databaseService } from './services/database';
+import RootRedirect from './components/auth/RootRedirect';
 import './App.css';
 
 // Lazy load pages for better performance
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const WelcomePage = lazy(() => import('./pages/WelcomePage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
@@ -38,12 +40,23 @@ function App() {
               <main className="flex-1">
                 <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
                   <Routes>
+                    {/* Root redirect based on auth status */}
+                    <Route path="/" element={<RootRedirect />} />
+                    
                     {/* Public Routes */}
-                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/landing" element={<LandingPage />} />
                     <Route path="/sign-in" element={<SignIn />} />
                     <Route path="/sign-up" element={<SignUp />} />
                     
                     {/* Protected Routes */}
+                    <Route 
+                      path="/welcome" 
+                      element={
+                        <ProtectedRoute>
+                          <WelcomePage />
+                        </ProtectedRoute>
+                      } 
+                    />
                     <Route 
                       path="/onboarding" 
                       element={

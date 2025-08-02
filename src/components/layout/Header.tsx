@@ -10,10 +10,11 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
-  const isLandingPage = location.pathname === '/';
+  const isLandingPage = location.pathname === '/landing';
+  const isWelcomePage = location.pathname === '/welcome';
 
-  // Don't show header on landing page for minimal design
-  if (isLandingPage) {
+  // Don't show header on landing or welcome pages for minimal design
+  if (isLandingPage || isWelcomePage) {
     return null;
   }
 
