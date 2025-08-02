@@ -160,13 +160,13 @@ const LandingPage: React.FC = () => {
       {showContent && (
         <>
           {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--lumen-gradient-start)]/5 via-white/80 to-[var(--lumen-gradient-end)]/5 z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--lumen-gradient-start)]/3 via-white/40 to-[var(--lumen-gradient-end)]/3 z-5"></div>
           
           {/* Animated background elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="animated-bg-element absolute top-20 left-20 w-32 h-32 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
-            <div className="animated-bg-element absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
-            <div className="animated-bg-element absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
+            <div className="animated-bg-element absolute top-20 left-20 w-32 h-32 rounded-full opacity-10" style={{ background: 'var(--lumen-primary)', filter: 'blur(2px)' }}></div>
+            <div className="animated-bg-element absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-10" style={{ background: 'var(--lumen-secondary)', filter: 'blur(2px)' }}></div>
+            <div className="animated-bg-element absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-10" style={{ background: 'var(--lumen-primary)', filter: 'blur(1px)' }}></div>
           </div>
           
           {/* Minimalist Layout - Inspired by modern design */}
@@ -256,12 +256,12 @@ const LandingPage: React.FC = () => {
                 {/* Clean visual space with floating particles */}
                 <div className="relative w-80 h-80 flex items-center justify-center">
                   {/* Floating particles using GSAP */}
-                  <div className="floating-particle absolute top-16 right-20 w-4 h-4 rounded-full opacity-60" 
-                       style={{ background: 'var(--lumen-primary)' }}></div>
-                  <div className="floating-particle absolute bottom-20 left-16 w-3 h-3 rounded-full opacity-40" 
-                       style={{ background: 'var(--lumen-secondary)' }}></div>
-                  <div className="floating-particle absolute top-32 left-20 w-2 h-2 rounded-full opacity-50" 
-                       style={{ background: 'var(--lumen-primary)' }}></div>
+                  <div className="floating-particle absolute top-16 right-20 w-6 h-6 rounded-full opacity-80" 
+                       style={{ background: 'var(--lumen-primary)', boxShadow: '0 0 20px rgba(251, 191, 36, 0.4)' }}></div>
+                  <div className="floating-particle absolute bottom-20 left-16 w-5 h-5 rounded-full opacity-70" 
+                       style={{ background: 'var(--lumen-secondary)', boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)' }}></div>
+                  <div className="floating-particle absolute top-32 left-20 w-4 h-4 rounded-full opacity-75" 
+                       style={{ background: 'var(--lumen-primary)', boxShadow: '0 0 10px rgba(251, 191, 36, 0.3)' }}></div>
                   
                   {/* Central focus element */}
                   <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[var(--lumen-primary)]/20 to-[var(--lumen-secondary)]/20 backdrop-blur-sm border border-white/30"></div>
@@ -269,10 +269,10 @@ const LandingPage: React.FC = () => {
                 
                 {/* Flying element that crosses screen */}
                 <div 
-                  className="flying-element fixed top-1/3 -left-20 w-6 h-6 rounded-full opacity-20 pointer-events-none"
+                  className="flying-element fixed top-1/3 -left-20 w-8 h-8 rounded-full opacity-60 pointer-events-none"
                   style={{ 
                     background: 'linear-gradient(45deg, var(--lumen-primary), var(--lumen-secondary))',
-                    boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)'
+                    boxShadow: '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(139, 92, 246, 0.4)'
                   }}
                 ></div>
               </motion.div>

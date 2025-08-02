@@ -60,7 +60,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
   return (
     <canvas
       ref={canvasRef}
-      className={`fixed inset-0 w-full h-full pointer-events-none z-0 ${className}`}
+      className={`fixed inset-0 w-full h-full pointer-events-none z-1 ${className}`}
       style={{
         background: 'transparent',
       }}
