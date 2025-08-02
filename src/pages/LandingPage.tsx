@@ -317,13 +317,137 @@ const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 
-                {/* CTA Button - Dramatic animations */}
+                {/* CTA Button - INSANE ATTENTION-GRABBING MASTERPIECE */}
                 <div ref={buttonRef}>
                   <button
-                    onClick={() => window.location.href = '/sign-in'}
-                    className="hero-button px-8 py-4 rounded-lg font-medium text-gray-900 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors duration-200 shadow-sm"
+                    onClick={(e) => {
+                      // INSANE click animation
+                      const target = e.target as HTMLElement;
+                      gsap.to(target, {
+                        scale: 0.95,
+                        duration: 0.1,
+                        ease: "power2.out",
+                        onComplete: () => {
+                          gsap.to(target, {
+                            scale: 1.1,
+                            duration: 0.3,
+                            ease: "back.out(2.5)",
+                            onComplete: () => {
+                              gsap.to(target, {
+                                scale: 1,
+                                duration: 0.2,
+                                ease: "power2.out",
+                                onComplete: () => {
+                                  // Explosive burst effect before navigation
+                                  gsap.set(target, {
+                                    boxShadow: "0 0 100px rgba(245, 158, 11, 1), 0 0 200px rgba(124, 58, 237, 0.8)"
+                                  });
+                                  setTimeout(() => window.location.href = '/sign-in', 200);
+                                }
+                              });
+                            }
+                          });
+                        }
+                      });
+                    }}
+                    className="hero-button relative overflow-hidden px-10 py-5 rounded-2xl font-bold text-white text-lg tracking-wide transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl hover:shadow-3xl group cursor-pointer"
+                    style={{
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 25%, #dc2626 50%, #7c3aed 75%, #3b82f6 100%)',
+                      backgroundSize: '300% 300%',
+                      animation: 'gradientShift 3s ease infinite',
+                      boxShadow: '0 10px 30px rgba(245, 158, 11, 0.4), 0 0 40px rgba(124, 58, 237, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                      const target = e.target as HTMLElement;
+                      gsap.to(target, {
+                        scale: 1.08,
+                        rotateZ: 1,
+                        duration: 0.3,
+                        ease: "back.out(1.7)"
+                      });
+                      const glowElement = target.querySelector('.button-glow') as HTMLElement;
+                      if (glowElement) {
+                        gsap.to(glowElement, {
+                          opacity: 1,
+                          scale: 1.2,
+                          duration: 0.3
+                        });
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const target = e.target as HTMLElement;
+                      gsap.to(target, {
+                        scale: 1,
+                        rotateZ: 0,
+                        duration: 0.3,
+                        ease: "power2.out"
+                      });
+                      const glowElement = target.querySelector('.button-glow') as HTMLElement;
+                      if (glowElement) {
+                        gsap.to(glowElement, {
+                          opacity: 0.6,
+                          scale: 1,
+                          duration: 0.3
+                        });
+                      }
+                    }}
                   >
-                    Begin Your Journey
+                    {/* Animated background glow */}
+                    <div 
+                      className="button-glow absolute inset-0 rounded-2xl opacity-60"
+                      style={{
+                        background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #ec4899, #8b5cf6, #06b6d4)',
+                        backgroundSize: '400% 400%',
+                        animation: 'gradientRotate 2s linear infinite',
+                        filter: 'blur(8px)',
+                        zIndex: -1
+                      }}
+                    ></div>
+                    
+                    {/* Shimmer effect */}
+                    <div 
+                      className="absolute inset-0 rounded-2xl"
+                      style={{
+                        background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%)',
+                        backgroundSize: '200% 200%',
+                        animation: 'shimmer 2s ease-in-out infinite'
+                      }}
+                    ></div>
+                    
+                    {/* Floating particles inside button */}
+                    <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                      <div 
+                        className="absolute w-2 h-2 bg-white/60 rounded-full"
+                        style={{
+                          top: '20%',
+                          left: '15%',
+                          animation: 'float 3s ease-in-out infinite'
+                        }}
+                      ></div>
+                      <div 
+                        className="absolute w-1.5 h-1.5 bg-yellow-200/70 rounded-full"
+                        style={{
+                          top: '60%',
+                          right: '20%',
+                          animation: 'float 4s ease-in-out infinite reverse'
+                        }}
+                      ></div>
+                      <div 
+                        className="absolute w-1 h-1 bg-purple-200/80 rounded-full"
+                        style={{
+                          bottom: '25%',
+                          left: '70%',
+                          animation: 'float 3.5s ease-in-out infinite 1s'
+                        }}
+                      ></div>
+                    </div>
+                    
+                    {/* Button text with sparkle */}
+                    <span className="relative z-10 flex items-center justify-center space-x-2">
+                      <span>✨</span>
+                      <span>Begin Your Journey</span>
+                      <span>🚀</span>
+                    </span>
                   </button>
                 </div>
               </div>
