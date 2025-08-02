@@ -18,7 +18,6 @@ const LandingPage: React.FC = () => {
   const iconRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-  const backgroundRef = useRef<HTMLDivElement>(null);
 
   const startLandingAnimations = () => {
     // GSAP animations for hero text to make it pop sharply
@@ -199,14 +198,13 @@ const LandingPage: React.FC = () => {
       });
     });
 
-    // Background fade
-    if (backgroundRef.current) {
-      gsap.to(backgroundRef.current, {
-        opacity: 1,
-        duration: 1.2,
-        ease: "power2.out"
-      });
-    }
+    // Background elements fade in
+    gsap.to(".animated-bg-element", {
+      opacity: 0.1,
+      duration: 1.2,
+      ease: "power2.out",
+      delay: 0.5
+    });
 
     return () => ctx.revert();
   };
@@ -229,7 +227,9 @@ const LandingPage: React.FC = () => {
         // Start landing animations shortly after content appears
         setTimeout(() => {
           console.log('🎨 Starting landing animations');
-          startLandingAnimations();
+          const cleanup = startLandingAnimations();
+          // Store cleanup function for later use if needed
+          return cleanup;
         }, 300);
       }, 1200); // Wait for LumenIntro exit animation to complete
     }, 3500);
@@ -279,7 +279,7 @@ const LandingPage: React.FC = () => {
           <div className="relative z-50 min-h-screen opacity-0" id="main-content">
             {/* Readable Header Navigation */}
             <nav className="flex justify-between items-center p-8 max-w-7xl mx-auto">
-              <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
+              <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer logo">
                 <LumenIcon size="sm" />
                 <span className="text-xl font-bold text-gray-900">Lumen</span>
               </a>
