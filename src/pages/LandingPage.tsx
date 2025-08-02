@@ -326,7 +326,7 @@ const LandingPage: React.FC = () => {
                     }}
                     className="hero-button relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
                     style={{
-                      background: 'linear-gradient(135deg, var(--lumen-primary) 0%, var(--lumen-secondary) 100%)',
+                      background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
                       boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
                     }}
 

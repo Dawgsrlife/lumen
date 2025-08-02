@@ -146,7 +146,6 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     // Show first message immediately
     const showRandomMessage = () => {
       const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
-      console.log('🎯 Setting encouraging message:', randomMessage);
       setEncouragingMessage(randomMessage);
     };
     
@@ -166,8 +165,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   // Don't render if not visible
   if (!isVisible) return null;
 
-  // Debug log
-  console.log('🦊 Foxie render - encouragingMessage:', encouragingMessage);
+
 
   const getEyeStyle = (expression: string, isLeftEye: boolean = true) => {
     switch (expression) {
@@ -328,17 +326,15 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       </AnimatePresence>
 
       {/* Duolingo-style Encouraging Text Box - Separate from speech bubble */}
-      {/* 🚨 FORCING TEXT BOX TO SHOW FOR DEBUG */}
       <AnimatePresence>
-        {true && (
+        {encouragingMessage && (
           <motion.div
-            initial={{ opacity: 1, scale: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.9, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="fixed z-[9999] bg-red-500 border-4 border-red-800 max-w-xs"
+            className="absolute -top-16 -left-64 max-w-xs z-50"
             style={{
-              bottom: '200px', // Above Foxie (viewport height - 160 + some margin)
-              right: '300px'   // To the left of Foxie (viewport width - 140 + textbox width)
+              // Position relative to Foxie's container - top-left of him
             }}
           >
             <div 
@@ -353,7 +349,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               </div>
               
               <p className="text-sm text-gray-800 font-semibold leading-relaxed pr-4">
-                🚨 FORCED DEBUG TEXT BOX - IF YOU SEE THIS, POSITIONING IS WORKING!
+                {encouragingMessage}
               </p>
               
               {/* Encouraging box tail */}
