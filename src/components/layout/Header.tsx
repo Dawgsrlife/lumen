@@ -28,25 +28,25 @@ const Header: React.FC = () => {
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo with LumenIcon */}
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <LumenIcon size="sm" />
-            <span className="text-xl font-light text-lumen-dark">Lumen</span>
+            <span className="text-xl font-light text-gray-900">Lumen</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center gap-8">
             {isAuthenticated && (
               <>
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     to={item.href}
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-sm font-medium transition-colors duration-200 px-4 py-2 rounded-lg whitespace-nowrap ${
                       isActive(item.href)
-                        ? 'text-lumen-primary'
-                        : 'text-gray-600 hover:text-lumen-primary'
+                        ? 'text-blue-600 bg-blue-50'
+                        : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
                     }`}
                   >
                     {item.label}
@@ -62,9 +62,9 @@ const Header: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-lumen-primary transition-colors"
+                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors px-2 py-1 rounded-lg hover:bg-gray-50"
                 >
-                  <div className="w-8 h-8 rounded-full bg-lumen-primary/20 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                     {user?.avatar ? (
                       <img 
                         src={user.avatar} 
@@ -72,7 +72,7 @@ const Header: React.FC = () => {
                         className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
-                      <span className="text-lumen-primary font-semibold">
+                      <span className="text-blue-600 font-semibold text-sm">
                         {user?.firstName?.[0] || user?.email[0].toUpperCase()}
                       </span>
                     )}
@@ -87,7 +87,7 @@ const Header: React.FC = () => {
 
                 {/* Dropdown Menu */}
                 {isMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-100 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -118,14 +118,14 @@ const Header: React.FC = () => {
             ) : (
               <div className="flex items-center space-x-3">
                 <Link to="/sign-in">
-                  <Button size="sm" variant="outline">
+                  <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 hover:border-gray-400 rounded-lg transition-colors">
                     Sign In
-                  </Button>
+                  </button>
                 </Link>
                 <Link to="/sign-up">
-                  <Button size="sm">
+                  <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                     Sign Up
-                  </Button>
+                  </button>
                 </Link>
               </div>
             )}
