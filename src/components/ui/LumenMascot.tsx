@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSpring, animated } from '@react-spring/web';
+import { sample } from 'lodash';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LumenMascotProps {
@@ -13,6 +14,16 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   const [greetingText, setGreetingText] = useState('');
   const [isWaving, setIsWaving] = useState(false);
   const [eyeExpression, setEyeExpression] = useState('happy');
+  const [encouragingMessage, setEncouragingMessage] = useState('');
+
+  // Pool of encouraging messages (Duolingo style!)
+  const encouragingMessages = [
+    "You're doing amazing! Every step counts towards better mental health! 🌟",
+    "I believe in you! Your journey to wellness is inspiring! 💪",
+    "Small steps lead to big changes. Keep going, you've got this! 🌱",
+    "Your commitment to self-care is beautiful. I'm proud of you! 🦋",
+    "Remember: progress, not perfection. You're exactly where you need to be! ✨"
+  ];
 
   // Different greetings for different pages
   const getGreeting = (page: string) => {
@@ -128,6 +139,41 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Random encouraging messages (Duolingo style!)
+  useEffect(() => {
+    if (isVisible) {
+      // Set initial encouraging message
+      setEncouragingMessage(sample(encouragingMessages) || encouragingMessages[0]);
+      
+      // Show encouraging message after initial greeting
+      const encouragingTimeout = setTimeout(() => {
+        setGreetingText(sample(encouragingMessages) || encouragingMessages[0]);
+        setShowGreeting(true);
+        setIsWaving(true);
+        
+        setTimeout(() => setIsWaving(false), 2000);
+        setTimeout(() => setShowGreeting(false), 5000);
+      }, 15000); // Show after 15 seconds
+      
+      // Then show random encouraging messages every 30 seconds
+      const encouragingInterval = setInterval(() => {
+        const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
+        setEncouragingMessage(randomMessage);
+        setGreetingText(randomMessage);
+        setShowGreeting(true);
+        setIsWaving(true);
+        
+        setTimeout(() => setIsWaving(false), 2000);
+        setTimeout(() => setShowGreeting(false), 4000);
+      }, 30000);
+      
+      return () => {
+        clearTimeout(encouragingTimeout);
+        clearInterval(encouragingInterval);
+      };
+    }
+  }, [isVisible, encouragingMessages]);
+
   // Don't render if not visible
   if (!isVisible) return null;
 
@@ -203,8 +249,11 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               {/* Nose - Bigger and more visible */}
               <div className="absolute top-6.5 left-1/2 transform -translate-x-1/2 w-1 h-0.5 bg-gray-900 rounded-full"></div>
               
-              {/* Smiling mouth - More expressive */}
-              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-3 h-1.5 border-b-2 border-gray-800 rounded-full opacity-70"></div>
+              {/* Smiling mouth - Much more visible and cute */}
+              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-4 h-2 border-b-3 border-gray-900 rounded-full opacity-90"></div>
+              
+              {/* Additional smile curve for cuteness */}
+              <div className="absolute top-8.5 left-1/2 transform -translate-x-1/2 w-2 h-1 bg-pink-300/60 rounded-full"></div>
               
               {/* Cheek blush - adds cuteness */}
               <div className="absolute top-5 left-1 w-2 h-1.5 bg-pink-200/40 rounded-full blur-[1px]"></div>
@@ -214,8 +263,8 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-white/95 rounded-full"></div>
             </div>
             
-            {/* Fox Body - Better proportioned */}
-            <div className="absolute top-9 left-1/2 transform -translate-x-1/2 w-12 h-9 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full shadow-md">
+            {/* Fox Body - Lower positioned and better proportioned */}
+            <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-12 h-9 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full shadow-md">
               <div className="absolute top-1.5 left-2 w-2 h-2 bg-white/60 rounded-full blur-[0.5px]"></div>
             </div>
             
@@ -228,16 +277,16 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white/50 rounded-full blur-[0.5px]"></div>
             </animated.div>
             
-            {/* Waving paw - properly shaped */}
+            {/* Waving paw - properly shaped and positioned */}
             <animated.div 
               style={waveSpring}
-              className="absolute -left-1 top-11 w-2.5 h-4 bg-orange-200 rounded-full origin-bottom shadow-md border border-orange-300"
+              className="absolute -left-1 top-13 w-2.5 h-4 bg-orange-200 rounded-full origin-bottom shadow-md border border-orange-300"
             ></animated.div>
             
-            {/* Other paws - better positioned and sized */}
-            <div className="absolute left-2 top-14 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
-            <div className="absolute right-2 top-14 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
-            <div className="absolute right-4 top-14 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            {/* Other paws - better positioned for lower body */}
+            <div className="absolute left-2 top-16 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            <div className="absolute right-2 top-16 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            <div className="absolute right-4 top-16 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
           </div>
         </animated.div>
       </animated.div>
