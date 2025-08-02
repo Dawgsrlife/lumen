@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import { sample } from 'lodash';
 import { motion, AnimatePresence } from 'framer-motion';
+import { gsap } from 'gsap';
 
 interface LumenMascotProps {
   currentPage: string;
@@ -15,6 +16,8 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   const [isWaving, setIsWaving] = useState(false);
   const [eyeExpression, setEyeExpression] = useState('happy');
   const [encouragingMessage, setEncouragingMessage] = useState('');
+  const [showEncouragingBox, setShowEncouragingBox] = useState(true); // Open by default
+  const textboxRef = useRef<HTMLDivElement>(null);
 
   // Pool of encouraging messages (Duolingo style!)
   const encouragingMessages = [
@@ -146,8 +149,21 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     // Show first message immediately
     const showRandomMessage = () => {
       const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
-      console.log('🎯 Setting encouraging message:', randomMessage);
       setEncouragingMessage(randomMessage);
+      
+      // Add a subtle pulse animation when new message appears
+      if (textboxRef.current && showEncouragingBox) {
+        gsap.fromTo(textboxRef.current, 
+          { scale: 1 },
+          { 
+            scale: 1.08, 
+            duration: 0.2, 
+            ease: "back.out(1.7)",
+            yoyo: true,
+            repeat: 1
+          }
+        );
+      }
     };
     
     // Set initial message RIGHT NOW (no delay)
@@ -161,13 +177,14 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     };
   }, [isVisible]);
 
+  // Removed breathing animation - was too wigly, keeping it clean and simple
+
   // Removed duplicate encouraging message logic - handled above
 
   // Don't render if not visible
   if (!isVisible) return null;
 
-  // Debug log
-  console.log('🦊 Foxie render - encouragingMessage:', encouragingMessage);
+
 
   const getEyeStyle = (expression: string, isLeftEye: boolean = true) => {
     switch (expression) {
@@ -186,7 +203,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   };
 
   return (
-    <div className="fixed z-50 pointer-events-auto">
+    <div className="fixed z-[9998] pointer-events-auto">
       {/* Mascot Character */}
       <animated.div
         style={mascotSpring}
@@ -195,8 +212,11 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
         {/* Foxie the Fox - Professional & Adorable */}
         <animated.div 
           style={bodySpring}
-          className="relative w-20 h-24 cursor-pointer group"
+          className="relative w-20 h-20 cursor-pointer group"
           onClick={() => {
+            // Toggle encouraging message box
+            setShowEncouragingBox(!showEncouragingBox);
+            // Also show greeting and wave
             setShowGreeting(true);
             setIsWaving(true);
             setTimeout(() => setIsWaving(false), 2000);
@@ -209,18 +229,18 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
           {/* ACTUALLY CUTE Fox - Big head, big eyes, kawaii style! */}
           <div className="relative w-20 h-20 group-hover:scale-105 transition-transform duration-300">
             
-            {/* Fox Head - BIGGER and cuter proportions (anime style) */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gradient-to-br from-orange-200 via-orange-300 to-orange-400 rounded-full shadow-lg">
-              {/* Head highlight - more prominent */}
-              <div className="absolute top-3 left-4 w-4 h-3 bg-white/80 rounded-full blur-[1px]"></div>
+            {/* Fox Head - Clean and proportional */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gradient-to-br from-orange-300 via-orange-400 to-orange-500 rounded-full shadow-lg">
+              {/* Head highlight - subtle and clean */}
+              <div className="absolute top-2 left-3 w-3 h-2 bg-white/60 rounded-full blur-[0.5px]"></div>
               
-              {/* Cute Fox Ears - Perfect proportions */}
-              <div className="absolute -top-3 left-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-orange-400 transform -rotate-12"></div>
-              <div className="absolute -top-3 right-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-orange-400 transform rotate-12"></div>
+              {/* Clean Fox Ears */}
+              <div className="absolute -top-2 left-4 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-500 transform -rotate-12"></div>
+              <div className="absolute -top-2 right-4 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-500 transform rotate-12"></div>
               
-              {/* Ear insides - pink and adorable */}
-              <div className="absolute -top-2 left-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform -rotate-12"></div>
-              <div className="absolute -top-2 right-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform rotate-12"></div>
+              {/* Ear insides */}
+              <div className="absolute -top-1 left-4.5 w-0 h-0 border-l-[2px] border-r-[2px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-400 transform -rotate-12"></div>
+              <div className="absolute -top-1 right-4.5 w-0 h-0 border-l-[2px] border-r-[2px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-400 transform rotate-12"></div>
               
               {/* BIG ADORABLE EYES - Always sparkly and happy! */}
               <div className="absolute top-5 left-1/2 transform -translate-x-1/2 flex space-x-2">
@@ -252,23 +272,17 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               {/* Perfect little nose */}
               <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-gray-800 rounded-full"></div>
               
-              {/* BIG OBVIOUS HAPPY SMILE - Actually visible! */}
-              <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-8 h-4">
-                {/* Simple curved smile that's ALWAYS visible */}
-                <div className="absolute left-1 top-1 w-6 h-3 border-b-3 border-gray-800 rounded-full"></div>
-                {/* Make it even more obvious with a bigger curve */}
-                <div className="absolute left-0.5 top-0.5 w-7 h-4 border-b-2 border-gray-700 rounded-full opacity-60"></div>
+              {/* Clean, visible smile */}
+              <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-5 h-2">
+                <div className="w-full h-full border-b-[2px] border-gray-800 rounded-full"></div>
               </div>
+            
+              {/* Subtle cheek blush */}
+              <div className="absolute top-8 left-1 w-2 h-1.5 bg-pink-300/50 rounded-full blur-[0.5px]"></div>
+              <div className="absolute top-8 right-1 w-2 h-1.5 bg-pink-300/50 rounded-full blur-[0.5px]"></div>
               
-              {/* Little tongue sticking out - always visible and cute */}
-              <div className="absolute top-12.5 left-1/2 transform -translate-x-1/2 w-2 h-1.5 bg-pink-400 rounded-full"></div>
-              
-              {/* PROMINENT cheek blush - kawaii style */}
-              <div className="absolute top-7 left-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
-              <div className="absolute top-7 right-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
-              
-              {/* White chest marking */}
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-5 h-4 bg-white/95 rounded-full"></div>
+              {/* White chest marking - properly positioned */}
+              <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-2 bg-white/80 rounded-full"></div>
             </div>
             
             {/* Fox Body - Much lower positioned so you can see the mouth! */}
@@ -291,10 +305,11 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               className="absolute -left-1 top-16 w-2.5 h-4 bg-orange-200 rounded-full origin-bottom shadow-md border border-orange-300"
             ></animated.div>
             
-            {/* Other paws - positioned for much lower body */}
+            {/* Other paws - positioned for much lower body (normal fox anatomy!) */}
             <div className="absolute left-2 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
             <div className="absolute right-2 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
-            <div className="absolute right-4 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            {/* Right front paw - where the fox should have it */}
+            <div className="absolute right-1 top-16 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
           </div>
         </animated.div>
       </animated.div>
@@ -328,33 +343,87 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       </AnimatePresence>
 
       {/* Duolingo-style Encouraging Text Box - Separate from speech bubble */}
-      {/* 🚨 FORCING TEXT BOX TO SHOW FOR DEBUG */}
       <AnimatePresence>
-        {true && (
+        {encouragingMessage && showEncouragingBox && (
           <motion.div
-            initial={{ opacity: 1, scale: 1, x: 0 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="fixed top-10 left-10 max-w-xs z-[9999] bg-red-500 border-4 border-red-800"
+            initial={{ opacity: 0, scale: 0.8, x: 30, y: 30 }}
+            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, x: 30, y: 30 }}
+            className="fixed bottom-45 right-35 w-48"
+            style={{ zIndex: 999999 }}
           >
             <div 
-              className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
+              ref={textboxRef}
+              className="speech-bubble backdrop-blur-sm rounded-2xl px-4 py-4 shadow-2xl border relative"
               style={{
-                background: 'linear-gradient(135deg, rgba(254, 240, 138, 0.95) 0%, rgba(251, 191, 36, 0.2) 100%)'
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
+                borderColor: 'rgba(203, 213, 225, 0.3)',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.8) inset'
+              }}
+              onMouseEnter={() => {
+                gsap.to(textboxRef.current, {
+                  scale: 1.05,
+                  y: -5,
+                  duration: 0.3,
+                  ease: "back.out(1.7)"
+                });
+              }}
+              onMouseLeave={() => {
+                gsap.to(textboxRef.current, {
+                  scale: 1,
+                  y: 0,
+                  duration: 0.3,
+                  ease: "back.out(1.7)"
+                });
               }}
             >
-              {/* Sparkle icon */}
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-white text-xs">✨</span>
-              </div>
+              {/* X Close button */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering Foxie's click
+                  setShowEncouragingBox(false);
+                }}
+                className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 cursor-pointer hover:scale-110"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(248, 113, 113, 0.9) 0%, rgba(239, 68, 68, 0.9) 100%)',
+                  backdropFilter: 'blur(4px)'
+                }}
+                onMouseEnter={(e) => {
+                  gsap.to(e.currentTarget, {
+                    scale: 1.15,
+                    duration: 0.2,
+                    ease: "back.out(1.7)"
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  gsap.to(e.currentTarget, {
+                    scale: 1,
+                    duration: 0.2,
+                    ease: "back.out(1.7)"
+                  });
+                }}
+              >
+                <span className="text-white text-xs font-bold">✕</span>
+              </button>
               
               <p className="text-sm text-gray-800 font-semibold leading-relaxed pr-4">
-                🚨 FORCED DEBUG TEXT BOX - IF YOU SEE THIS, POSITIONING IS WORKING!
+                {encouragingMessage}
               </p>
               
-              {/* Encouraging box tail */}
+              {/* Speech bubble tail pointing bottom-right to Foxie */}
               <div 
-                className="absolute -bottom-2 right-8 w-4 h-4 bg-yellow-200 transform rotate-45 border-r-2 border-b-2 border-yellow-300"
+                className="absolute -bottom-2 -right-2 w-4 h-4 rotate-[135deg] border-r border-b"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
+                  borderColor: 'rgba(203, 213, 225, 0.3)'
+                }}
+              />
+              {/* Additional tail piece for better connection */}
+              <div 
+                className="absolute -bottom-1 -right-1 w-2 h-2 rotate-[135deg]"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)'
+                }}
               />
             </div>
           </motion.div>
