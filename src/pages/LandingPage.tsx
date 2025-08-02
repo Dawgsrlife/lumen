@@ -296,7 +296,7 @@ const LandingPage: React.FC = () => {
                       style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
                     >
                       <span className="block hero-line relative">
-                        <span className="hero-word">Light</span> <span className="hero-word">the</span> <span className="hero-word">Mind.</span>
+                        <span className="hero-word">Light</span> <span className="hero-word">the</span> <span className="hero-word mind-glow">Mind.</span>
                         <span className="text-sparkle absolute -top-2 -right-2 text-2xl">✨</span>
                         <span className="text-sparkle absolute top-0 left-8 text-xl opacity-70">⭐</span>
                       </span>
