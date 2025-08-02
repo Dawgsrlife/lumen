@@ -265,8 +265,8 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               <div className="absolute top-7 left-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
               <div className="absolute top-7 right-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
               
-              {/* White chest marking */}
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-5 h-4 bg-white/95 rounded-full"></div>
+              {/* White chest marking - moved up so it doesn't cover smile */}
+              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-white/95 rounded-full"></div>
             </div>
             
             {/* Fox Body - Much lower positioned so you can see the mouth! */}
@@ -332,7 +332,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 0, scale: 0.9, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="fixed bottom-48 right-80 max-w-sm z-50"
+            className="fixed bottom-48 right-20 max-w-sm z-50"
           >
             <div 
               className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
