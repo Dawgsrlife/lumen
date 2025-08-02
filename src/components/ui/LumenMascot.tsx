@@ -31,10 +31,26 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     config: { tension: 180, friction: 40 }
   });
 
-  // Waving animation
+  // Dynamic waving animation with curves and rhythm changes
   const waveSpring = useSpring({
-    transform: isWaving ? 'rotate(-20deg)' : 'rotate(10deg)',
-    config: { tension: 300, friction: 20 }
+    from: { transform: 'rotate(10deg)' },
+    to: async (next) => {
+      if (isWaving) {
+        // Sudden energetic wave sequence
+        await next({ transform: 'rotate(-45deg)', config: { tension: 400, friction: 10 } });
+        await next({ transform: 'rotate(25deg)', config: { tension: 200, friction: 15 } });
+        await next({ transform: 'rotate(-35deg)', config: { tension: 350, friction: 12 } });
+        await next({ transform: 'rotate(15deg)', config: { tension: 150, friction: 20 } });
+        // Slow settle
+        await next({ transform: 'rotate(-15deg)', config: { tension: 100, friction: 25 } });
+        await next({ transform: 'rotate(5deg)', config: { tension: 80, friction: 30 } });
+        // Rest position
+        await next({ transform: 'rotate(10deg)', config: { tension: 120, friction: 35 } });
+      } else {
+        await next({ transform: 'rotate(10deg)' });
+      }
+    },
+    config: { tension: 200, friction: 20 }
   });
 
   // Body wiggle animation
@@ -145,74 +161,81 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
           {/* Soft ambient glow */}
           <div className="absolute inset-0 bg-gradient-to-r from-orange-300/15 to-orange-400/15 rounded-full blur-lg"></div>
           
-          {/* Main Fox Body Container */}
-          <div className="relative w-16 h-16 group-hover:scale-105 transition-transform duration-300">
+          {/* Adorable Fox - UNCURSED! */}
+          <div className="relative w-18 h-18 group-hover:scale-105 transition-transform duration-300">
             
-            {/* Fox Head - Perfect Circle */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-orange-300 via-orange-400 to-orange-500 rounded-full shadow-md border border-orange-200">
+            {/* Fox Head - Properly Proportioned */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-14 h-13 bg-gradient-to-br from-orange-200 via-orange-300 to-orange-400 rounded-full shadow-lg">
               {/* Head highlight */}
-              <div className="absolute top-1.5 left-2 w-2 h-1.5 bg-white/60 rounded-full blur-[1px]"></div>
+              <div className="absolute top-2 left-3 w-3 h-2 bg-white/70 rounded-full blur-[0.5px]"></div>
               
-              {/* Perfect Triangle Ears */}
-              <div className="absolute -top-1.5 left-2 w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-orange-500"></div>
-              <div className="absolute -top-1.5 right-2 w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-orange-500"></div>
+              {/* Cute Fox Ears - Better proportioned */}
+              <div className="absolute -top-2 left-2.5 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-400 transform -rotate-12"></div>
+              <div className="absolute -top-2 right-2.5 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-400 transform rotate-12"></div>
               
-              {/* Ear insides */}
-              <div className="absolute -top-0.5 left-2.5 w-0 h-0 border-l-[2px] border-r-[2px] border-b-[3px] border-l-transparent border-r-transparent border-b-pink-200"></div>
-              <div className="absolute -top-0.5 right-2.5 w-0 h-0 border-l-[2px] border-r-[2px] border-b-[3px] border-l-transparent border-r-transparent border-b-pink-200"></div>
+              {/* Ear insides - pink and cute */}
+              <div className="absolute -top-1 left-3 w-0 h-0 border-l-[2.5px] border-r-[2.5px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-200 transform -rotate-12"></div>
+              <div className="absolute -top-1 right-3 w-0 h-0 border-l-[2.5px] border-r-[2.5px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-200 transform rotate-12"></div>
               
-              {/* Friendly Eyes */}
-              <div className="absolute top-3 left-2.5 flex space-x-1.5">
+              {/* Expressive Eyes - Bigger and friendlier */}
+              <div className="absolute top-3.5 left-3 flex space-x-2">
                 <div 
-                  className="bg-gray-800 rounded-full relative shadow-sm"
-                  style={getEyeStyle(eyeExpression)}
+                  className="bg-gray-900 rounded-full relative shadow-sm border border-gray-700"
+                  style={{...getEyeStyle(eyeExpression), width: '6px', height: '6px'}}
                 >
+                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-90"></div>
                   <div className="absolute top-0 left-0.5 w-0.5 h-0.5 bg-white rounded-full"></div>
                 </div>
                 <div 
-                  className="bg-gray-800 rounded-full relative shadow-sm"
-                  style={getEyeStyle(eyeExpression)}
+                  className="bg-gray-900 rounded-full relative shadow-sm border border-gray-700"
+                  style={{...getEyeStyle(eyeExpression), width: '6px', height: '6px'}}
                 >
+                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-90"></div>
                   <div className="absolute top-0 left-0.5 w-0.5 h-0.5 bg-white rounded-full"></div>
                 </div>
               </div>
               
-              {/* Cute little snout */}
-              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-200 rounded-full shadow-sm"></div>
+              {/* Fox Snout - More realistic shape */}
+              <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-3 h-2.5 bg-gradient-to-b from-orange-100 to-orange-200 rounded-full shadow-sm"></div>
               
-              {/* Tiny black nose */}
-              <div className="absolute top-5.5 left-1/2 transform -translate-x-1/2 w-0.5 h-0.5 bg-gray-900 rounded-full"></div>
+              {/* Nose - Bigger and more visible */}
+              <div className="absolute top-6.5 left-1/2 transform -translate-x-1/2 w-1 h-0.5 bg-gray-900 rounded-full"></div>
               
-              {/* Happy mouth */}
-              <div className="absolute top-6.5 left-1/2 transform -translate-x-1/2 w-2 h-1 border-b border-gray-700 rounded-full opacity-60"></div>
+              {/* Smiling mouth - More expressive */}
+              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-3 h-1.5 border-b-2 border-gray-800 rounded-full opacity-70"></div>
               
-              {/* White chest patch */}
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-2 bg-white/90 rounded-full"></div>
+              {/* Cheek blush - adds cuteness */}
+              <div className="absolute top-5 left-1 w-2 h-1.5 bg-pink-200/40 rounded-full blur-[1px]"></div>
+              <div className="absolute top-5 right-1 w-2 h-1.5 bg-pink-200/40 rounded-full blur-[1px]"></div>
+              
+              {/* White chest marking - bigger */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-white/95 rounded-full"></div>
             </div>
             
-            {/* Body - smaller and proportional */}
-            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-10 h-8 bg-gradient-to-b from-orange-400 to-orange-500 rounded-full shadow-sm">
-              <div className="absolute top-1 left-1.5 w-1.5 h-1.5 bg-white/50 rounded-full blur-[0.5px]"></div>
+            {/* Fox Body - Better proportioned */}
+            <div className="absolute top-9 left-1/2 transform -translate-x-1/2 w-12 h-9 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full shadow-md">
+              <div className="absolute top-1.5 left-2 w-2 h-2 bg-white/60 rounded-full blur-[0.5px]"></div>
             </div>
             
-            {/* Fluffy tail */}
+            {/* Fluffy tail - bigger and fluffier */}
             <animated.div 
               style={tailSpring}
-              className="absolute -right-1 top-6 w-3 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full origin-bottom shadow-sm"
+              className="absolute -right-2 top-7 w-4 h-7 bg-gradient-to-b from-orange-300 to-orange-500 rounded-full origin-bottom shadow-md"
             >
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-2 bg-white/90 rounded-full"></div>
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-3 bg-white/95 rounded-full"></div>
+              <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white/50 rounded-full blur-[0.5px]"></div>
             </animated.div>
             
-            {/* Waving paw */}
+            {/* Waving paw - properly shaped */}
             <animated.div 
               style={waveSpring}
-              className="absolute -left-0.5 top-10 w-2 h-3 bg-orange-300 rounded-full origin-bottom shadow-sm"
+              className="absolute -left-1 top-11 w-2.5 h-4 bg-orange-200 rounded-full origin-bottom shadow-md border border-orange-300"
             ></animated.div>
             
-            {/* Other paws - properly positioned */}
-            <div className="absolute left-1.5 top-12 w-1.5 h-2 bg-orange-300 rounded-full shadow-sm"></div>
-            <div className="absolute right-1.5 top-12 w-1.5 h-2 bg-orange-300 rounded-full shadow-sm"></div>
-            <div className="absolute right-3 top-12 w-1.5 h-2 bg-orange-300 rounded-full shadow-sm"></div>
+            {/* Other paws - better positioned and sized */}
+            <div className="absolute left-2 top-14 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            <div className="absolute right-2 top-14 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            <div className="absolute right-4 top-14 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
           </div>
         </animated.div>
       </animated.div>
