@@ -130,14 +130,14 @@ const LandingPage: React.FC = () => {
         yoyo: true
       }, "-=0.5");
 
-      // Logo/brand animation with dramatic scale
+      // Logo/brand animation - clean and professional
       gsap.from(".logo", {
         opacity: 0,
-        scale: 0.5,
-        rotation: -180,
-        duration: 1.5,
-        ease: "back.out(1.7)",
-        delay: 0.1,
+        y: -20,
+        scale: 0.95,
+        duration: 0.8,
+        ease: "power2.out",
+        delay: 0.2,
       });
 
       // Floating particles animation - smooth, minimalist movement
