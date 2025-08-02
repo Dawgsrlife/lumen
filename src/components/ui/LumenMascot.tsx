@@ -335,7 +335,11 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 1, scale: 1, x: 0 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="fixed top-10 left-10 max-w-xs z-[9999] bg-red-500 border-4 border-red-800"
+            className="fixed z-[9999] bg-red-500 border-4 border-red-800 max-w-xs"
+            style={{
+              bottom: '200px', // Above Foxie (viewport height - 160 + some margin)
+              right: '300px'   // To the left of Foxie (viewport width - 140 + textbox width)
+            }}
           >
             <div 
               className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
