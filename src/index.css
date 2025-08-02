@@ -2,10 +2,16 @@
 @import "tailwindcss";
 
 :root {
-  --lumen-primary: #FBBF24;
-  --lumen-secondary: #8B5CF6;
-  --lumen-dark: #1F2937;
-  --lumen-light: #F9FAFB;
+  /* Official Lumen brand color palette from game plan */
+  --lumen-primary: #FBBF24;        /* Yellow - Light, hope, energy */
+  --lumen-secondary: #8B5CF6;      /* Purple - Wisdom, calm, creativity */
+  --lumen-dark: #1F2937;           /* Professional, grounding */
+  --lumen-light: #F9FAFB;          /* Clean, minimal */
+  --lumen-gradient-start: #FEF3C7; /* Light yellow gradient start */
+  --lumen-gradient-end: #F3E8FF;   /* Light purple gradient end */
+  --lumen-text-primary: #2D3748;   /* Warm dark gray instead of black */
+  --lumen-text-secondary: #4A5568; /* Medium gray for secondary text */
+  --lumen-text-muted: #718096;     /* Light gray for muted text */
 }
 
 * {
@@ -22,7 +28,7 @@ body, h1, h2, h3, h4, h5, h6, p {
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--lumen-light);
-  color: var(--lumen-dark);
+  color: var(--lumen-text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -99,5 +105,53 @@ body {
   .container {
     padding-left: 2rem !important;
     padding-right: 2rem !important;
+  }
+}
+
+/* Custom gradient utilities */
+.bg-gradient-radial {
+  background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+}
+
+/* Page-level centering utilities */
+.page-content {
+  text-align: center;
+}
+
+.page-content * {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-content .text-left {
+  text-align: left;
+}
+
+.page-content .text-right {
+  text-align: right;
+}
+
+/* Force center alignment for all text content */
+.force-center-text * {
+  text-align: center !important;
+}
+
+/* Custom animations */
+@keyframes stainFlow {
+  0%, 100% { 
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.03;
+  }
+  25% { 
+    transform: translate(15px, -10px) scale(1.08) rotate(2deg);
+    opacity: 0.06;
+  }
+  50% { 
+    transform: translate(-8px, 12px) scale(0.95) rotate(-1deg);
+    opacity: 0.04;
+  }
+  75% { 
+    transform: translate(12px, 8px) scale(1.03) rotate(1deg);
+    opacity: 0.07;
   }
 }

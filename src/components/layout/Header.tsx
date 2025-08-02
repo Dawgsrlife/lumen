@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useClerkUser } from '../../hooks/useClerkUser';
-import Button from '../ui/Button';
 import LumenIcon from '../ui/LumenIcon';
 
 const Header: React.FC = () => {
   const { user, isAuthenticated } = useClerkUser();
-  const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
