@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AnimatedBackground } from '../components/ui';
+import { AnimatedBackground, LumenMascot } from '../components/ui';
 
 const Contact: React.FC = () => {
   const teamMembers = [
@@ -14,6 +14,9 @@ const Contact: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative">
       {/* Animated background */}
       <AnimatedBackground />
+      
+      {/* Cute Mascot */}
+      <LumenMascot currentPage="/contact" />
 
       {/* Header */}
       <nav className="relative z-10 flex justify-between items-center p-8 w-full">

@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 import { useAuth } from '@clerk/clerk-react';
 import { Navigate } from 'react-router-dom';
 
-import { LumenIntro, AnimatedBackground } from '../components/ui';
+import { LumenIntro, AnimatedBackground, LumenMascot } from '../components/ui';
 
 const LandingPage: React.FC = () => {
   const { isSignedIn, isLoaded } = useAuth();
@@ -155,6 +155,9 @@ const LandingPage: React.FC = () => {
       
       {/* Lumen Brand Intro */}
       <LumenIntro show={showIntro} />
+      
+      {/* Cute Mascot */}
+      <LumenMascot currentPage="/" />
       
       {/* Landing Page Content - show directly after intro */}
       {showContent && (

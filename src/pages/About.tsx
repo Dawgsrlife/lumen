@@ -1,12 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AnimatedBackground } from '../components/ui';
+import { AnimatedBackground, LumenMascot } from '../components/ui';
 
 const About: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative">
       {/* Animated background */}
       <AnimatedBackground />
+      
+      {/* Cute Mascot */}
+      <LumenMascot currentPage="/about" />
 
       {/* Header */}
       <nav className="relative z-10 flex justify-between items-center p-8 w-full">
@@ -36,22 +39,22 @@ const About: React.FC = () => {
               About Lumen
             </h1>
             
-            {/* Comprehensive Description */}
+            {/* Emotionally Resonant Description */}
             <div className="space-y-8 max-w-4xl mx-auto">
             <p className="text-xl text-gray-600 leading-relaxed">
-              Lumen listens when no one else does. It understands your words and feelings, then gently guides you with calming games and health insights tailored just for what you're going through.
+              We know what it feels like when the world seems too heavy, when your thoughts spiral, or when you just need someone to understand. Lumen is here for those moments when no one else is.
             </p>
             
             <p className="text-lg text-gray-600 leading-relaxed">
-              Built on three core principles that make mental health support truly meaningful: <strong>Emotional Connection</strong> – our app feels human and engaging, like having a caring companion by your side. <strong>Usefulness</strong> – every interaction provides genuine value that impacts your daily life and mental wellbeing. <strong>Incentive</strong> – through thoughtful gamification and personalized experiences, you'll find yourself drawn back to continue your healing journey.
+              You deserve a space where your feelings matter, where you're not judged, and where healing happens at your own pace. Lumen creates that space for you. Every word you share, every emotion you express is met with genuine understanding and gentle guidance tailored just for what you're experiencing right now.
             </p>
             
             <p className="text-lg text-gray-600 leading-relaxed">
-              When you open Lumen, you're welcomed into a carefully crafted space that never overwhelms. You'll share your current emotional state, and our AI-powered insights provide personalized feedback and gentle suggestions. Depending on how you're feeling, Lumen presents therapeutic mini-games designed to lift your spirits – from nurturing flowers that bring color to gray worlds when you're sad, to controlled breathing exercises that guide glowing orbs when you're anxious.
+              When you're feeling overwhelmed, our calming games help you breathe again. When sadness feels endless, gentle activities bring color back to your world. When anxiety takes over, soothing exercises guide you back to peace. You're never alone in this journey.
             </p>
             
             <p className="text-lg text-gray-600 leading-relaxed">
-              Every element is designed with minimalist beauty, satisfying animations, and emotional resonance. Your progress is tracked meaningfully, showing login streaks and emotional patterns over time, helping you understand your mental health journey without information overload.
+              Your progress isn't measured by perfection, but by small, meaningful steps forward. Every login, every moment you choose to care for yourself, every game you play is a victory worth celebrating. Lumen sees your strength, even when you don't.
             </p>
             </div>
           </div>

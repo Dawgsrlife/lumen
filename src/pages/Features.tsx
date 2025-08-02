@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AnimatedBackground } from '../components/ui';
+import { AnimatedBackground, LumenMascot } from '../components/ui';
 
 const Features: React.FC = () => {
   const features = [
@@ -40,6 +40,9 @@ const Features: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative">
       {/* Animated background */}
       <AnimatedBackground />
+      
+      {/* Cute Mascot */}
+      <LumenMascot currentPage="/features" />
 
       {/* Header */}
       <nav className="relative z-10 flex justify-between items-center p-8 w-full">
