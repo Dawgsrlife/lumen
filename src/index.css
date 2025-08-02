@@ -9,9 +9,17 @@
 }
 
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
+}
+
+/* Reset only specific elements that need it */
+body, h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+/* Keep default padding for elements that should have it */
+body {
+  padding: 0;
 }
 
 body {

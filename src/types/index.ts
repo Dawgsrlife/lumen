@@ -19,8 +19,8 @@ export interface UserPreferences {
 
 // Emotion Types
 export type EmotionType = 
-  | 'sadness' 
-  | 'anger' 
+  | 'happy'
+  | 'sad' 
   | 'loneliness' 
   | 'anxiety' 
   | 'frustration' 
