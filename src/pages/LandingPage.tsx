@@ -178,10 +178,10 @@ const LandingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className="flex items-center space-x-2">
+              <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
                 <div className="w-8 h-8 rounded bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)]"></div>
                 <span className="text-xl font-bold text-gray-900">Lumen</span>
-              </div>
+              </a>
               
               <div className="hidden md:flex space-x-8">
                 <a href="/" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
