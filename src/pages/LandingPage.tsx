@@ -24,23 +24,120 @@ const LandingPage: React.FC = () => {
   const startLandingAnimations = () => {
     // GSAP animations for hero text to make it pop sharply
     const ctx = gsap.context(() => {
-      // Hero text lines with staggered animation for sharp contrast
-      gsap.from(".hero-line", {
-        y: 40,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power2.out",
-        stagger: 0.3,
-        delay: 0.5,
+      // Set initial states
+      gsap.set(".hero-line", { 
+        y: 100, 
+        opacity: 0, 
+        scale: 0.8,
+        rotationX: 45,
+        transformOrigin: "center bottom"
+      });
+      gsap.set(".hero-word", { 
+        y: 80, 
+        opacity: 0, 
+        scale: 0.7,
+        rotationY: 90,
+        transformOrigin: "center"
+      });
+      gsap.set(".hero-subtext", { 
+        y: 60, 
+        opacity: 0, 
+        scale: 0.9
+      });
+      gsap.set(".hero-button", { 
+        y: 40, 
+        opacity: 0, 
+        scale: 0.8
       });
 
-      // Logo/brand animation
+      // Create timeline for dramatic entrance
+      const tl = gsap.timeline();
+
+      // Hero headline container animation
+      tl.to(".hero-line", {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        rotationX: 0,
+        duration: 1.2,
+        ease: "power3.out",
+        stagger: 0.15,
+        delay: 0.3,
+      })
+      // Word-by-word dramatic reveal
+      .to(".hero-word", {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        rotationY: 0,
+        duration: 0.8,
+        ease: "back.out(2.5)",
+        stagger: 0.08,
+      }, "-=1")
+      // Text glow effect
+      .to(".hero-line", {
+        textShadow: "0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(139, 92, 246, 0.4)",
+        duration: 0.8,
+        ease: "power2.inOut",
+        stagger: 0.1,
+      }, "-=0.8")
+      // Subtitle with elastic bounce
+      .to(".hero-subtext", {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        ease: "elastic.out(1, 0.6)",
+      }, "-=0.6")
+      // Button with satisfying pop
+      .to(".hero-button", {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 1,
+        ease: "back.out(1.7)",
+      }, "-=0.4")
+      // Add sparkle burst effect
+      .to(".text-sparkle", {
+        scale: "random(1.2, 1.8)",
+        opacity: "random(0.7, 1)",
+        rotation: "random(-180, 180)",
+        duration: 2,
+        ease: "power2.inOut",
+        stagger: 0.1,
+        repeat: -1,
+        yoyo: true
+      }, "-=1")
+      // Add dramatic text reveal effect with color shift
+      .to(".hero-line", {
+        backgroundImage: "linear-gradient(90deg, #FBBF24 0%, #8B5CF6 50%, #FBBF24 100%)",
+        backgroundSize: "200% 100%",
+        backgroundPosition: "100% 0",
+        backgroundClip: "text",
+        WebkitBackgroundClip: "text",
+        color: "transparent",
+        duration: 1.5,
+        ease: "power2.inOut",
+        stagger: 0.2
+      }, "-=1.5")
+      // Animate the gradient
+      .to(".hero-line", {
+        backgroundPosition: "0% 0",
+        duration: 2,
+        ease: "power2.inOut",
+        stagger: 0.1,
+        repeat: -1,
+        yoyo: true
+      }, "-=0.5");
+
+      // Logo/brand animation with dramatic scale
       gsap.from(".logo", {
         opacity: 0,
-        scale: 0.9,
-        duration: 1,
-        ease: "power2.out",
-        delay: 0.2,
+        scale: 0.5,
+        rotation: -180,
+        duration: 1.5,
+        ease: "back.out(1.7)",
+        delay: 0.1,
       });
 
       // Floating particles animation - smooth, minimalist movement
@@ -198,55 +295,58 @@ const LandingPage: React.FC = () => {
             <div className="grid lg:grid-cols-2 gap-20 items-center max-w-7xl mx-auto px-8 py-24 lg:py-32">
               
               {/* Left Content */}
-              <motion.div 
-                className="space-y-24"
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1, delay: 0.3 }}
-              >
+              <div className="space-y-24">
                 {/* Main Headline */}
                 <div className="space-y-16">
-                  <motion.h1 
-                    ref={headingRef}
-                    className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900"
-                    style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-                  >
-                    <span className="block hero-line">Light the Mind.</span>
-                    <span className="block hero-line">Feel, Heal, and Grow.</span>
-                  </motion.h1>
+                  <div className="relative">
+                    <h1 
+                      ref={headingRef}
+                      className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 relative"
+                      style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                    >
+                      <span className="block hero-line relative">
+                        <span className="hero-word">Light</span> <span className="hero-word">the</span> <span className="hero-word">Mind.</span>
+                        <span className="text-sparkle absolute -top-2 -right-2 text-2xl">✨</span>
+                        <span className="text-sparkle absolute top-0 left-8 text-xl opacity-70">⭐</span>
+                      </span>
+                      <span className="block hero-line relative">
+                        <span className="hero-word">Feel,</span> <span className="hero-word">Heal,</span> <span className="hero-word">and</span> <span className="hero-word">Grow.</span>
+                        <span className="text-sparkle absolute -top-1 right-12 text-xl">💫</span>
+                        <span className="text-sparkle absolute bottom-2 -left-3 text-lg opacity-80">✨</span>
+                      </span>
+                    </h1>
+                  </div>
                   
                   {/* Elevator Pitch */}
-                  <motion.p 
+                  <p 
                     ref={textRef}
-                    className="text-xl leading-relaxed text-gray-600 max-w-lg hero-line"
+                    className="text-xl leading-relaxed text-gray-600 max-w-lg hero-subtext"
                   >
                     Lumen listens when no one else does. It understands your words and feelings, then gently guides you with calming games and health insights tailored just for what you're going through.
-                  </motion.p>
+                  </p>
                 </div>
                 
-                {/* CTA Button - Clean animations */}
-                <motion.div ref={buttonRef}>
-                  <motion.button
+                {/* CTA Button - Dramatic animations */}
+                <div ref={buttonRef}>
+                  <button
                     onClick={() => window.location.href = '/sign-in'}
-                    className="px-8 py-4 rounded-xl font-semibold text-white shadow-lg transition-all duration-300"
+                    className="hero-button px-8 py-4 rounded-xl font-semibold text-white shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
                     style={{
                       background: 'linear-gradient(135deg, var(--lumen-primary) 0%, var(--lumen-secondary) 100%)',
                       boxShadow: '0 8px 32px rgba(251, 191, 36, 0.25), 0 4px 16px rgba(139, 92, 246, 0.15)'
                     }}
-                    whileHover={{ 
-                      scale: 1.02,
-                      boxShadow: '0 12px 40px rgba(251, 191, 36, 0.35), 0 6px 20px rgba(139, 92, 246, 0.2)'
+                    onMouseEnter={(e) => {
+                      gsap.to(e.target, { scale: 1.05, duration: 0.3, ease: "back.out(1.7)" });
                     }}
-                    whileTap={{ scale: 0.99 }}
-                    transition={{ 
-                      duration: 0.2,
-                      ease: "easeOut"
+                    onMouseLeave={(e) => {
+                      gsap.to(e.target, { scale: 1, duration: 0.3, ease: "back.out(1.7)" });
                     }}
                   >
                     Begin Your Journey
-                  </motion.button>
-                </motion.div>
-              </motion.div>
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
+                  </button>
+                </div>
+              </div>
 
               {/* Right Visual - Minimal Floating Elements */}
               <motion.div 
