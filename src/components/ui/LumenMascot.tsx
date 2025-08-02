@@ -195,7 +195,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
         {/* Foxie the Fox - Professional & Adorable */}
         <animated.div 
           style={bodySpring}
-          className="relative w-20 h-20 cursor-pointer group"
+          className="relative w-20 h-24 cursor-pointer group"
           onClick={() => {
             setShowGreeting(true);
             setIsWaving(true);
@@ -252,28 +252,16 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               {/* Perfect little nose */}
               <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-gray-800 rounded-full"></div>
               
-              {/* ALWAYS HAPPY SMILE - No more weird expressions! */}
-              <div className={`absolute top-11.5 left-1/2 transform -translate-x-1/2 transition-all duration-300 ${
-                eyeExpression === 'excited' ? 'w-7 h-4' : 
-                eyeExpression === 'joyful' ? 'w-6.5 h-3.5' : 
-                'w-6 h-3'
-              }`}>
-                <div className={`border-b-2 border-gray-800 rounded-full absolute left-0 ${
-                  eyeExpression === 'excited' ? 'w-3.5 h-2' : 
-                  eyeExpression === 'joyful' ? 'w-3.25 h-1.75' : 
-                  'w-3 h-1.5'
-                }`}></div>
-                <div className={`border-b-2 border-gray-800 rounded-full absolute right-0 ${
-                  eyeExpression === 'excited' ? 'w-3.5 h-2' : 
-                  eyeExpression === 'joyful' ? 'w-3.25 h-1.75' : 
-                  'w-3 h-1.5'
-                }`}></div>
+              {/* BIG OBVIOUS HAPPY SMILE - Actually visible! */}
+              <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-8 h-4">
+                {/* Simple curved smile that's ALWAYS visible */}
+                <div className="absolute left-1 top-1 w-6 h-3 border-b-3 border-gray-800 rounded-full"></div>
+                {/* Make it even more obvious with a bigger curve */}
+                <div className="absolute left-0.5 top-0.5 w-7 h-4 border-b-2 border-gray-700 rounded-full opacity-60"></div>
               </div>
               
-              {/* Little tongue for extra cuteness - shows more when excited/joyful */}
-              <div className={`absolute top-12.5 left-1/2 transform -translate-x-1/2 bg-pink-400 rounded-full transition-all duration-300 ${
-                eyeExpression === 'excited' || eyeExpression === 'joyful' ? 'w-2 h-1.5' : 'w-1.5 h-1'
-              }`}></div>
+              {/* Little tongue sticking out - always visible and cute */}
+              <div className="absolute top-12.5 left-1/2 transform -translate-x-1/2 w-2 h-1.5 bg-pink-400 rounded-full"></div>
               
               {/* PROMINENT cheek blush - kawaii style */}
               <div className="absolute top-7 left-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
@@ -283,8 +271,8 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-5 h-4 bg-white/95 rounded-full"></div>
             </div>
             
-            {/* Fox Body - Lower positioned and better proportioned */}
-            <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-12 h-9 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full shadow-md">
+            {/* Fox Body - Much lower positioned so you can see the mouth! */}
+            <div className="absolute top-14 left-1/2 transform -translate-x-1/2 w-12 h-9 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full shadow-md">
               <div className="absolute top-1.5 left-2 w-2 h-2 bg-white/60 rounded-full blur-[0.5px]"></div>
             </div>
             
@@ -297,16 +285,16 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white/50 rounded-full blur-[0.5px]"></div>
             </animated.div>
             
-            {/* Waving paw - properly shaped and positioned */}
+            {/* Waving paw - properly shaped and positioned for lower body */}
             <animated.div 
               style={waveSpring}
-              className="absolute -left-1 top-13 w-2.5 h-4 bg-orange-200 rounded-full origin-bottom shadow-md border border-orange-300"
+              className="absolute -left-1 top-16 w-2.5 h-4 bg-orange-200 rounded-full origin-bottom shadow-md border border-orange-300"
             ></animated.div>
             
-            {/* Other paws - better positioned for lower body */}
-            <div className="absolute left-2 top-16 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
-            <div className="absolute right-2 top-16 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
-            <div className="absolute right-4 top-16 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            {/* Other paws - positioned for much lower body */}
+            <div className="absolute left-2 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            <div className="absolute right-2 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            <div className="absolute right-4 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
           </div>
         </animated.div>
       </animated.div>
