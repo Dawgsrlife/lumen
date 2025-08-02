@@ -21,27 +21,36 @@ const LumenIcon: React.FC<LumenIconProps> = ({
 
   const IconContent = () => (
     <div className={`relative ${sizeClasses[size]} ${className}`}>
-      {/* Outer glow */}
-      <div className="absolute inset-0 rounded-full blur-md opacity-30"
-           style={{
-             background: 'radial-gradient(circle, rgba(251, 191, 36, 0.6) 0%, rgba(139, 92, 246, 0.4) 70%, transparent 100%)'
-           }} />
-      
-      {/* Main circular orb */}
-      <div 
-        className="relative w-full h-full rounded-full shadow-lg"
-        style={{
-          background: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #8B5CF6 100%)'
-        }}
-      >
-        {/* Inner highlight */}
-        <div className="absolute top-1 left-1 w-2 h-2 bg-white rounded-full opacity-60 blur-[1px]" />
+      {/* Clean minimalist design - representing "light" */}
+      <div className="relative w-full h-full flex items-center justify-center">
         
-        {/* Subtle inner glow */}
-        <div className="absolute inset-1 rounded-full opacity-20"
-             style={{
-               background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, transparent 50%)'
-             }} />
+        {/* Simple light bulb outline */}
+        <svg 
+          width="100%" 
+          height="100%" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          className="text-gray-800"
+        >
+          {/* Bulb shape */}
+          <path 
+            d="M9 21h6m-6 0v-1a2 2 0 002-2h2a2 2 0 002 2v1m-6 0H7m8 0h2M12 3a6 6 0 00-6 6c0 1.887.71 3.61 1.875 4.919A2.992 2.992 0 009 16h6a2.992 2.992 0 001.125-2.081A7.993 7.993 0 0018 9a6 6 0 00-6-6z" 
+            stroke="currentColor" 
+            strokeWidth="1.5" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            fill="rgba(251, 191, 36, 0.1)"
+          />
+          
+          {/* Light rays */}
+          <path 
+            d="M12 1v2m0 0L10.5 4.5M12 3l1.5 1.5M3.5 10.5L1 12m2.5-1.5L5 9M20.5 10.5L23 12m-2.5-1.5L19 9" 
+            stroke="rgba(251, 191, 36, 0.6)" 
+            strokeWidth="1.5" 
+            strokeLinecap="round"
+          />
+        </svg>
+        
       </div>
     </div>
   );
@@ -49,18 +58,15 @@ const LumenIcon: React.FC<LumenIconProps> = ({
   if (animated) {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.8, rotate: -180 }}
-        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ 
-          duration: 1.2, 
-          ease: "easeOut",
-          type: "spring",
-          stiffness: 100
+          duration: 0.6, 
+          ease: "easeOut"
         }}
         whileHover={{ 
-          scale: 1.05,
-          rotate: 5,
-          transition: { duration: 0.3 }
+          scale: 1.02,
+          transition: { duration: 0.2 }
         }}
       >
         <IconContent />
