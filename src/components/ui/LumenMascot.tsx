@@ -143,51 +143,28 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   useEffect(() => {
     if (!isVisible) return;
     
+    // Show first message quickly for testing
+    const initialTimeout = setTimeout(() => {
+      const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
+      setEncouragingMessage(randomMessage);
+      setTimeout(() => setEncouragingMessage(''), 5000);
+    }, 3000); // Show after 3 seconds
+    
     const encouragingTimer = setInterval(() => {
-      if (Math.random() > 0.6) { // 40% chance each interval
+      if (Math.random() > 0.3) { // 70% chance each interval (higher chance)
         const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
         setEncouragingMessage(randomMessage);
         setTimeout(() => setEncouragingMessage(''), 5000); // Hide after 5 seconds
       }
-    }, Math.random() * 15000 + 10000); // Between 10-25 seconds
+    }, Math.random() * 10000 + 8000); // Between 8-18 seconds (more frequent)
     
-    return () => clearInterval(encouragingTimer);
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(encouragingTimer);
+    };
   }, [isVisible]);
 
-  // Random encouraging messages (Duolingo style!)
-  useEffect(() => {
-    if (isVisible) {
-      // Set initial encouraging message
-      setEncouragingMessage(sample(encouragingMessages) || encouragingMessages[0]);
-      
-      // Show encouraging message after initial greeting
-      const encouragingTimeout = setTimeout(() => {
-        setGreetingText(sample(encouragingMessages) || encouragingMessages[0]);
-        setShowGreeting(true);
-        setIsWaving(true);
-        
-        setTimeout(() => setIsWaving(false), 2000);
-        setTimeout(() => setShowGreeting(false), 5000);
-      }, 15000); // Show after 15 seconds
-      
-      // Then show random encouraging messages every 30 seconds
-      const encouragingInterval = setInterval(() => {
-        const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
-        setEncouragingMessage(randomMessage);
-        setGreetingText(randomMessage);
-        setShowGreeting(true);
-        setIsWaving(true);
-        
-        setTimeout(() => setIsWaving(false), 2000);
-        setTimeout(() => setShowGreeting(false), 4000);
-      }, 30000);
-      
-      return () => {
-        clearTimeout(encouragingTimeout);
-        clearInterval(encouragingInterval);
-      };
-    }
-  }, [isVisible, encouragingMessages]);
+  // Removed duplicate encouraging message logic - handled above
 
   // Don't render if not visible
   if (!isVisible) return null;
