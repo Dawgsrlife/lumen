@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, Button, LoadingSpinner } from '../components/ui';
+import { AIFeedback } from '../components/ai';
+import { EmotionSurvey } from '../components/emotion';
 import { useClerkUser } from '../hooks/useClerkUser';
+import { storageService } from '../services/storage';
+import type { SurveyResponse as EmotionSurveyResponse } from '../components/emotion/EmotionSurvey';
+// import type { SurveyResponse } from '../types'; // Used in storage service
 
 const Dashboard: React.FC = () => {
   const { user } = useClerkUser();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentEmotion, setCurrentEmotion] = useState<string | null>('😊');
+  const [emotionIntensity, setEmotionIntensity] = useState<number>(5);
+  const [showAIFeedback, setShowAIFeedback] = useState(false);
+  const [showSurvey, setShowSurvey] = useState(false);
+  const [recentEmotions, setRecentEmotions] = useState<any[]>([]);
+  // const [userStats, setUserStats] = useState<any>(null); // Will be used for stats display
 
   const moods = [
     { emoji: '😢', label: 'Sad', color: 'bg-blue-100 text-blue-800' },
@@ -17,12 +27,23 @@ const Dashboard: React.FC = () => {
     { emoji: '😊', label: 'Very Happy', color: 'bg-lumen-primary/20 text-lumen-primary' },
   ];
 
-  const recentEmotions = [
-    { date: 'Today', mood: '😊', note: 'Feeling great after morning workout' },
-    { date: 'Yesterday', mood: '😐', note: 'Had a stressful day at work' },
-    { date: '2 days ago', mood: '🙂', note: 'Good conversation with friends' },
-    { date: '3 days ago', mood: '😕', note: 'Feeling a bit overwhelmed' },
-  ];
+  // Load user data on component mount
+  useEffect(() => {
+    if (user) {
+      loadUserData();
+    }
+  }, [user]);
+
+  const loadUserData = async () => {
+    try {
+      const recent = await storageService.getRecentEmotions(user!.id, 5);
+      // const stats = await storageService.getUserStats(user!.id);
+      setRecentEmotions(recent);
+      // setUserStats(stats); // Will be used for stats display
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  };
 
   const aiInsights = [
     {
@@ -46,14 +67,45 @@ const Dashboard: React.FC = () => {
   ];
 
   const handleMoodSubmit = async () => {
-    if (!selectedMood) return;
+    if (!selectedMood || !user) return;
     
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setCurrentEmotion(selectedMood);
-    setSelectedMood(null);
+    setShowSurvey(true);
     setIsSubmitting(false);
+  };
+
+  const handleSurveyComplete = async (surveyResponses: EmotionSurveyResponse[]) => {
+    if (!selectedMood || !user) return;
+    
+    try {
+      // Save emotion entry with survey responses
+      await storageService.saveEmotionEntry({
+        userId: user.id,
+        emotion: selectedMood,
+        intensity: emotionIntensity,
+        surveyResponses: surveyResponses.map(response => ({
+          questionId: response.questionId,
+          question: response.questionId,
+          answer: response.answer,
+          category: 'context' as const,
+        })),
+      });
+
+      setCurrentEmotion(selectedMood);
+      setSelectedMood(null);
+      setShowSurvey(false);
+      setShowAIFeedback(true);
+      
+      // Reload user data
+      await loadUserData();
+    } catch (error) {
+      console.error('Error saving emotion entry:', error);
+    }
+  };
+
+  const handleSurveySkip = () => {
+    setShowSurvey(false);
+    setSelectedMood(null);
   };
 
   if (!user) {
@@ -78,14 +130,30 @@ const Dashboard: React.FC = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Emotion Tracking */}
+        {showSurvey ? (
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="max-w-2xl mx-auto"
           >
+            <EmotionSurvey
+              emotion={selectedMood!}
+              intensity={emotionIntensity}
+              onComplete={handleSurveyComplete}
+              onSkip={handleSurveySkip}
+            />
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Emotion Tracking */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="lg:col-span-2"
+            >
             <Card title="Today's Mood Check-in" className="mb-6">
               <div className="space-y-6">
                 <div className="text-center">
@@ -108,49 +176,87 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {selectedMood && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-4"
-                  >
-                    <div className="bg-lumen-primary/5 rounded-lg p-4">
-                      <p className="text-sm text-lumen-dark">
-                        "Your emotions are valid. Thank you for taking the time to acknowledge how you're feeling."
-                      </p>
-                    </div>
-                    <Button
-                      onClick={handleMoodSubmit}
-                      loading={isSubmitting}
-                      className="w-full"
-                    >
-                      {isSubmitting ? 'Saving...' : 'Save My Mood'}
-                    </Button>
-                  </motion.div>
-                )}
+                                        {selectedMood && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-4"
+                          >
+                            <div className="bg-lumen-primary/5 rounded-lg p-4">
+                              <p className="text-sm text-lumen-dark">
+                                "Your emotions are valid. Thank you for taking the time to acknowledge how you're feeling."
+                              </p>
+                            </div>
+                            
+                            {/* Intensity Slider */}
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-gray-700">
+                                How intense is this feeling? ({emotionIntensity}/10)
+                              </label>
+                              <input
+                                type="range"
+                                min="1"
+                                max="10"
+                                value={emotionIntensity}
+                                onChange={(e) => setEmotionIntensity(Number(e.target.value))}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                              />
+                              <div className="flex justify-between text-xs text-gray-500">
+                                <span>Mild</span>
+                                <span>Moderate</span>
+                                <span>Intense</span>
+                              </div>
+                            </div>
+                            
+                            <Button
+                              onClick={handleMoodSubmit}
+                              loading={isSubmitting}
+                              className="w-full"
+                            >
+                              {isSubmitting ? 'Saving...' : 'Save My Mood'}
+                            </Button>
+                          </motion.div>
+                        )}
               </div>
             </Card>
 
             {/* Recent Emotions */}
             <Card title="Recent Emotions" subtitle="Your mood history">
               <div className="space-y-4">
-                {recentEmotions.map((emotion, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="text-2xl">{emotion.mood}</div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-lumen-dark">{emotion.date}</span>
-                        <span className="text-sm text-gray-500">{emotion.note}</span>
+                {recentEmotions.length > 0 ? (
+                  recentEmotions.map((emotion, index) => (
+                    <motion.div
+                      key={emotion.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="text-2xl">{emotion.emotion}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-lumen-dark">
+                            {new Date(emotion.timestamp).toLocaleDateString()}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            Intensity: {emotion.intensity}/10
+                          </span>
+                        </div>
+                        {emotion.surveyResponses.length > 0 && (
+                          <div className="text-xs text-gray-400 mt-1">
+                            {emotion.surveyResponses.length} responses recorded
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <div className="text-2xl mb-2">📝</div>
+                    <p>No emotions recorded yet</p>
+                    <p className="text-sm">Start by logging your first emotion above</p>
+                  </div>
+                )}
               </div>
             </Card>
           </motion.div>
@@ -170,32 +276,46 @@ const Dashboard: React.FC = () => {
               </div>
             </Card>
 
-            {/* AI Insights */}
-            <Card title="AI Insights" subtitle="Personalized for you">
-              <div className="space-y-4">
-                {aiInsights.map((insight, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="p-4 bg-gradient-to-r from-lumen-primary/5 to-lumen-secondary/5 rounded-lg border border-lumen-primary/20"
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div className="text-2xl">{insight.icon}</div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-lumen-dark mb-1">
-                          {insight.title}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {insight.content}
-                        </p>
+            {/* AI Feedback */}
+            {showAIFeedback && currentEmotion && (
+              <AIFeedback
+                emotion={currentEmotion}
+                intensity={emotionIntensity}
+                context="Daily mood check-in"
+                onFeedbackGenerated={(feedback) => {
+                  console.log('AI Feedback generated:', feedback);
+                }}
+              />
+            )}
+
+            {/* Fallback AI Insights */}
+            {!showAIFeedback && (
+              <Card title="AI Insights" subtitle="Personalized for you">
+                <div className="space-y-4">
+                  {aiInsights.map((insight, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      className="p-4 bg-gradient-to-r from-lumen-primary/5 to-lumen-secondary/5 rounded-lg border border-lumen-primary/20"
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="text-2xl">{insight.icon}</div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-lumen-dark mb-1">
+                            {insight.title}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            {insight.content}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </Card>
+            )}
 
             {/* Quick Actions */}
             <Card title="Quick Actions">
@@ -225,6 +345,7 @@ const Dashboard: React.FC = () => {
             </Card>
           </motion.div>
         </div>
+        )}
       </div>
     </div>
   );
