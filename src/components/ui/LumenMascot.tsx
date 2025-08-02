@@ -15,6 +15,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   const [isWaving, setIsWaving] = useState(false);
   const [eyeExpression, setEyeExpression] = useState('happy');
   const [encouragingMessage, setEncouragingMessage] = useState('');
+  const [showEncouragingBox, setShowEncouragingBox] = useState(true); // Open by default
 
   // Pool of encouraging messages (Duolingo style!)
   const encouragingMessages = [
@@ -195,6 +196,9 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
           style={bodySpring}
           className="relative w-20 h-24 cursor-pointer group"
           onClick={() => {
+            // Toggle encouraging message box
+            setShowEncouragingBox(!showEncouragingBox);
+            // Also show greeting and wave
             setShowGreeting(true);
             setIsWaving(true);
             setTimeout(() => setIsWaving(false), 2000);
@@ -322,12 +326,12 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
 
       {/* Duolingo-style Encouraging Text Box - Separate from speech bubble */}
       <AnimatePresence>
-        {encouragingMessage && (
+        {encouragingMessage && showEncouragingBox && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="fixed bottom-72 right-24 max-w-sm z-50"
+            className="fixed bottom-72 right-24 max-w-sm z-[9999]"
           >
             <div 
               className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
@@ -335,10 +339,16 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
                 background: 'linear-gradient(135deg, rgba(254, 240, 138, 0.95) 0%, rgba(251, 191, 36, 0.2) 100%)'
               }}
             >
-              {/* Sparkle icon */}
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-white text-xs">✨</span>
-              </div>
+              {/* X Close button */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering Foxie's click
+                  setShowEncouragingBox(false);
+                }}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-400 hover:bg-red-500 rounded-full flex items-center justify-center shadow-lg transition-colors cursor-pointer"
+              >
+                <span className="text-white text-xs font-bold">✕</span>
+              </button>
               
               <p className="text-sm text-gray-800 font-semibold leading-relaxed pr-4">
                 {encouragingMessage}
