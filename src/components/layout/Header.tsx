@@ -120,14 +120,14 @@ const Header: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/sign-in')}
                 >
                   Sign In
                 </Button>
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => navigate('/register')}
+                  onClick={() => navigate('/sign-up')}
                 >
                   Sign Up
                 </Button>

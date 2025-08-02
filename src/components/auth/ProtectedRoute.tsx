@@ -9,15 +9,8 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  fallbackPath = '/login' 
+  fallbackPath = '/sign-in' 
 }) => {
-  const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-  
-  // If no Clerk key is configured, allow access (for development)
-  if (!publishableKey) {
-    return <>{children}</>;
-  }
-
   const { isSignedIn, isLoaded } = useAuth();
   const location = useLocation();
 
