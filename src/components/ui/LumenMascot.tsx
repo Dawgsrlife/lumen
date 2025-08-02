@@ -20,7 +20,9 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       '/': "Hey there! I'm Foxie, your clever companion. Ready to brighten your mind?",
       '/about': "Learning about Lumen? Smart choice! I'm here to guide you through it all.",
       '/features': "Ooh, exploring features? I love showing off what we can do together!",
-      '/contact': "Want to meet the team? They're as awesome as you'd expect!"
+      '/contact': "Want to meet the team? They're as awesome as you'd expect!",
+      '/sign-in': "Welcome back! I'm so excited to see you again. Let's continue your journey!",
+      '/sign-up': "Hey there, new friend! I'm Foxie, and I can't wait to be your wellness companion!"
     };
     return greetings[page as keyof typeof greetings] || "Hi! I'm Foxie, your friendly Lumen guide!";
   };

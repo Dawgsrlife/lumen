@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
-import { SignIn, SignUp } from '@clerk/clerk-react';
 import { AppProvider } from './context/AppContext';
 import { ClerkProvider } from './components/auth/ClerkProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -14,6 +13,8 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 const About = lazy(() => import('./pages/About'));
 const Features = lazy(() => import('./pages/Features'));
 const Contact = lazy(() => import('./pages/Contact'));
+const SignInPage = lazy(() => import('./pages/SignInPage'));
+const SignUpPage = lazy(() => import('./pages/SignUpPage'));
 const WelcomePage = lazy(() => import('./pages/WelcomePage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
@@ -36,8 +37,16 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/features" element={<Features />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/sign-in" element={<SignIn />} />
-              <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/sign-in" element={
+                <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                  <SignInPage />
+                </Suspense>
+              } />
+              <Route path="/sign-up" element={
+                <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                  <SignUpPage />
+                </Suspense>
+              } />
               
               {/* Protected Routes - With Header/Footer */}
               <Route 
