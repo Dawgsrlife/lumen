@@ -177,20 +177,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     };
   }, [isVisible]);
 
-  // Subtle breathing animation for textbox
-  useEffect(() => {
-    if (!textboxRef.current || !showEncouragingBox) return;
-    
-    const breathingAnimation = gsap.to(textboxRef.current, {
-      scale: 1.02,
-      duration: 2,
-      ease: "sine.inOut",
-      yoyo: true,
-      repeat: -1
-    });
-    
-    return () => breathingAnimation.kill();
-  }, [showEncouragingBox]);
+  // Removed breathing animation - was too wigly, keeping it clean and simple
 
   // Removed duplicate encouraging message logic - handled above
 
