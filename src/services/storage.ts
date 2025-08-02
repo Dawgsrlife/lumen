@@ -1,4 +1,4 @@
-import type { EmotionEntry, SurveyResponse, AIFeedback } from '../types';
+import type { SurveyResponse, AIFeedback } from '../types';
 
 interface StoredEmotionData {
   id: string;
@@ -159,7 +159,7 @@ class StorageService {
   }
 
   // Update user statistics
-  private updateUserStats(userId: string): void {
+  private updateUserStats(_userId: string): void {
     // This could be used to update cached stats
     // For now, we'll calculate stats on-demand
   }

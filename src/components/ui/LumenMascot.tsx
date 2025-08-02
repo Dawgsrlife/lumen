@@ -90,15 +90,15 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       >
         {/* Glow Effect */}
         <animated.div
-          style={glowSpring}
-          className="absolute inset-0 rounded-full"
           style={{
+            ...glowSpring,
             background: 'radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, rgba(139, 92, 246, 0.2) 70%, transparent 100%)',
             filter: 'blur(8px)',
             width: '80px',
             height: '80px',
             transform: 'translate(-10px, -10px)'
           }}
+          className="absolute inset-0 rounded-full"
         />
         
         {/* Main Mascot Body */}
