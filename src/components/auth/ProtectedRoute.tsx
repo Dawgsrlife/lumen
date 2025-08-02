@@ -2,18 +2,6 @@ import { useAuth } from '@clerk/clerk-react';
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
-// Mock auth hook for development mode
-const useMockAuth = () => ({
-  isSignedIn: true,
-  isLoaded: true,
-  user: {
-    id: 'dev-user-123',
-    email: 'dev@lumen.com',
-    firstName: 'Developer',
-    lastName: 'User',
-  },
-});
-
 interface ProtectedRouteProps {
   children: ReactNode;
   fallbackPath?: string;
@@ -23,12 +11,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   fallbackPath = '/login' 
 }) => {
-  const isDevelopment = import.meta.env.DEV;
-  const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-  
-  // Use mock auth in development when Clerk is not configured
-  const auth = (!publishableKey && isDevelopment) ? useMockAuth() : useAuth();
-  const { isSignedIn, isLoaded } = auth;
+  const { isSignedIn, isLoaded } = useAuth();
   const location = useLocation();
 
   // Show loading while Clerk is initializing

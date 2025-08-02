@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, Button, LoadingSpinner } from '../components/ui';
+import UnityGame from '../components/games/UnityGame';
 import { useClerkUser } from '../hooks/useClerkUser';
+// import { unityService } from '../services/unity'; // Will be used for Unity integration
+import type { UnityGameData, UnityReward } from '../services/unity';
 
 const Games: React.FC = () => {
   const { user } = useClerkUser();
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [score, setScore] = useState(0);
+  // const [gameResults, setGameResults] = useState<UnityGameData[]>([]); // Will be used for game analytics
+  // const [rewards, setRewards] = useState<UnityReward[]>([]); // Will be used for rewards system
 
   const games = [
     {
@@ -17,6 +22,7 @@ const Games: React.FC = () => {
       difficulty: 'Easy',
       duration: '5 min',
       benefits: ['Reduces stress', 'Improves focus', 'Calms mind'],
+      type: 'react',
     },
     {
       id: 'gratitude',
@@ -26,6 +32,7 @@ const Games: React.FC = () => {
       difficulty: 'Easy',
       duration: '3 min',
       benefits: ['Boosts mood', 'Increases positivity', 'Reduces anxiety'],
+      type: 'react',
     },
     {
       id: 'meditation',
@@ -35,6 +42,7 @@ const Games: React.FC = () => {
       difficulty: 'Medium',
       duration: '10 min',
       benefits: ['Inner peace', 'Mental clarity', 'Emotional balance'],
+      type: 'react',
     },
     {
       id: 'coloring',
@@ -44,6 +52,7 @@ const Games: React.FC = () => {
       difficulty: 'Easy',
       duration: '8 min',
       benefits: ['Reduces anxiety', 'Promotes creativity', 'Mindfulness'],
+      type: 'react',
     },
     {
       id: 'puzzle',
@@ -53,6 +62,7 @@ const Games: React.FC = () => {
       difficulty: 'Medium',
       duration: '7 min',
       benefits: ['Improves focus', 'Reduces stress', 'Mental exercise'],
+      type: 'react',
     },
     {
       id: 'music',
@@ -62,6 +72,30 @@ const Games: React.FC = () => {
       difficulty: 'Easy',
       duration: '6 min',
       benefits: ['Relaxation', 'Better sleep', 'Stress relief'],
+      type: 'react',
+    },
+    // Unity Games
+    {
+      id: 'unity-meditation',
+      title: 'Unity Meditation Game',
+      description: 'Immersive 3D meditation experience with Unity',
+      icon: '🎮',
+      difficulty: 'Easy',
+      duration: '10 min',
+      benefits: ['Deep relaxation', 'Immersive experience', '3D visualization'],
+      type: 'unity',
+      buildUrl: '/unity-builds/meditation-game',
+    },
+    {
+      id: 'unity-breathing',
+      title: 'Unity Breathing Game',
+      description: '3D breathing exercise with visual feedback',
+      icon: '🫁',
+      difficulty: 'Easy',
+      duration: '5 min',
+      benefits: ['Visual breathing guide', '3D environment', 'Immersive experience'],
+      type: 'unity',
+      buildUrl: '/unity-builds/breathing-game',
     },
   ];
 
@@ -283,7 +317,52 @@ const Games: React.FC = () => {
     );
   };
 
+  // Unity game handlers
+  const handleUnityGameComplete = (data: UnityGameData) => {
+    // setGameResults(prev => [...prev, data]); // Will be used for game analytics
+    console.log('Unity game completed:', data);
+  };
+
+  const handleUnityRewardEarned = (reward: UnityReward) => {
+    // setRewards(prev => [...prev, reward]); // Will be used for rewards system
+    console.log('Unity reward earned:', reward);
+  };
+
   const renderGame = () => {
+    const selectedGameData = games.find(game => game.id === selectedGame);
+    
+    if (!selectedGameData) {
+      return (
+        <div className="text-center space-y-6">
+          <div className="text-4xl mb-4">🎮</div>
+          <h2 className="text-xl font-semibold text-lumen-dark">
+            Game not found!
+          </h2>
+          <p className="text-gray-600">
+            This game is not available.
+          </p>
+          <Button onClick={() => setSelectedGame(null)}>
+            Back to Games
+          </Button>
+        </div>
+      );
+    }
+
+    // Render Unity games
+    if (selectedGameData.type === 'unity') {
+      return (
+        <UnityGame
+          gameId={selectedGameData.id}
+          gameTitle={selectedGameData.title}
+          description={selectedGameData.description}
+          buildUrl={selectedGameData.buildUrl}
+          onGameComplete={handleUnityGameComplete}
+          onRewardEarned={handleUnityRewardEarned}
+        />
+      );
+    }
+
+    // Render React games
     switch (selectedGame) {
       case 'breathing':
         return <BreathingGame />;
