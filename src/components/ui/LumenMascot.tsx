@@ -332,10 +332,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 0, scale: 0.9, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="absolute -top-16 -left-64 max-w-xs z-50"
-            style={{
-              // Position relative to Foxie's container - top-left of him
-            }}
+            className="absolute -top-16 -left-40 max-w-sm z-50"
           >
             <div 
               className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
@@ -352,9 +349,13 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
                 {encouragingMessage}
               </p>
               
-              {/* Encouraging box tail */}
+              {/* Speech bubble tail pointing to Foxie */}
               <div 
-                className="absolute -bottom-2 right-8 w-4 h-4 bg-yellow-200 transform rotate-45 border-r-2 border-b-2 border-yellow-300"
+                className="absolute -bottom-2 right-4 w-4 h-4 bg-yellow-200 transform rotate-45 border-r-2 border-b-2 border-yellow-300"
+              />
+              {/* Additional tail piece for better connection */}
+              <div 
+                className="absolute -bottom-1 right-5 w-2 h-2 bg-yellow-200 transform rotate-45"
               />
             </div>
           </motion.div>

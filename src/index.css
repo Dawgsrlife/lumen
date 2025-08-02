@@ -156,16 +156,6 @@ body {
   }
 }
 
-/* ✨ TARGETED TEXT GLOW - JUST FOR "MIND" WORD ✨ */
-.mind-glow {
-  background: linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(251, 191, 36, 0.4), 0 0 60px rgba(139, 92, 246, 0.3);
-  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));
-}
-
 /* 🔥 INSANE BUTTON ANIMATIONS - ATTENTION GRABBING MASTERPIECE 🔥 */
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }

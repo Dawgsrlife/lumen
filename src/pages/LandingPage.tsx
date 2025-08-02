@@ -296,12 +296,12 @@ const LandingPage: React.FC = () => {
                       style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
                     >
                       <span className="block hero-line relative">
-                        <span className="hero-word">Light</span> <span className="hero-word">the</span> <span className="hero-word mind-glow">Mind.</span>
+                        <span className="hero-word">Light</span> <span className="hero-word">the</span> <span className="hero-word">Mind.</span>
                         <span className="text-sparkle absolute -top-2 -right-2 text-2xl">✨</span>
                         <span className="text-sparkle absolute top-0 left-8 text-xl opacity-70">⭐</span>
                       </span>
                       <span className="block hero-line relative">
-                        <span className="hero-word">Feel,</span> <span className="hero-word">Heal,</span> <span className="hero-word">and</span> <span className="hero-word">Grow.</span>
+                        <span className="hero-word">Feel,</span> <span className="hero-word">Heal</span> <span className="hero-word">, and</span> <span className="hero-word">Grow.</span>
                         <span className="text-sparkle absolute -top-1 right-12 text-xl">💫</span>
                         <span className="text-sparkle absolute bottom-2 -left-3 text-lg opacity-80">✨</span>
                       </span>
