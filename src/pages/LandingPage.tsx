@@ -1,267 +1,306 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Button, Card } from '../components/ui';
+import { gsap } from 'gsap';
+import { useAuth } from '@clerk/clerk-react';
+import { Navigate } from 'react-router-dom';
+import { AnimatedBackground } from 'animated-backgrounds';
+import { Button, LumenIcon, AnimatedBall } from '../components/ui';
 
 const LandingPage: React.FC = () => {
-  const features = [
-    {
-      icon: '🧠',
-      title: 'Emotion Tracking',
-      description: 'Track your daily emotions with our intuitive mood interface. Understand your patterns and triggers.',
-    },
-    {
-      icon: '🤖',
-      title: 'AI-Powered Insights',
-      description: 'Get personalized feedback and insights from our advanced AI system powered by Google Gemini.',
-    },
-    {
-      icon: '🎮',
-      title: 'Therapeutic Games',
-      description: 'Engage with carefully designed mini-games that promote mental wellness and stress relief.',
-    },
-    {
-      icon: '📊',
-      title: 'Progress Analytics',
-      description: 'Visualize your mental health journey with detailed charts and progress tracking.',
-    },
-  ];
+  const { isSignedIn, isLoaded } = useAuth();
+  const [showContent, setShowContent] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const leftBorderRef = useRef<HTMLDivElement>(null);
+  const rightBorderRef = useRef<HTMLDivElement>(null);
+  const backgroundRef = useRef<HTMLDivElement>(null);
 
-  const testimonials = [
-    {
-      name: 'Sarah M.',
-      role: 'Student',
-      content: 'Lumen has completely changed how I approach my mental health. The emotion tracking is so intuitive!',
-      avatar: '👩‍🎓',
-    },
-    {
-      name: 'David K.',
-      role: 'Software Engineer',
-      content: 'The AI insights are incredibly accurate. It feels like having a personal therapist available 24/7.',
-      avatar: '👨‍💻',
-    },
-    {
-      name: 'Emma L.',
-      role: 'Teacher',
-      content: 'The therapeutic games are perfect for unwinding after a stressful day. Highly recommend!',
-      avatar: '👩‍🏫',
-    },
-  ];
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    // Start with ball animation, then show content
+    const handleBallAnimationComplete = () => {
+      setShowContent(true);
+      
+      // Start the landing page animations after ball dissolves
+      setTimeout(() => {
+        startLandingAnimations();
+      }, 200);
+    };
+
+    const startLandingAnimations = () => {
+      // GSAP Timeline for incredible animations
+      const tl = gsap.timeline({ ease: "power3.out" });
+
+      // Initial state - everything hidden
+      gsap.set([headingRef.current, iconRef.current, textRef.current, buttonRef.current], {
+        opacity: 0,
+        y: 60
+      });
+
+      gsap.set([leftBorderRef.current, rightBorderRef.current], {
+        scaleY: 0,
+        transformOrigin: "top"
+      });
+
+      gsap.set(backgroundRef.current, {
+        opacity: 0
+      });
+
+      // Background fade in
+      tl.to(backgroundRef.current, {
+        opacity: 1,
+        duration: 2,
+        ease: "power2.out"
+      })
+      // Side borders animate in
+      .to([leftBorderRef.current, rightBorderRef.current], {
+        scaleY: 1,
+        duration: 1.2,
+        ease: "power2.out"
+      }, "-=1.5")
+      // Heading appears with stagger
+      .to(headingRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: "power2.out"
+      }, "-=0.8")
+      // Icon appears with rotation
+      .to(iconRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power2.out"
+      }, "-=0.6")
+      // Text fades in
+      .to(textRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.4")
+      // Button appears
+      .to(buttonRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.6")
+      // Icon floating animation
+      .to(iconRef.current, {
+        y: -10,
+        duration: 2,
+        ease: "power1.inOut",
+        yoyo: true,
+        repeat: -1
+      }, "-=0.4");
+    };
+
+    // Start the ball animation immediately
+    handleBallAnimationComplete();
+
+  }, [isLoaded]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lumen-primary"></div>
+      </div>
+    );
+  }
+
+  if (isSignedIn) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-lumen-light via-white to-lumen-primary/5">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="container mx-auto px-4 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              <div className="flex items-center space-x-2 mb-6">
-                <div className="w-12 h-12 bg-lumen-primary rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-2xl">L</span>
-                </div>
-                <span className="text-2xl font-bold text-lumen-dark">Lumen</span>
-              </div>
-              
-              <h1 className="text-5xl lg:text-6xl font-bold text-lumen-dark leading-tight">
-                Your Journey to
-                <span className="text-lumen-primary block">Mental Wellness</span>
-                Starts Here
-              </h1>
-              
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Track emotions, get AI-powered insights, and discover therapeutic mini-games 
-                designed to support your mental health journey.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  onClick={() => window.location.href = '/register'}
-                  className="text-lg px-8 py-4"
-                >
-                  Start Your Journey
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => window.location.href = '/login'}
-                  className="text-lg px-8 py-4"
-                >
-                  Sign In
-                </Button>
-              </div>
-            </motion.div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 3D Ball Animation */}
+      <AnimatedBall onAnimationComplete={() => setShowContent(true)} />
+      
+      {/* Landing Page Content - only show after ball animation */}
+      {showContent && (
+        <>
+          {/* Subtle White Base */}
+          <div className="absolute inset-0 bg-white"></div>
+          
+          {/* Interactive Stain Background */}
+          <div className="absolute inset-0 z-5 pointer-events-auto">
+            <AnimatedBackground 
+              animationName="particleNetwork"
+              interactive={true}
+              interactionConfig={{
+                effect: 'attract',
+                strength: 0.8,
+                radius: 300,
+                continuous: true,
+                multiTouch: true
+              }}
+              style={{ 
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0.1,
+                mixBlendMode: 'multiply',
+                pointerEvents: 'auto',
+                zIndex: 5
+              }}
+            />
+          </div>
+          
+          {/* Ultra-subtle Stain Overlay */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/5 via-purple-50/3 to-pink-50/4"></div>
             
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-lumen-primary/20 rounded-full flex items-center justify-center">
-                      <span className="text-lumen-primary text-lg">😊</span>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lumen-dark">Today&apos;s Mood</h3>
-                      <p className="text-sm text-gray-500">How are you feeling?</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-5 gap-2">
-                    {['😢', '😕', '😐', '🙂', '😊'].map((emoji, index) => (
-                      <button
-                        key={index}
-                        className="p-3 rounded-lg hover:bg-lumen-primary/10 transition-colors text-2xl"
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  <div className="bg-lumen-primary/5 rounded-lg p-4">
-                    <p className="text-sm text-lumen-dark">
-                      &quot;Your emotions are valid. Take a moment to acknowledge how you&apos;re feeling.&quot;
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold text-lumen-dark mb-4">
-              Everything You Need for Mental Wellness
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our comprehensive platform combines cutting-edge technology with proven therapeutic 
-              approaches to support your mental health journey.
-            </p>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="text-center h-full">
-                  <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-semibold text-lumen-dark mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600">
-                    {feature.description}
-                  </p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20 bg-lumen-dark text-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold mb-4">
-              Trusted by Thousands
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Join our community of users who have transformed their mental health journey with Lumen.
-            </p>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="bg-gray-800 border-gray-700 h-full">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="text-3xl">{testimonial.avatar}</div>
-                    <div>
-                      <h4 className="font-semibold">{testimonial.name}</h4>
-                      <p className="text-gray-400 text-sm">{testimonial.role}</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-300">
-                    &quot;{testimonial.content}&quot;
-                  </p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-lumen-primary to-lumen-secondary text-white">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <h2 className="text-4xl font-bold mb-6">
-              Ready to Start Your Mental Health Journey?
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Join thousands of users who have already transformed their mental wellness with Lumen.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => window.location.href = '/register'}
-                className="text-lg px-8 py-4"
-              >
-                Get Started Free
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => window.location.href = '/login'}
-                className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-lumen-primary"
-              >
-                Sign In
-              </Button>
+            {/* Stain-like blobs with irregular shapes */}
+            <div className="absolute inset-0">
+              <div 
+                className="absolute w-[800px] h-[600px] bg-gradient-radial from-blue-100/8 via-purple-100/4 to-transparent blur-3xl"
+                style={{
+                  left: '-15%',
+                  top: '-10%',
+                  borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%',
+                  animation: 'stainFlow 60s ease-in-out infinite',
+                }}
+              />
+              <div 
+                className="absolute w-[700px] h-[900px] bg-gradient-radial from-purple-100/6 via-pink-100/4 to-transparent blur-3xl"
+                style={{
+                  right: '-10%',
+                  bottom: '-15%',
+                  borderRadius: '30% 60% 70% 40% / 40% 50% 60% 50%',
+                  animation: 'stainFlow 80s ease-in-out infinite reverse',
+                }}
+              />
+              <div 
+                className="absolute w-[500px] h-[400px] bg-gradient-radial from-cyan-100/5 via-blue-100/3 to-transparent blur-3xl"
+                style={{
+                  left: '60%',
+                  top: '70%',
+                  borderRadius: '50% 60% 40% 70% / 30% 40% 60% 70%',
+                  animation: 'stainFlow 100s ease-in-out infinite',
+                }}
+              />
             </div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+
+          {/* Side borders with subtle gradient */}
+          <div 
+            ref={leftBorderRef}
+            className="fixed left-0 top-0 w-16 h-full bg-gradient-to-b from-slate-300/70 to-slate-400/50 backdrop-blur-sm transform origin-top z-10"
+          ></div>
+          <div 
+            ref={rightBorderRef}
+            className="fixed right-0 top-0 w-16 h-full bg-gradient-to-b from-slate-300/70 to-slate-400/50 backdrop-blur-sm transform origin-top z-10"
+          ></div>
+          
+          {/* Main content container - perfectly centered with proper spacing */}
+          <div 
+            ref={containerRef}
+            className="relative z-20 min-h-screen flex flex-col justify-center items-center px-8 pointer-events-none"
+          >
+            <div className="text-center w-full max-w-6xl">
+              {/* Heading with proper vertical spacing and full width */}
+              <motion.div
+                ref={headingRef}
+                className="mb-24 w-full"
+              >
+                <h1 
+                  className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-slate-900 leading-tight tracking-wide w-full"
+                  style={{ 
+                    fontFamily: 'Iowan Old Style, serif'
+                  }}
+                >
+                  Brighten Your<br />
+                  Mind, One<br />
+                  Feeling at a<br />
+                  Time
+                </h1>
+              </motion.div>
+
+              {/* Custom Lumen Icon - cleanly separated with proper margins */}
+              <motion.div
+                ref={iconRef}
+                className="mb-24 flex justify-center"
+              >
+                <div className="relative">
+                  {/* Shadow behind icon */}
+                  <div className="absolute inset-0 bg-slate-400/20 rounded-full blur-xl transform scale-110"></div>
+                  <LumenIcon size="xl" animated={true} />
+                </div>
+              </motion.div>
+
+              {/* Descriptive text with better spacing and wider width */}
+              <motion.div
+                ref={textRef}
+                className="mb-24 w-full"
+              >
+                <p 
+                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif text-slate-800 leading-relaxed mx-auto"
+                  style={{ 
+                    fontFamily: 'Iowan Old Style, serif',
+                    width: '95%'
+                  }}
+                >
+                  Transform emotions into healing through<br />
+                  personalized games and AI-powered<br />
+                  insights
+                </p>
+              </motion.div>
+
+              {/* Professional CTA button - properly spaced */}
+              <motion.div
+                ref={buttonRef}
+                className="mb-16 pointer-events-auto"
+              >
+                <Button 
+                  size="lg"
+                  className="text-2xl px-20 py-12 bg-gradient-to-r from-slate-900 to-slate-800 text-white hover:from-slate-800 hover:to-slate-700 transition-all duration-300 transform hover:scale-105 shadow-2xl rounded-3xl border-0 font-bold tracking-wide pointer-events-auto"
+                  onClick={() => window.location.href = '/sign-in'}
+                >
+                  Begin Your Journey
+                </Button>
+              </motion.div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Custom CSS for stain-like flowing animations */}
+      <style jsx>{`
+        @keyframes stainFlow {
+          0%, 100% { 
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            opacity: 0.03;
+            borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%';
+          }
+          25% { 
+            transform: translate(15px, -10px) scale(1.08) rotate(2deg);
+            opacity: 0.06;
+            borderRadius: '40% 60% 50% 50% / 30% 60% 40% 70%';
+          }
+          50% { 
+            transform: translate(-8px, 12px) scale(0.95) rotate(-1deg);
+            opacity: 0.04;
+            borderRadius: '70% 30% 60% 40% / 50% 40% 60% 50%';
+          }
+          75% { 
+            transform: translate(12px, 8px) scale(1.03) rotate(1deg);
+            opacity: 0.07;
+            borderRadius: '50% 50% 40% 60% / 70% 30% 50% 50%';
+          }
+        }
+        
+        .bg-gradient-radial {
+          background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+        }
+      `}</style>
     </div>
   );
 };

@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  fallbackPath = '/login' 
+  fallbackPath = '/sign-in' 
 }) => {
   const { isSignedIn, isLoaded } = useAuth();
   const location = useLocation();
