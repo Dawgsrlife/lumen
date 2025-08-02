@@ -108,27 +108,7 @@ const LandingPage: React.FC = () => {
         repeat: -1,
         yoyo: true
       }, "-=1")
-      // Add dramatic text reveal effect with color shift (no glow to preserve emojis)
-      .to(".hero-line", {
-        backgroundImage: "linear-gradient(90deg, #FBBF24 0%, #8B5CF6 50%, #FBBF24 100%)",
-        backgroundSize: "200% 100%",
-        backgroundPosition: "100% 0",
-        backgroundClip: "text",
-        WebkitBackgroundClip: "text",
-        color: "transparent",
-        duration: 1.5,
-        ease: "power2.inOut",
-        stagger: 0.2
-      }, "-=1.5")
-      // Animate the gradient (smooth flow, no glow effects)
-      .to(".hero-line", {
-        backgroundPosition: "0% 0",
-        duration: 2,
-        ease: "power2.inOut",
-        stagger: 0.1,
-        repeat: -1,
-        yoyo: true
-      }, "-=0.5");
+      // Keep text clean and readable - no gradient effects
 
       // Logo/brand animation - clean and professional
       gsap.from(".logo", {
