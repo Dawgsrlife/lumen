@@ -328,9 +328,9 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       <AnimatePresence>
         {encouragingMessage && showEncouragingBox && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, x: 100 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.9, x: 100 }}
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 50 }}
             className="fixed bottom-72 right-24 max-w-sm z-[99999]"
           >
             <div 
@@ -371,5 +371,4 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   );
 };
 
-export default LumenMascot;
 export default LumenMascot;
