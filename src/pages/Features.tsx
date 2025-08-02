@@ -59,21 +59,25 @@ const Features: React.FC = () => {
         </div>
       </nav>
 
-      {/* Full Width Content */}
-      <div className="relative z-10 w-full px-8 py-32 lg:py-40">
+      {/* Full Width Content - Properly Centered */}
+      <div className="relative z-10 w-full px-6 sm:px-10 py-24 sm:py-32 lg:py-40">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-32 force-center-text"
+          className="text-center space-y-12 max-w-5xl mx-auto px-4"
         >
-          <div className="space-y-24 max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
+          <div className="space-y-16">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Features
             </h1>
-            <p className="text-xl text-gray-700 leading-relaxed font-medium">
-              Lumen listens when no one else does. It understands your words and feelings, then gently guides you with calming games and health insights tailored just for what you're going through.
-            </p>
+            <div className="mb-8"></div>
+            {/* Description */}
+            <div className="space-y-8 max-w-3xl mx-auto px-4 sm:px-6">
+              <p className="text-xl text-gray-700 leading-relaxed font-medium">
+                Lumen listens when no one else does. It understands your words and feelings, then gently guides you with calming games and health insights tailored just for what you're going through.
+              </p>
+            </div>
           </div>
           
           {/* Enhanced Feature Grid */}

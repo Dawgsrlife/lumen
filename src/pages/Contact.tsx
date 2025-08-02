@@ -34,20 +34,24 @@ const Contact: React.FC = () => {
       </nav>
 
       {/* Full Width Content - Properly Centered */}
-      <div className="relative z-10 w-full px-8 py-32 lg:py-40">
+      <div className="relative z-10 w-full px-6 sm:px-10 py-24 sm:py-32 lg:py-40">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-32 max-w-none force-center-text"
+          className="text-center space-y-12 max-w-5xl mx-auto px-4"
         >
-          <div className="space-y-24 max-w-4xl mx-auto">
+          <div className="space-y-16">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Contact
             </h1>
-            <p className="text-xl text-gray-700 leading-relaxed font-medium mx-auto">
-              Built by a passionate team of developers and designers.
-            </p>
+            <div className="mb-8"></div>
+            {/* Description */}
+            <div className="space-y-8 max-w-3xl mx-auto px-4 sm:px-6">
+              <p className="text-xl text-gray-700 leading-relaxed font-medium">
+                Built by a passionate team of developers and designers.
+              </p>
+            </div>
           </div>
           
           {/* Team Grid */}
