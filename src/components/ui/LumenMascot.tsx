@@ -340,13 +340,14 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       </AnimatePresence>
 
       {/* Duolingo-style Encouraging Text Box - Separate from speech bubble */}
+      {/* 🚨 FORCING TEXT BOX TO SHOW FOR DEBUG */}
       <AnimatePresence>
-        {encouragingMessage && (
+        {true && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, x: 100 }}
+            initial={{ opacity: 1, scale: 1, x: 0 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="absolute -top-24 -left-60 max-w-xs z-50"
+            className="absolute -top-24 -left-60 max-w-xs z-50 bg-red-500 border-4 border-red-800"
           >
             <div 
               className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
@@ -360,7 +361,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               </div>
               
               <p className="text-sm text-gray-800 font-semibold leading-relaxed pr-4">
-                {encouragingMessage}
+                🚨 FORCED DEBUG TEXT BOX - IF YOU SEE THIS, POSITIONING IS WORKING!
               </p>
               
               {/* Encouraging box tail */}
