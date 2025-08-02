@@ -31,14 +31,14 @@ const Contact: React.FC = () => {
       </nav>
 
       {/* Full Width Content - Properly Centered */}
-      <div className="relative z-10 w-full px-8 py-20">
+      <div className="relative z-10 w-full px-8 py-24 lg:py-32">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-16 max-w-none force-center-text"
+          className="text-center space-y-24 max-w-none force-center-text"
         >
-          <div className="space-y-8 max-w-4xl mx-auto">
+          <div className="space-y-20 max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Contact
             </h1>
@@ -47,9 +47,9 @@ const Contact: React.FC = () => {
             </p>
           </div>
           
-          {/* Simple Team List */}
+          {/* Team Grid */}
           <motion.div 
-            className="space-y-6 max-w-2xl mx-auto"
+            className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -57,19 +57,22 @@ const Contact: React.FC = () => {
             {teamMembers.map((member, index) => (
               <motion.div
                 key={member.email}
-                className="text-center space-y-2 mx-auto"
+                className="bg-white/50 rounded-xl p-8 backdrop-blur-sm border border-white/20 hover:bg-white/70 transition-all duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 * index }}
+                whileHover={{ y: -2 }}
               >
-                <h3 className="text-lg font-semibold text-gray-900 text-center">{member.name}</h3>
-                <p className="text-gray-600 text-center">{member.role}</p>
-                <a 
-                  href={`mailto:${member.email}`}
-                  className="text-sm text-gray-500 hover:text-gray-700 transition-colors block text-center"
-                >
-                  {member.email}
-                </a>
+                <div className="text-center space-y-3">
+                  <h3 className="text-xl font-semibold text-gray-900">{member.name}</h3>
+                  <p className="text-gray-600 font-medium">{member.role}</p>
+                  <a 
+                    href={`mailto:${member.email}`}
+                    className="text-sm text-gray-500 hover:text-gray-700 transition-colors inline-block mt-2"
+                  >
+                    {member.email}
+                  </a>
+                </div>
               </motion.div>
             ))}
           </motion.div>

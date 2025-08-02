@@ -24,19 +24,20 @@ const About: React.FC = () => {
       </nav>
 
       {/* Full Width Content - Properly Centered */}
-      <div className="relative z-10 w-full px-8 py-20">
+      <div className="relative z-10 w-full px-8 py-24 lg:py-32">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-16 max-w-none force-center-text"
+          className="text-center space-y-24 max-w-none force-center-text"
         >
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
-            About Lumen
-          </h1>
-          
-          {/* Comprehensive Description */}
-          <div className="space-y-8 max-w-4xl mx-auto">
+          <div className="space-y-20">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
+              About Lumen
+            </h1>
+            
+            {/* Comprehensive Description */}
+            <div className="space-y-8 max-w-4xl mx-auto">
             <p className="text-xl text-gray-600 leading-relaxed">
               Lumen listens when no one else does. It understands your words and feelings, then gently guides you with calming games and health insights tailored just for what you're going through.
             </p>
@@ -52,6 +53,7 @@ const About: React.FC = () => {
             <p className="text-lg text-gray-600 leading-relaxed">
               Every element is designed with minimalist beauty, satisfying animations, and emotional resonance. Your progress is tracked meaningfully, showing login streaks and emotional patterns over time, helping you understand your mental health journey without information overload.
             </p>
+            </div>
           </div>
           
           <motion.div
