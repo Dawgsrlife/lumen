@@ -192,17 +192,17 @@ const LandingPage: React.FC = () => {
             </motion.nav>
 
             {/* Clean Grid Layout - Left Content, Right Visual */}
-            <div className="grid lg:grid-cols-2 gap-20 items-center max-w-7xl mx-auto px-8 py-16">
+            <div className="grid lg:grid-cols-2 gap-20 items-center max-w-7xl mx-auto px-8 py-24 lg:py-32">
               
               {/* Left Content */}
               <motion.div 
-                className="space-y-20"
+                className="space-y-24"
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.3 }}
               >
                 {/* Main Headline */}
-                <div className="space-y-12">
+                <div className="space-y-16">
                   <motion.h1 
                     ref={headingRef}
                     className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900"
