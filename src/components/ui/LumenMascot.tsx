@@ -146,17 +146,17 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     // Show first message immediately
     const showRandomMessage = () => {
       const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
+      console.log('🎯 Setting encouraging message:', randomMessage);
       setEncouragingMessage(randomMessage);
     };
     
-    // Show first message after 2 seconds
-    const initialTimeout = setTimeout(showRandomMessage, 2000);
+    // Set initial message RIGHT NOW (no delay)
+    showRandomMessage();
     
     // Rotate through random messages every 8 seconds
     const encouragingTimer = setInterval(showRandomMessage, 8000);
     
     return () => {
-      clearTimeout(initialTimeout);
       clearInterval(encouragingTimer);
     };
   }, [isVisible]);
@@ -165,6 +165,9 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
 
   // Don't render if not visible
   if (!isVisible) return null;
+
+  // Debug log
+  console.log('🦊 Foxie render - encouragingMessage:', encouragingMessage);
 
   const getEyeStyle = (expression: string, isLeftEye: boolean = true) => {
     switch (expression) {
