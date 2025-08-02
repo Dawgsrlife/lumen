@@ -62,14 +62,10 @@ const About: React.FC = () => {
           >
             <motion.a
               href="/features"
-              className="inline-block px-8 py-4 rounded-xl font-semibold text-white shadow-lg transition-all duration-300"
-              style={{
-                background: 'linear-gradient(135deg, var(--lumen-primary) 0%, var(--lumen-secondary) 100%)',
-                boxShadow: '0 8px 32px rgba(251, 191, 36, 0.25), 0 4px 16px rgba(139, 92, 246, 0.15)'
-              }}
+              className="inline-block px-8 py-4 rounded-xl font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300"
               whileHover={{ 
                 scale: 1.02,
-                boxShadow: '0 12px 40px rgba(251, 191, 36, 0.35), 0 6px 20px rgba(139, 92, 246, 0.2)'
+                backgroundColor: '#f3f4f6'
               }}
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
