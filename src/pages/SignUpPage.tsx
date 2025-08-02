@@ -1,44 +1,84 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { SignUp } from '@clerk/clerk-react';
-import { AnimatedBackground, LumenMascot, LumenIcon } from '../components/ui';
+import { gsap } from 'gsap';
+import { AnimatedBackground, LumenIcon } from '../components/ui';
 
 const SignUpPage: React.FC = () => {
+  const formRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    // Clean entrance animations
+    const ctx = gsap.context(() => {
+      // Set initial states
+      gsap.set([navRef.current, headingRef.current, formRef.current], {
+        opacity: 0,
+        y: 30
+      });
+
+      // Animate in sequence
+      const tl = gsap.timeline();
+      
+      tl.to(navRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      })
+      .to(headingRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.3")
+      .to(formRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "back.out(1.7)"
+      }, "-=0.4");
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative">
-      {/* Animated background */}
+      {/* Animated background - same as landing page */}
       <AnimatedBackground />
       
-      {/* Additional floating background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-24 right-20 w-28 h-28 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
-        <div className="absolute bottom-40 left-16 w-20 h-20 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
-        <div className="absolute top-2/3 right-1/4 w-16 h-16 rounded-full opacity-5" style={{ background: 'var(--lumen-primary)' }}></div>
-        <div className="absolute top-1/4 left-1/3 w-24 h-24 rounded-full opacity-5" style={{ background: 'var(--lumen-secondary)' }}></div>
-      </div>
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--lumen-gradient-start)]/3 via-white/40 to-[var(--lumen-gradient-end)]/3 z-5"></div>
       
-      {/* Cute Mascot */}
-      <LumenMascot currentPage="/sign-up" />
+      {/* Animated background elements - matching landing page */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
+        <div className="absolute top-24 right-20 w-28 h-28 rounded-full opacity-10" style={{ background: 'var(--lumen-primary)', filter: 'blur(2px)' }}></div>
+        <div className="absolute bottom-40 left-16 w-20 h-20 rounded-full opacity-10" style={{ background: 'var(--lumen-secondary)', filter: 'blur(2px)' }}></div>
+        <div className="absolute top-2/3 right-1/4 w-16 h-16 rounded-full opacity-10" style={{ background: 'var(--lumen-primary)', filter: 'blur(1px)' }}></div>
+        <div className="absolute top-1/4 left-1/3 w-24 h-24 rounded-full opacity-10" style={{ background: 'var(--lumen-secondary)', filter: 'blur(1px)' }}></div>
+      </div>
 
-      {/* Header with logo */}
-      <nav className="relative z-10 flex justify-between items-center p-8 w-full">
+      {/* Header Navigation - exactly like landing page */}
+      <nav ref={navRef} className="relative z-50 flex justify-between items-center p-8 max-w-7xl mx-auto">
         <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
           <LumenIcon size="sm" />
           <span className="text-xl font-bold text-gray-900">Lumen</span>
         </a>
         
         <div className="hidden md:flex space-x-8">
-          <a href="/" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">HOME</a>
-          <a href="/about" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">ABOUT</a>
-          <a href="/features" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">FEATURES</a>
-          <a href="/contact" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">CONTACT</a>
+          <a href="/" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
+          <a href="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
+          <a href="/features" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">FEATURES</a>
+          <a href="/contact" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">CONTACT</a>
         </div>
       </nav>
 
-      {/* Main content */}
-      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-6">
+      {/* Main Content */}
+      <div className="relative z-50 flex items-center justify-center min-h-[calc(100vh-120px)] px-8">
         <div className="w-full max-w-md">
-          {/* Welcome message */}
-          <div className="text-center mb-8">
+          {/* Welcome Heading */}
+          <div ref={headingRef} className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Begin Your Journey
             </h1>
@@ -47,14 +87,14 @@ const SignUpPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Clerk SignUp with custom theming */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8">
+          {/* Clean Form Container */}
+          <div ref={formRef} className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 p-8">
             <SignUp 
               appearance={{
                 variables: {
-                  colorPrimary: '#FBBF24', // Lumen primary yellow
+                  colorPrimary: '#FBBF24',
                   colorBackground: 'transparent',
-                  colorInputBackground: '#f8fafc',
+                  colorInputBackground: '#ffffff',
                   colorInputText: '#1f2937',
                   colorText: '#374151',
                   borderRadius: '12px',
@@ -63,71 +103,84 @@ const SignUpPage: React.FC = () => {
                 elements: {
                   rootBox: 'w-full',
                   card: 'bg-transparent shadow-none border-none p-0',
-                  headerTitle: 'text-2xl font-bold text-gray-900 mb-2',
-                  headerSubtitle: 'text-gray-600 mb-6',
                   
-                  // Form elements
+                  // Hide the default header since we have our own
+                  headerTitle: 'hidden',
+                  headerSubtitle: 'hidden',
+                  
+                  // Form elements with clean styling
                   formButtonPrimary: `
-                    bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-secondary)] 
-                    hover:from-[var(--lumen-primary)]/90 hover:to-[var(--lumen-secondary)]/90
-                    text-white font-semibold py-3 px-6 rounded-xl
-                    transition-all duration-200 transform hover:scale-[1.02]
-                    shadow-lg hover:shadow-xl
+                    bg-gradient-to-r from-[#FBBF24] to-[#8B5CF6] 
+                    hover:from-[#FBBF24]/90 hover:to-[#8B5CF6]/90
+                    text-white font-semibold py-4 px-6 rounded-xl
+                    transition-all duration-300 transform hover:scale-105
+                    shadow-lg hover:shadow-xl border-none
+                    w-full text-base
                   `,
                   
                   formFieldInput: `
-                    border-2 border-gray-200 focus:border-[var(--lumen-primary)] 
-                    focus:ring-2 focus:ring-[var(--lumen-primary)]/20
-                    rounded-xl px-4 py-3 bg-white/50 backdrop-blur-sm
-                    transition-all duration-200
+                    border-2 border-gray-200/60 focus:border-[#FBBF24] 
+                    focus:ring-2 focus:ring-[#FBBF24]/20
+                    rounded-xl px-4 py-3 bg-white/90 backdrop-blur-sm
+                    transition-all duration-300 w-full text-gray-900
+                    placeholder:text-gray-500
                   `,
                   
-                  formFieldLabel: 'text-gray-700 font-medium mb-2',
+                  formFieldLabel: 'text-gray-700 font-medium mb-2 text-sm',
                   
-                  // Links and secondary elements
+                  // Clean link styling
                   footerActionLink: `
-                    text-[var(--lumen-secondary)] hover:text-[var(--lumen-secondary)]/80 
-                    font-medium transition-colors duration-200
+                    text-[#8B5CF6] hover:text-[#8B5CF6]/80 
+                    font-semibold transition-colors duration-200 text-sm
                   `,
                   
                   // Social buttons
                   socialButtonsBlockButton: `
-                    border-2 border-gray-200 hover:border-[var(--lumen-primary)] 
-                    rounded-xl py-3 px-4 bg-white/50 backdrop-blur-sm
-                    transition-all duration-200 hover:bg-white/80
+                    border-2 border-gray-200/60 hover:border-[#FBBF24] 
+                    rounded-xl py-3 px-4 bg-white/90 backdrop-blur-sm
+                    transition-all duration-300 hover:bg-white
+                    w-full font-medium text-gray-700
                   `,
                   
-                  // Divider
-                  dividerLine: 'bg-gray-200',
-                  dividerText: 'text-gray-500 bg-white/80 px-4',
+                  // Divider styling
+                  dividerLine: 'bg-gray-200/60',
+                  dividerText: 'text-gray-500 bg-white/90 px-4 text-sm',
                   
-                  // Footer
-                  footer: 'hidden', // Hide default footer since we have our own
+                  // REMOVE THE UGLY BLACK FOOTER
+                  footer: 'hidden',
+                  footerAction: 'hidden',
+                  footerActionText: 'hidden',
+                  footerActionLink: 'hidden',
                   
-                  // Additional signup-specific elements
-                  formFieldSuccessText: 'text-green-600 text-sm',
-                  formFieldErrorText: 'text-red-600 text-sm',
+                  // Additional cleanup
+                  formField: 'mb-4',
+                  formFieldRow: 'space-y-4',
+                  
+                  // Error states
+                  formFieldErrorText: 'text-red-500 text-sm mt-1',
+                  formFieldSuccessText: 'text-green-500 text-sm mt-1',
+                  
+                  // Remove any unwanted clerk branding
+                  footerPages: 'hidden',
+                  footerPagesLink: 'hidden'
                 }
               }}
               redirectUrl="/welcome"
               afterSignUpUrl="/welcome"
             />
-          </div>
-
-          {/* Custom footer */}
-          <div className="text-center mt-6">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <a 
-                href="/sign-in"
-                className="font-semibold transition-colors duration-200"
-                style={{ color: 'var(--lumen-secondary)' }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--lumen-secondary)/80'}
-                onMouseLeave={(e) => e.target.style.color = 'var(--lumen-secondary)'}
-              >
-                Sign in
-              </a>
-            </p>
+            
+            {/* Clean custom footer */}
+            <div className="text-center mt-8 pt-6 border-t border-gray-200/60">
+              <p className="text-gray-600 text-sm">
+                Already have an account?{' '}
+                <a 
+                  href="/sign-in"
+                  className="font-semibold text-[#8B5CF6] hover:text-[#8B5CF6]/80 transition-colors duration-200"
+                >
+                  Sign in
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
