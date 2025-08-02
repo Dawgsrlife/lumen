@@ -209,7 +209,7 @@ const LandingPage: React.FC = () => {
 
     console.log('🚀 Landing page loaded, starting intro sequence');
     
-    // Show intro for 2.2 seconds, then go directly to content
+    // Show intro for 3.5 seconds, then go directly to content
     const introTimeout = setTimeout(() => {
       console.log('✨ Intro complete, showing content');
       setShowIntro(false);
@@ -219,8 +219,8 @@ const LandingPage: React.FC = () => {
       setTimeout(() => {
         console.log('🎨 Starting landing animations');
         startLandingAnimations();
-      }, 300);
-    }, 2200);
+      }, 500);
+    }, 3500);
 
     return () => clearTimeout(introTimeout);
   }, [isLoaded]);
