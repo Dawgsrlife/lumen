@@ -139,6 +139,21 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Duolingo-style encouraging messages that appear randomly
+  useEffect(() => {
+    if (!isVisible) return;
+    
+    const encouragingTimer = setInterval(() => {
+      if (Math.random() > 0.6) { // 40% chance each interval
+        const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
+        setEncouragingMessage(randomMessage);
+        setTimeout(() => setEncouragingMessage(''), 5000); // Hide after 5 seconds
+      }
+    }, Math.random() * 15000 + 10000); // Between 10-25 seconds
+    
+    return () => clearInterval(encouragingTimer);
+  }, [isVisible]);
+
   // Random encouraging messages (Duolingo style!)
   useEffect(() => {
     if (isVisible) {
@@ -209,58 +224,65 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
           {/* Soft ambient glow */}
           <div className="absolute inset-0 bg-gradient-to-r from-orange-300/15 to-orange-400/15 rounded-full blur-lg"></div>
           
-          {/* Adorable Fox - UNCURSED! */}
-          <div className="relative w-18 h-18 group-hover:scale-105 transition-transform duration-300">
+          {/* ACTUALLY CUTE Fox - Big head, big eyes, kawaii style! */}
+          <div className="relative w-20 h-20 group-hover:scale-105 transition-transform duration-300">
             
-            {/* Fox Head - Properly Proportioned */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-14 h-13 bg-gradient-to-br from-orange-200 via-orange-300 to-orange-400 rounded-full shadow-lg">
-              {/* Head highlight */}
-              <div className="absolute top-2 left-3 w-3 h-2 bg-white/70 rounded-full blur-[0.5px]"></div>
+            {/* Fox Head - BIGGER and cuter proportions (anime style) */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gradient-to-br from-orange-200 via-orange-300 to-orange-400 rounded-full shadow-lg">
+              {/* Head highlight - more prominent */}
+              <div className="absolute top-3 left-4 w-4 h-3 bg-white/80 rounded-full blur-[1px]"></div>
               
-              {/* Cute Fox Ears - Better proportioned */}
-              <div className="absolute -top-2 left-2.5 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-400 transform -rotate-12"></div>
-              <div className="absolute -top-2 right-2.5 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-400 transform rotate-12"></div>
+              {/* Cute Fox Ears - Perfect proportions */}
+              <div className="absolute -top-3 left-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-orange-400 transform -rotate-12"></div>
+              <div className="absolute -top-3 right-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-orange-400 transform rotate-12"></div>
               
-              {/* Ear insides - pink and cute */}
-              <div className="absolute -top-1 left-3 w-0 h-0 border-l-[2.5px] border-r-[2.5px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-200 transform -rotate-12"></div>
-              <div className="absolute -top-1 right-3 w-0 h-0 border-l-[2.5px] border-r-[2.5px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-200 transform rotate-12"></div>
+              {/* Ear insides - pink and adorable */}
+              <div className="absolute -top-2 left-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform -rotate-12"></div>
+              <div className="absolute -top-2 right-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform rotate-12"></div>
               
-              {/* Expressive Eyes - Bigger and friendlier */}
-              <div className="absolute top-3.5 left-3 flex space-x-2">
+              {/* BIG ADORABLE EYES - The key to cuteness! */}
+              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 flex space-x-2">
                 <div 
-                  className="bg-gray-900 rounded-full relative shadow-sm border border-gray-700"
-                  style={{...getEyeStyle(eyeExpression), width: '6px', height: '6px'}}
+                  className="bg-gray-900 rounded-full relative shadow-lg"
+                  style={{...getEyeStyle(eyeExpression), width: '10px', height: '10px'}}
                 >
-                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-90"></div>
-                  <div className="absolute top-0 left-0.5 w-0.5 h-0.5 bg-white rounded-full"></div>
+                  {/* Multiple highlights for sparkly eyes */}
+                  <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>
+                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-80"></div>
+                  <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-white rounded-full opacity-60"></div>
                 </div>
                 <div 
-                  className="bg-gray-900 rounded-full relative shadow-sm border border-gray-700"
-                  style={{...getEyeStyle(eyeExpression), width: '6px', height: '6px'}}
+                  className="bg-gray-900 rounded-full relative shadow-lg"
+                  style={{...getEyeStyle(eyeExpression), width: '10px', height: '10px'}}
                 >
-                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-90"></div>
-                  <div className="absolute top-0 left-0.5 w-0.5 h-0.5 bg-white rounded-full"></div>
+                  {/* Multiple highlights for sparkly eyes */}
+                  <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>
+                  <div className="absolute top-0.5 left-1 w-1 h-1 bg-white rounded-full opacity-80"></div>
+                  <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-white rounded-full opacity-60"></div>
                 </div>
               </div>
               
-              {/* Fox Snout - More realistic shape */}
-              <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-3 h-2.5 bg-gradient-to-b from-orange-100 to-orange-200 rounded-full shadow-sm"></div>
+              {/* Cute little snout */}
+              <div className="absolute top-9 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-gradient-to-b from-orange-100 to-orange-200 rounded-full shadow-sm"></div>
               
-              {/* Nose - Bigger and more visible */}
-              <div className="absolute top-6.5 left-1/2 transform -translate-x-1/2 w-1 h-0.5 bg-gray-900 rounded-full"></div>
+              {/* Perfect little nose */}
+              <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-gray-800 rounded-full"></div>
               
-              {/* Smiling mouth - Much more visible and cute */}
-              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-4 h-2 border-b-3 border-gray-900 rounded-full opacity-90"></div>
+              {/* BIG HAPPY SMILE - Very visible and cute */}
+              <div className="absolute top-11.5 left-1/2 transform -translate-x-1/2 w-6 h-3">
+                <div className="w-3 h-1.5 border-b-2 border-gray-800 rounded-full absolute left-0"></div>
+                <div className="w-3 h-1.5 border-b-2 border-gray-800 rounded-full absolute right-0"></div>
+              </div>
               
-              {/* Additional smile curve for cuteness */}
-              <div className="absolute top-8.5 left-1/2 transform -translate-x-1/2 w-2 h-1 bg-pink-300/60 rounded-full"></div>
+              {/* Little tongue for extra cuteness */}
+              <div className="absolute top-12.5 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-pink-400 rounded-full"></div>
               
-              {/* Cheek blush - adds cuteness */}
-              <div className="absolute top-5 left-1 w-2 h-1.5 bg-pink-200/40 rounded-full blur-[1px]"></div>
-              <div className="absolute top-5 right-1 w-2 h-1.5 bg-pink-200/40 rounded-full blur-[1px]"></div>
+              {/* PROMINENT cheek blush - kawaii style */}
+              <div className="absolute top-7 left-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
+              <div className="absolute top-7 right-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
               
-              {/* White chest marking - bigger */}
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-white/95 rounded-full"></div>
+              {/* White chest marking */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-5 h-4 bg-white/95 rounded-full"></div>
             </div>
             
             {/* Fox Body - Lower positioned and better proportioned */}
@@ -313,6 +335,39 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               {/* Speech bubble tail */}
               <div 
                 className="absolute -bottom-2 left-10 w-4 h-4 bg-white/95 transform rotate-45 border-r border-b border-orange-300"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Duolingo-style Encouraging Text Box - Separate from speech bubble */}
+      <AnimatePresence>
+        {encouragingMessage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, x: 100 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.9, x: 100 }}
+            className="absolute -top-16 -left-72 max-w-sm z-50"
+          >
+            <div 
+              className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
+              style={{
+                background: 'linear-gradient(135deg, rgba(254, 240, 138, 0.95) 0%, rgba(251, 191, 36, 0.2) 100%)'
+              }}
+            >
+              {/* Sparkle icon */}
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-white text-xs">✨</span>
+              </div>
+              
+              <p className="text-sm text-gray-800 font-semibold leading-relaxed pr-4">
+                {encouragingMessage}
+              </p>
+              
+              {/* Encouraging box tail */}
+              <div 
+                className="absolute -bottom-2 left-16 w-4 h-4 bg-yellow-200 transform rotate-45 border-r-2 border-b-2 border-yellow-300"
               />
             </div>
           </motion.div>
