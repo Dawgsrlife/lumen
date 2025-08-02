@@ -301,7 +301,7 @@ const LandingPage: React.FC = () => {
                         <span className="text-sparkle absolute top-0 left-8 text-xl opacity-70">⭐</span>
                       </span>
                       <span className="block hero-line relative">
-                        <span className="hero-word">Feel,</span> <span className="hero-word">Heal</span> <span className="hero-word">, and</span> <span className="hero-word">Grow.</span>
+                        <span className="hero-word">Feel,</span> <span className="hero-word">Heal,</span> <span className="hero-word">and</span> <span className="hero-word">Grow.</span>
                         <span className="text-sparkle absolute -top-1 right-12 text-xl">💫</span>
                         <span className="text-sparkle absolute bottom-2 -left-3 text-lg opacity-80">✨</span>
                       </span>
@@ -356,12 +356,12 @@ const LandingPage: React.FC = () => {
               >
                 {/* Clean visual space with floating particles */}
                 <div className="relative w-80 h-80 flex items-center justify-center">
-                  {/* Floating particles using GSAP */}
-                  <div className="floating-particle absolute top-16 right-20 w-6 h-6 rounded-full opacity-80" 
+                  {/* Floating particles using GSAP - lower z-index */}
+                  <div className="floating-particle absolute top-16 right-20 w-6 h-6 rounded-full opacity-80 z-10" 
                        style={{ background: 'var(--lumen-primary)', boxShadow: '0 0 20px rgba(251, 191, 36, 0.4)' }}></div>
-                  <div className="floating-particle absolute bottom-20 left-16 w-5 h-5 rounded-full opacity-70" 
+                  <div className="floating-particle absolute bottom-20 left-16 w-5 h-5 rounded-full opacity-70 z-10" 
                        style={{ background: 'var(--lumen-secondary)', boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)' }}></div>
-                  <div className="floating-particle absolute top-32 left-20 w-4 h-4 rounded-full opacity-75" 
+                  <div className="floating-particle absolute top-32 left-20 w-4 h-4 rounded-full opacity-75 z-10" 
                        style={{ background: 'var(--lumen-primary)', boxShadow: '0 0 10px rgba(251, 191, 36, 0.3)' }}></div>
                   
                   {/* Central focus element */}
