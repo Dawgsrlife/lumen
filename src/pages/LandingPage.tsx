@@ -74,13 +74,7 @@ const LandingPage: React.FC = () => {
         ease: "back.out(2.5)",
         stagger: 0.08,
       }, "-=1")
-      // Text glow effect
-      .to(".hero-line", {
-        textShadow: "0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(139, 92, 246, 0.4)",
-        duration: 0.8,
-        ease: "power2.inOut",
-        stagger: 0.1,
-      }, "-=0.8")
+
       // Subtitle with elastic bounce
       .to(".hero-subtext", {
         y: 0,
