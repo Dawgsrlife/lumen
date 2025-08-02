@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import { sample } from 'lodash';
 import { motion, AnimatePresence } from 'framer-motion';
+import { gsap } from 'gsap';
 
 interface LumenMascotProps {
   currentPage: string;
@@ -16,6 +17,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   const [eyeExpression, setEyeExpression] = useState('happy');
   const [encouragingMessage, setEncouragingMessage] = useState('');
   const [showEncouragingBox, setShowEncouragingBox] = useState(true); // Open by default
+  const textboxRef = useRef<HTMLDivElement>(null);
 
   // Pool of encouraging messages (Duolingo style!)
   const encouragingMessages = [
@@ -148,6 +150,20 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     const showRandomMessage = () => {
       const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
       setEncouragingMessage(randomMessage);
+      
+      // Add a subtle pulse animation when new message appears
+      if (textboxRef.current && showEncouragingBox) {
+        gsap.fromTo(textboxRef.current, 
+          { scale: 1 },
+          { 
+            scale: 1.08, 
+            duration: 0.2, 
+            ease: "back.out(1.7)",
+            yoyo: true,
+            repeat: 1
+          }
+        );
+      }
     };
     
     // Set initial message RIGHT NOW (no delay)
@@ -160,6 +176,21 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       clearInterval(encouragingTimer);
     };
   }, [isVisible]);
+
+  // Subtle breathing animation for textbox
+  useEffect(() => {
+    if (!textboxRef.current || !showEncouragingBox) return;
+    
+    const breathingAnimation = gsap.to(textboxRef.current, {
+      scale: 1.02,
+      duration: 2,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+    
+    return () => breathingAnimation.kill();
+  }, [showEncouragingBox]);
 
   // Removed duplicate encouraging message logic - handled above
 
@@ -331,14 +362,32 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 0, scale: 0.8, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 50 }}
-            className="fixed bottom-60 right-0 w-48"
+            className="fixed bottom-45 right-35 w-48"
             style={{ zIndex: 999999 }}
           >
             <div 
-              className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-4 py-4 shadow-2xl border-2 border-yellow-300 relative"
+              ref={textboxRef}
+              className="speech-bubble backdrop-blur-sm rounded-2xl px-4 py-4 shadow-2xl border relative"
               style={{
-                background: 'linear-gradient(135deg, rgba(254, 240, 138, 0.98) 0%, rgba(251, 191, 36, 0.3) 100%)',
-                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.5) inset'
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
+                borderColor: 'rgba(203, 213, 225, 0.3)',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.8) inset'
+              }}
+              onMouseEnter={() => {
+                gsap.to(textboxRef.current, {
+                  scale: 1.05,
+                  y: -5,
+                  duration: 0.3,
+                  ease: "back.out(1.7)"
+                });
+              }}
+              onMouseLeave={() => {
+                gsap.to(textboxRef.current, {
+                  scale: 1,
+                  y: 0,
+                  duration: 0.3,
+                  ease: "back.out(1.7)"
+                });
               }}
             >
               {/* X Close button */}
@@ -347,7 +396,25 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
                   e.stopPropagation(); // Prevent triggering Foxie's click
                   setShowEncouragingBox(false);
                 }}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-400 hover:bg-red-500 rounded-full flex items-center justify-center shadow-lg transition-colors cursor-pointer"
+                className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 cursor-pointer hover:scale-110"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(248, 113, 113, 0.9) 0%, rgba(239, 68, 68, 0.9) 100%)',
+                  backdropFilter: 'blur(4px)'
+                }}
+                onMouseEnter={(e) => {
+                  gsap.to(e.currentTarget, {
+                    scale: 1.15,
+                    duration: 0.2,
+                    ease: "back.out(1.7)"
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  gsap.to(e.currentTarget, {
+                    scale: 1,
+                    duration: 0.2,
+                    ease: "back.out(1.7)"
+                  });
+                }}
               >
                 <span className="text-white text-xs font-bold">✕</span>
               </button>
@@ -358,11 +425,18 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               
               {/* Speech bubble tail pointing bottom-right to Foxie */}
               <div 
-                className="absolute -bottom-2 -right-2 w-4 h-4 bg-yellow-200 rotate-45 border-r-2 border-b-2 border-yellow-300"
+                className="absolute -bottom-2 -right-2 w-4 h-4 rotate-45 border-r border-b"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
+                  borderColor: 'rgba(203, 213, 225, 0.3)'
+                }}
               />
               {/* Additional tail piece for better connection */}
               <div 
-                className="absolute -bottom-1 -right-1 w-2 h-2 bg-yellow-200 rotate-45"
+                className="absolute -bottom-1 -right-1 w-2 h-2 rotate-45"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)'
+                }}
               />
             </div>
           </motion.div>
