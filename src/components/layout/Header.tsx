@@ -10,6 +10,12 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+  const isLandingPage = location.pathname === '/';
+
+  // Don't show header on landing page for minimal design
+  if (isLandingPage) {
+    return null;
+  }
 
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', protected: true },
@@ -18,15 +24,15 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
-      <div className="container mx-auto px-4">
+    <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+      <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-lumen-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">L</span>
             </div>
-            <span className="text-xl font-bold text-lumen-dark">Lumen</span>
+            <span className="text-xl font-light text-lumen-dark">Lumen</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -71,7 +77,7 @@ const Header: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <span className="hidden sm:block">
+                  <span className="hidden sm:block font-light">
                     {user?.firstName || user?.email}
                   </span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +87,7 @@ const Header: React.FC = () => {
 
                 {/* Dropdown Menu */}
                 {isMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-100 py-2 z-50">
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -142,7 +148,7 @@ const Header: React.FC = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="md:hidden py-4 border-t border-gray-100">
             <nav className="space-y-2">
               {isAuthenticated && navItems.map((item) => (
                 <Link
