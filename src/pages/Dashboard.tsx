@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LoadingSpinner, MoodContributionGraph } from '../components/ui';
+import { LoadingSpinner } from '../components/ui';
 import { EmotionSelector } from '../components/emotion';
 import { useClerkUser } from '../hooks/useClerkUser';
 import type { EmotionType } from '../types';
@@ -307,17 +307,19 @@ const Dashboard: React.FC = () => {
             </div>
           </motion.div>
           
-          {/* Mood Activity Graph - Full Width */}
+          {/* Mood Activity Graph - Full Width (placeholder) */}
           <motion.div 
             className="w-full max-w-6xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            <MoodContributionGraph 
-              entries={mockMoodEntries}
-              className="w-full"
-            />
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Mood Activity</h3>
+              <div className="h-32 bg-gray-50 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">Mood analytics coming soon...</p>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>

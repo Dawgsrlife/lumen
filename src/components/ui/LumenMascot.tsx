@@ -131,10 +131,10 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
         style={mascotSpring}
         className="relative"
       >
-        {/* Foxie the Fox */}
+        {/* Foxie the Fox - Professional & Adorable */}
         <animated.div 
           style={bodySpring}
-          className="relative w-24 h-24 cursor-pointer group"
+          className="relative w-20 h-20 cursor-pointer group"
           onClick={() => {
             setShowGreeting(true);
             setIsWaving(true);
@@ -143,79 +143,77 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
           }}
         >
           {/* Soft ambient glow */}
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-red-400/20 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-300/15 to-orange-400/15 rounded-full blur-lg"></div>
           
-          {/* Fox Head */}
-          <div className="relative w-18 h-16 bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300">
-            {/* Head shine */}
-            <div className="absolute top-2 left-3 w-3 h-2 bg-white/50 rounded-full blur-sm"></div>
+          {/* Main Fox Body Container */}
+          <div className="relative w-16 h-16 group-hover:scale-105 transition-transform duration-300">
             
-            {/* Pointed Fox Ears */}
-            <div className="absolute -top-2 left-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-600 transform -rotate-12"></div>
-            <div className="absolute -top-2 right-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-600 transform rotate-12"></div>
-            
-            {/* Inner ear pink */}
-            <div className="absolute -top-1 left-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-300 transform -rotate-12"></div>
-            <div className="absolute -top-1 right-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-300 transform rotate-12"></div>
-            
-            {/* Clever Eyes */}
-            <div className="absolute top-4 left-3 flex space-x-3">
-              <div 
-                className="bg-gray-800 rounded-full transition-all duration-300 relative"
-                style={getEyeStyle(eyeExpression)}
-              >
-                {/* Eye shine */}
-                <div className="absolute top-0 left-0 w-1 h-1 bg-white rounded-full opacity-80"></div>
+            {/* Fox Head - Perfect Circle */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-orange-300 via-orange-400 to-orange-500 rounded-full shadow-md border border-orange-200">
+              {/* Head highlight */}
+              <div className="absolute top-1.5 left-2 w-2 h-1.5 bg-white/60 rounded-full blur-[1px]"></div>
+              
+              {/* Perfect Triangle Ears */}
+              <div className="absolute -top-1.5 left-2 w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-orange-500"></div>
+              <div className="absolute -top-1.5 right-2 w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-orange-500"></div>
+              
+              {/* Ear insides */}
+              <div className="absolute -top-0.5 left-2.5 w-0 h-0 border-l-[2px] border-r-[2px] border-b-[3px] border-l-transparent border-r-transparent border-b-pink-200"></div>
+              <div className="absolute -top-0.5 right-2.5 w-0 h-0 border-l-[2px] border-r-[2px] border-b-[3px] border-l-transparent border-r-transparent border-b-pink-200"></div>
+              
+              {/* Friendly Eyes */}
+              <div className="absolute top-3 left-2.5 flex space-x-1.5">
+                <div 
+                  className="bg-gray-800 rounded-full relative shadow-sm"
+                  style={getEyeStyle(eyeExpression)}
+                >
+                  <div className="absolute top-0 left-0.5 w-0.5 h-0.5 bg-white rounded-full"></div>
+                </div>
+                <div 
+                  className="bg-gray-800 rounded-full relative shadow-sm"
+                  style={getEyeStyle(eyeExpression)}
+                >
+                  <div className="absolute top-0 left-0.5 w-0.5 h-0.5 bg-white rounded-full"></div>
+                </div>
               </div>
-              <div 
-                className="bg-gray-800 rounded-full transition-all duration-300 relative"
-                style={getEyeStyle(eyeExpression)}
-              >
-                {/* Eye shine */}
-                <div className="absolute top-0 left-0 w-1 h-1 bg-white rounded-full opacity-80"></div>
-              </div>
+              
+              {/* Cute little snout */}
+              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-200 rounded-full shadow-sm"></div>
+              
+              {/* Tiny black nose */}
+              <div className="absolute top-5.5 left-1/2 transform -translate-x-1/2 w-0.5 h-0.5 bg-gray-900 rounded-full"></div>
+              
+              {/* Happy mouth */}
+              <div className="absolute top-6.5 left-1/2 transform -translate-x-1/2 w-2 h-1 border-b border-gray-700 rounded-full opacity-60"></div>
+              
+              {/* White chest patch */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-2 bg-white/90 rounded-full"></div>
             </div>
             
-            {/* Fox Snout */}
-            <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full"></div>
+            {/* Body - smaller and proportional */}
+            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-10 h-8 bg-gradient-to-b from-orange-400 to-orange-500 rounded-full shadow-sm">
+              <div className="absolute top-1 left-1.5 w-1.5 h-1.5 bg-white/50 rounded-full blur-[0.5px]"></div>
+            </div>
             
-            {/* Black nose */}
-            <div className="absolute top-7 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gray-900 rounded-full"></div>
+            {/* Fluffy tail */}
+            <animated.div 
+              style={tailSpring}
+              className="absolute -right-1 top-6 w-3 h-6 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full origin-bottom shadow-sm"
+            >
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-2 bg-white/90 rounded-full"></div>
+            </animated.div>
             
-            {/* Mouth */}
-            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-3 h-2 border-b-2 border-gray-800 rounded-full"></div>
+            {/* Waving paw */}
+            <animated.div 
+              style={waveSpring}
+              className="absolute -left-0.5 top-10 w-2 h-3 bg-orange-300 rounded-full origin-bottom shadow-sm"
+            ></animated.div>
             
-            {/* White chest marking */}
-            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-white/80 rounded-full"></div>
+            {/* Other paws - properly positioned */}
+            <div className="absolute left-1.5 top-12 w-1.5 h-2 bg-orange-300 rounded-full shadow-sm"></div>
+            <div className="absolute right-1.5 top-12 w-1.5 h-2 bg-orange-300 rounded-full shadow-sm"></div>
+            <div className="absolute right-3 top-12 w-1.5 h-2 bg-orange-300 rounded-full shadow-sm"></div>
           </div>
-          
-          {/* Fox Body */}
-          <div className="absolute top-12 left-1/2 transform -translate-x-1/2 w-14 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-full shadow-md">
-            {/* Body highlight */}
-            <div className="absolute top-1 left-2 w-2 h-2 bg-white/40 rounded-full blur-sm"></div>
-          </div>
-          
-          {/* Bushy Fox Tail (wagging) */}
-          <animated.div 
-            style={tailSpring}
-            className="absolute -right-2 top-8 w-4 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-full origin-bottom shadow-md"
-          >
-            {/* Tail tip (white) */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-3 bg-white rounded-full"></div>
-          </animated.div>
-          
-          {/* Fox Paw (waving) */}
-          <animated.div 
-            style={waveSpring}
-            className="absolute -left-1 top-14 w-3 h-4 bg-orange-400 rounded-full origin-bottom"
-          ></animated.div>
-          
-          {/* Other front paw */}
-          <div className="absolute left-2 top-16 w-2 h-3 bg-orange-400 rounded-full"></div>
-          
-          {/* Back paws */}
-          <div className="absolute right-2 top-16 w-2 h-3 bg-orange-400 rounded-full"></div>
-          <div className="absolute right-4 top-16 w-2 h-3 bg-orange-400 rounded-full"></div>
         </animated.div>
       </animated.div>
 
