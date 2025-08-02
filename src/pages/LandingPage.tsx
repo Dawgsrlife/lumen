@@ -120,6 +120,16 @@ const LandingPage: React.FC = () => {
         delay: 0.2,
       });
 
+      // Nav links animation - same style as logo with slight stagger
+      gsap.from(".nav-link", {
+        opacity: 0,
+        y: -20,
+        duration: 0.6,
+        ease: "power2.out",
+        delay: 0.3,
+        stagger: 0.1, // Each link animates 0.1s after the previous
+      });
+
       // Floating particles animation - smooth, minimalist movement
       gsap.to(".floating-particle", {
         y: "random(-30, 30)",
@@ -265,10 +275,10 @@ const LandingPage: React.FC = () => {
               </a>
               
               <div className="hidden md:flex space-x-8">
-                <a href="/" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
-                <a href="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
-                <a href="/features" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">FEATURES</a>
-                <a href="/contact" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">CONTACT</a>
+                <a href="/" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
+                <a href="/about" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
+                <a href="/features" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">FEATURES</a>
+                <a href="/contact" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">CONTACT</a>
               </div>
             </nav>
 

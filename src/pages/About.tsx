@@ -21,16 +21,54 @@ const About: React.FC = () => {
 
       {/* Header */}
       <nav className="relative z-10 flex justify-between items-center p-8 w-full">
-        <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
+        <motion.a 
+          href="/" 
+          className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer"
+          initial={{ opacity: 0, y: -20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+        >
           <LumenIcon size="sm" />
           <span className="text-xl font-bold text-gray-900">Lumen</span>
-        </a>
+        </motion.a>
         
         <div className="hidden md:flex space-x-8">
-          <a href="/" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">HOME</a>
-          <a href="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
-          <a href="/features" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">FEATURES</a>
-          <a href="/contact" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">CONTACT</a>
+          <motion.a 
+            href="/" 
+            className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+          >
+            HOME
+          </motion.a>
+          <motion.a 
+            href="/about" 
+            className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+          >
+            ABOUT
+          </motion.a>
+          <motion.a 
+            href="/features" 
+            className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.5 }}
+          >
+            FEATURES
+          </motion.a>
+          <motion.a 
+            href="/contact" 
+            className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
+          >
+            CONTACT
+          </motion.a>
         </div>
       </nav>
 
