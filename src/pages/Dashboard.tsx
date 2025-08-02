@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LoadingSpinner } from '../components/ui';
+import { LoadingSpinner, MoodContributionGraph } from '../components/ui';
 import { EmotionSelector } from '../components/emotion';
 import { useClerkUser } from '../hooks/useClerkUser';
 import type { EmotionType } from '../types';
@@ -84,6 +84,27 @@ const Dashboard: React.FC = () => {
   const [timeOfDay, setTimeOfDay] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  // Mock mood entries for demonstration
+  const mockMoodEntries = React.useMemo(() => {
+    const entries = [];
+    const emotions: EmotionType[] = ['happy', 'sad', 'anxiety', 'stress', 'frustration'];
+    
+    for (let i = 0; i < 100; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      
+      if (Math.random() > 0.3) { // 70% chance of having an entry
+        entries.push({
+          date: date.toISOString().split('T')[0],
+          emotion: emotions[Math.floor(Math.random() * emotions.length)],
+          intensity: Math.floor(Math.random() * 10) + 1
+        });
+      }
+    }
+    
+    return entries;
+  }, []);
+
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setTimeOfDay('morning');
@@ -120,21 +141,21 @@ const Dashboard: React.FC = () => {
       }}
     >
 
-      <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-12 sm:py-16 lg:py-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-6 sm:py-8 lg:py-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-center mb-20"
+          className="text-center mb-2"
         >
           <motion.h1 
-            className="text-5xl md:text-6xl font-light text-gray-900 mb-6 tracking-tight"
+            className="text-5xl md:text-6xl font-light text-gray-900 tracking-tight"
           >
             {getGreeting()}
           </motion.h1>
           <motion.p 
-            className="text-xl md:text-2xl text-gray-600 font-light mb-8"
+            className="text-xl md:text-2xl text-gray-600 font-light mb-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
@@ -177,182 +198,126 @@ const Dashboard: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 gap-12 lg:gap-16">
-          {/* Main Content - Left Side */}
-          <div className="xl:col-span-3 lg:col-span-2 flex flex-col items-center justify-center">
-            {/* Emotion Selection */}
-            <div className="w-full max-w-4xl">
-              <EmotionSelector 
-                selectedMood={selectedMood} 
-                onMoodSelect={handleMoodSelect} 
-              />
-            </div>
-          </div>
-
-          {/* Right Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="xl:col-span-1 lg:col-span-1 space-y-8 lg:space-y-10"
+        {/* Single Column Center Layout */}
+        <div className="flex flex-col items-center space-y-12 mt-8">
+          {/* Primary: Emotion Selection */}
+          <motion.div 
+            className="w-full max-w-4xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
           >
-            {/* Current Mood Display */}
-            <motion.div 
-              className="group relative rounded-3xl p-8 text-center overflow-hidden bg-white"
-              style={{
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
-              }}
-              whileHover={{ 
-                scale: 1.02,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
-              }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="relative z-10">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Current Mood</h3>
-                <motion.div 
-                  className="text-7xl mb-6 relative"
-                  animate={selectedMood ? { scale: [1, 1.1, 1] } : {}}
-                  transition={{ duration: 0.5 }}
-                >
+            <EmotionSelector 
+              selectedMood={selectedMood} 
+              onMoodSelect={handleMoodSelect} 
+            />
+          </motion.div>
+          
+          {/* Consolidated Stats Section */}
+          <motion.div
+            className="w-full max-w-6xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Current Mood */}
+              <div 
+                className="relative rounded-2xl p-6 text-center bg-white"
+                style={{
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
+                }}
+              >
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Current Mood</h3>
+                <div className="text-5xl mb-3">
                   {selectedMood ? emotionData[selectedMood].emoji : '🤔'}
-                  {selectedMood && (
-                    <div 
-                      className="absolute inset-0 rounded-full blur-xl opacity-50"
-                      style={{ 
-                        background: emotionData[selectedMood].glowColor,
-                        animation: 'pulse 2s infinite'
-                      }}
-                    />
-                  )}
-                </motion.div>
-                <p className="text-lg text-gray-700 font-medium mb-2">
-                  {selectedMood ? `Feeling ${emotionData[selectedMood].label.toLowerCase()}` : 'No mood selected'}
+                </div>
+                <p className="text-base text-gray-700 font-medium">
+                  {selectedMood ? emotionData[selectedMood].label : 'No mood selected'}
                 </p>
-                {selectedMood && (
-                  <p className="text-sm text-gray-500">
-                    {emotionData[selectedMood].description}
-                  </p>
-                )}
               </div>
-            </motion.div>
 
-            {/* Quick Stats */}
-            <motion.div 
-              className="relative rounded-3xl px-12 py-10 overflow-hidden bg-white"
-              style={{
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)',
-                minHeight: '280px'
-              }}
-              whileHover={{ 
-                scale: 1.02,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
-              }}
-              transition={{ duration: 0.3 }}
-            >
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">This Week</h3>
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 items-center">
-                  <span className="text-gray-600">Days logged</span>
-                  <div className="flex items-center gap-2 justify-end">
-                    <div className="flex gap-1">
-                      {[...Array(7)].map((_, i) => (
-                        <div
-                          key={i}
-                          className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                            i < 5 ? 'bg-gradient-to-r from-green-400 to-blue-500' : 'bg-white/20'
-                          }`}
-                        />
-                      ))}
+              {/* This Week Stats */}
+              <div 
+                className="relative rounded-2xl p-6 bg-white"
+                style={{
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
+                }}
+              >
+                <h3 className="text-lg font-medium text-gray-900 mb-4">This Week</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Days logged</span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1">
+                        {[...Array(7)].map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-2.5 h-2.5 rounded-full ${
+                              i < 5 ? 'bg-green-400' : 'bg-gray-200'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="font-medium text-gray-900">5/7</span>
                     </div>
-                    <span className="font-semibold text-gray-900">5/7</span>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 items-center">
-                  <span className="text-gray-600">Most frequent</span>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 justify-self-end">
-                    <span className="text-lg">😊</span>
-                    <span className="font-semibold text-gray-900">Happy</span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 items-center">
-                  <span className="text-gray-600">Current streak</span>
-                  <div className="flex items-center gap-2 justify-end">
-                    <motion.div
-                      className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-red-500 flex items-center justify-center text-white font-bold text-sm"
-                      animate={{ rotate: [0, 10, -10, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      🔥
-                    </motion.div>
-                    <span className="font-semibold text-gray-900">3 days</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Streak</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🔥</span>
+                      <span className="font-medium text-gray-900">3 days</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
 
-            {/* Quick Actions */}
-            <motion.div 
-              className="relative rounded-3xl p-8 overflow-hidden bg-white"
-              style={{
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
-              }}
-              whileHover={{ 
-                scale: 1.02,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
-              }}
-              transition={{ duration: 0.3 }}
-            >
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
-              <div className="space-y-3">
-                <motion.button 
-                  className="w-full text-left p-4 rounded-xl transition-all duration-300 text-gray-700 relative overflow-hidden group bg-gray-50 hover:bg-gray-100"
-                  style={{
-                    border: '1px solid rgba(0, 0, 0, 0.06)'
-                  }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => window.location.href = '/analytics'}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">📊</span>
-                    <span className="font-semibold">View Analytics</span>
-                  </div>
-                </motion.button>
-                <motion.button 
-                  className="w-full text-left p-4 rounded-xl transition-all duration-300 text-gray-700 relative overflow-hidden group bg-gray-50 hover:bg-gray-100"
-                  style={{
-                    border: '1px solid rgba(0, 0, 0, 0.06)'
-                  }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => window.location.href = '/games'}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">🎮</span>
-                    <span className="font-semibold">Play Games</span>
-                  </div>
-                </motion.button>
-                <motion.button 
-                  className="w-full text-left p-4 rounded-xl transition-all duration-300 text-gray-700 relative overflow-hidden group bg-gray-50 hover:bg-gray-100"
-                  style={{
-                    border: '1px solid rgba(0, 0, 0, 0.06)'
-                  }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => window.location.href = '/profile'}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">👤</span>
-                    <span className="font-semibold">Profile</span>
-                  </div>
-                </motion.button>
+              {/* Quick Actions */}
+              <div 
+                className="relative rounded-2xl p-6 bg-white"
+                style={{
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
+                }}
+              >
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+                <div className="space-y-2">
+                  <button 
+                    className="w-full text-left p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                    onClick={() => window.location.href = '/analytics'}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">📊</span>
+                      <span className="font-medium text-gray-700">Analytics</span>
+                    </div>
+                  </button>
+                  <button 
+                    className="w-full text-left p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                    onClick={() => window.location.href = '/games'}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">🎮</span>
+                      <span className="font-medium text-gray-700">Games</span>
+                    </div>
+                  </button>
+                </div>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
+          
+          {/* Mood Activity Graph - Full Width */}
+          <motion.div 
+            className="w-full max-w-6xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            <MoodContributionGraph 
+              entries={mockMoodEntries}
+              className="w-full"
+            />
           </motion.div>
         </div>
       </div>
