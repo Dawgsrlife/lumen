@@ -425,7 +425,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               
               {/* Speech bubble tail pointing bottom-right to Foxie */}
               <div 
-                className="absolute -bottom-2 -right-2 w-4 h-4 rotate-45 border-r border-b"
+                className="absolute -bottom-2 -right-2 w-4 h-4 rotate-[135deg] border-r border-b"
                 style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
                   borderColor: 'rgba(203, 213, 225, 0.3)'
@@ -433,7 +433,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               />
               {/* Additional tail piece for better connection */}
               <div 
-                className="absolute -bottom-1 -right-1 w-2 h-2 rotate-45"
+                className="absolute -bottom-1 -right-1 w-2 h-2 rotate-[135deg]"
                 style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)'
                 }}
