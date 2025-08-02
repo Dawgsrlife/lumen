@@ -348,7 +348,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 0, scale: 0.9, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="absolute -top-16 -left-72 max-w-sm z-50"
+            className="absolute -top-24 -left-60 max-w-xs z-50"
           >
             <div 
               className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
@@ -367,7 +367,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               
               {/* Encouraging box tail */}
               <div 
-                className="absolute -bottom-2 left-16 w-4 h-4 bg-yellow-200 transform rotate-45 border-r-2 border-b-2 border-yellow-300"
+                className="absolute -bottom-2 right-8 w-4 h-4 bg-yellow-200 transform rotate-45 border-r-2 border-b-2 border-yellow-300"
               />
             </div>
           </motion.div>
