@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { SignIn, SignUp } from '@clerk/clerk-react';
 import { AppProvider } from './context/AppContext';
 import { ClerkProvider } from './components/auth/ClerkProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Header, Footer } from './components/layout';
 import { ErrorBoundary, LoadingSpinner } from './components/ui';
+import { databaseService } from './services/database';
 import './App.css';
 
 // Lazy load pages for better performance
@@ -17,6 +18,16 @@ const Analytics = lazy(() => import('./pages/Analytics'));
 const Games = lazy(() => import('./pages/Games'));
 
 function App() {
+  useEffect(() => {
+    // Initialize database connection
+    databaseService.connect().catch(console.error);
+    
+    return () => {
+      // Cleanup database connection
+      databaseService.disconnect().catch(console.error);
+    };
+  }, []);
+
   return (
     <ErrorBoundary>
       <ClerkProvider>

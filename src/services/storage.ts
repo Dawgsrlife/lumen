@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb';
+import { databaseService, type EmotionEntry } from './database';
 import type { SurveyResponse } from '../types';
 
 export interface StoredEmotionData {
@@ -49,6 +51,31 @@ class StorageService {
       timestamp: new Date().toISOString(),
     };
 
+    // Save to database service
+    try {
+      const dbEntry: Omit<EmotionEntry, '_id'> = {
+        userId: new ObjectId(entry.userId),
+        emotion: entry.emotion,
+        intensity: entry.intensity,
+        timestamp: new Date(),
+        surveyResponses: entry.surveyResponses,
+        tags: entry.tags,
+      };
+      
+      await databaseService.saveEmotionEntry(dbEntry);
+      
+      // Log engagement
+      await databaseService.logEngagement({
+        userId: new ObjectId(entry.userId),
+        action: 'emotion_logged',
+        timestamp: new Date(),
+        metadata: { emotion: entry.emotion, intensity: entry.intensity }
+      });
+    } catch (error) {
+      console.error('Failed to save to database:', error);
+    }
+
+    // Fallback to localStorage
     const existingData = this.getStoredData();
     existingData.push(emotionEntry);
     this.setStoredData(existingData);
@@ -56,16 +83,31 @@ class StorageService {
     // Update user stats
     this.updateUserStats(entry.userId);
 
-    // TODO: Send to MongoDB when backend is ready
-    // await this.saveToMongoDB(emotionEntry);
-
     return emotionEntry;
   }
 
   // Get all emotion entries for a user
   async getEmotionEntries(userId: string): Promise<StoredEmotionData[]> {
-    const data = this.getStoredData();
-    return data.filter(entry => entry.userId === userId);
+    try {
+      // Try to get from database first
+      const dbEntries = await databaseService.getUserEmotions(new ObjectId(userId));
+      
+      // Convert database entries to storage format
+      return dbEntries.map(entry => ({
+        id: entry._id?.toString() || this.generateId(),
+        userId: entry.userId.toString(),
+        emotion: entry.emotion,
+        intensity: entry.intensity,
+        timestamp: entry.timestamp.toISOString(),
+        surveyResponses: entry.surveyResponses,
+        tags: entry.tags,
+      }));
+    } catch (error) {
+      console.error('Failed to get from database, using localStorage:', error);
+      // Fallback to localStorage
+      const data = this.getStoredData();
+      return data.filter(entry => entry.userId === userId);
+    }
   }
 
   // Get recent emotion entries
@@ -111,34 +153,51 @@ class StorageService {
 
   // Get user statistics
   async getUserStats(userId: string): Promise<UserStats> {
-    const entries = await this.getEmotionEntries(userId);
-    
-    if (entries.length === 0) {
+    try {
+      // Try to get stats from database
+      const dbStats = await databaseService.getEmotionStats(new ObjectId(userId));
+      
       return {
-        totalEntries: 0,
-        currentStreak: 0,
-        longestStreak: 0,
-        averageIntensity: 0,
-        mostCommonEmotion: '😐',
-        weeklyAverage: 0,
+        totalEntries: dbStats.totalEntries,
+        currentStreak: 0, // TODO: Calculate from database
+        longestStreak: 0, // TODO: Calculate from database
+        averageIntensity: dbStats.averageIntensity,
+        mostCommonEmotion: dbStats.mostCommonEmotion || '😐',
+        weeklyAverage: 0, // TODO: Calculate from database
+      };
+    } catch (error) {
+      console.error('Failed to get stats from database, using localStorage:', error);
+      
+      // Fallback to localStorage calculation
+      const entries = await this.getEmotionEntries(userId);
+      
+      if (entries.length === 0) {
+        return {
+          totalEntries: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          averageIntensity: 0,
+          mostCommonEmotion: '😐',
+          weeklyAverage: 0,
+        };
+      }
+
+      const totalEntries = entries.length;
+      const currentStreak = this.calculateCurrentStreak(entries);
+      const longestStreak = this.calculateLongestStreak(entries);
+      const averageIntensity = entries.reduce((sum, entry) => sum + entry.intensity, 0) / entries.length;
+      const mostCommonEmotion = this.getMostCommonEmotion(entries);
+      const weeklyAverage = this.calculateWeeklyAverage(entries);
+
+      return {
+        totalEntries,
+        currentStreak,
+        longestStreak,
+        averageIntensity,
+        mostCommonEmotion,
+        weeklyAverage,
       };
     }
-
-    const totalEntries = entries.length;
-    const currentStreak = this.calculateCurrentStreak(entries);
-    const longestStreak = this.calculateLongestStreak(entries);
-    const averageIntensity = entries.reduce((sum, entry) => sum + entry.intensity, 0) / entries.length;
-    const mostCommonEmotion = this.getMostCommonEmotion(entries);
-    const weeklyAverage = this.calculateWeeklyAverage(entries);
-
-    return {
-      totalEntries,
-      currentStreak,
-      longestStreak,
-      averageIntensity,
-      mostCommonEmotion,
-      weeklyAverage,
-    };
   }
 
   // Delete emotion entry
