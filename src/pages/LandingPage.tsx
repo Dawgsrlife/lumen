@@ -209,17 +209,22 @@ const LandingPage: React.FC = () => {
 
     console.log('🚀 Landing page loaded, starting intro sequence');
     
-    // Show intro for 3.5 seconds, then go directly to content
+    // Show intro for 3.5 seconds, then start fade-out
     const introTimeout = setTimeout(() => {
-      console.log('✨ Intro complete, showing content');
+      console.log('✨ Starting intro fade-out');
       setShowIntro(false);
-      setShowContent(true);
       
-      // Start landing animations shortly after content appears
+      // Wait for intro to completely fade out (1.2s) before showing content
       setTimeout(() => {
-        console.log('🎨 Starting landing animations');
-        startLandingAnimations();
-      }, 500);
+        console.log('✨ Intro fully faded, showing content');
+        setShowContent(true);
+        
+        // Start landing animations shortly after content appears
+        setTimeout(() => {
+          console.log('🎨 Starting landing animations');
+          startLandingAnimations();
+        }, 300);
+      }, 1200); // Wait for LumenIntro exit animation to complete
     }, 3500);
 
     return () => clearTimeout(introTimeout);
