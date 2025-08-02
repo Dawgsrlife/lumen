@@ -34,18 +34,18 @@ const Contact: React.FC = () => {
       </nav>
 
       {/* Full Width Content - Properly Centered */}
-      <div className="relative z-10 w-full px-8 py-24 lg:py-32">
+      <div className="relative z-10 w-full px-8 py-32 lg:py-40">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center space-y-24 max-w-none force-center-text"
+          className="text-center space-y-32 max-w-none force-center-text"
         >
-          <div className="space-y-20 max-w-4xl mx-auto">
+          <div className="space-y-24 max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mx-auto" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Contact
             </h1>
-            <p className="text-xl text-gray-600 leading-relaxed mx-auto">
+            <p className="text-xl text-gray-700 leading-relaxed font-medium mx-auto">
               Built by a passionate team of developers and designers.
             </p>
           </div>
@@ -84,18 +84,22 @@ const Contact: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
+            className="pt-8"
           >
             <motion.a
               href="/sign-in"
-              className="inline-block px-8 py-4 rounded-xl font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300"
+              className="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-all duration-200 shadow-sm"
               whileHover={{ 
-                scale: 1.02,
-                backgroundColor: '#f3f4f6'
+                scale: 1.01,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
               }}
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
             >
               Try Lumen
+              <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </motion.a>
           </motion.div>
         </motion.div>
