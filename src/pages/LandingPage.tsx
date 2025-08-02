@@ -24,7 +24,8 @@ const LandingPage: React.FC = () => {
   const startLandingAnimations = () => {
     // GSAP animations for hero text to make it pop sharply
     const ctx = gsap.context(() => {
-      // Set initial states
+      // Set initial states for content and main container
+      gsap.set("#main-content", { opacity: 0 });
       gsap.set(".hero-line", { 
         y: 100, 
         opacity: 0, 
@@ -52,6 +53,13 @@ const LandingPage: React.FC = () => {
 
       // Create timeline for dramatic entrance
       const tl = gsap.timeline();
+
+      // First, fade in the main content container
+      tl.to("#main-content", {
+        opacity: 1,
+        duration: 0.1,
+        ease: "none"
+      });
 
       // Hero headline container animation
       tl.to(".hero-line", {
@@ -269,14 +277,9 @@ const LandingPage: React.FC = () => {
           </div>
           
           {/* Minimalist Layout - Inspired by modern design */}
-          <div className="relative z-50 min-h-screen">
+          <div className="relative z-50 min-h-screen opacity-0" id="main-content">
             {/* Readable Header Navigation */}
-            <motion.nav 
-              className="flex justify-between items-center p-8 max-w-7xl mx-auto"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
+            <nav className="flex justify-between items-center p-8 max-w-7xl mx-auto">
               <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
                 <LumenIcon size="sm" />
                 <span className="text-xl font-bold text-gray-900">Lumen</span>
@@ -348,12 +351,9 @@ const LandingPage: React.FC = () => {
               </div>
 
               {/* Right Visual - Minimal Floating Elements */}
-              <motion.div 
+              <div 
                 ref={iconRef}
                 className="relative flex items-center justify-center lg:justify-end"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1.2, delay: 0.6 }}
               >
                 {/* Clean visual space with floating particles */}
                 <div className="relative w-80 h-80 flex items-center justify-center">
@@ -377,7 +377,7 @@ const LandingPage: React.FC = () => {
                     boxShadow: '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(139, 92, 246, 0.4)'
                   }}
                 ></div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </>
