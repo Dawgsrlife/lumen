@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useClerkUser } from '../../hooks/useClerkUser';
 import Button from '../ui/Button';
+import LumenIcon from '../ui/LumenIcon';
 
 const Header: React.FC = () => {
   const { user, isAuthenticated } = useClerkUser();
@@ -28,11 +29,9 @@ const Header: React.FC = () => {
     <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo with LumenIcon */}
           <Link to="/" className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-lumen-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">L</span>
-            </div>
+            <LumenIcon size="sm" />
             <span className="text-xl font-light text-lumen-dark">Lumen</span>
           </Link>
 
@@ -103,11 +102,11 @@ const Header: React.FC = () => {
                     >
                       Dashboard
                     </Link>
-                    <hr className="my-2" />
+                    <hr className="my-1" />
                     <button
                       onClick={() => {
+                        // Handle sign out
                         setIsMenuOpen(false);
-                        navigate('/');
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     >
@@ -117,57 +116,21 @@ const Header: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/sign-in')}
-                >
-                  Sign In
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => navigate('/sign-up')}
-                >
-                  Sign Up
-                </Button>
+              <div className="flex items-center space-x-3">
+                <Link to="/sign-in">
+                  <Button size="sm" variant="outline">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/sign-up">
+                  <Button size="sm">
+                    Sign Up
+                  </Button>
+                </Link>
               </div>
             )}
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-600 hover:text-lumen-primary hover:bg-gray-100"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100">
-            <nav className="space-y-2">
-              {isAuthenticated && navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={`block px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    isActive(item.href)
-                      ? 'text-lumen-primary bg-lumen-primary/10'
-                      : 'text-gray-600 hover:text-lumen-primary hover:bg-gray-50'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   );
