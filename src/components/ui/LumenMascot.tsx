@@ -250,24 +250,18 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               {/* Perfect little nose */}
               <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-gray-800 rounded-full"></div>
               
-              {/* BIG OBVIOUS HAPPY SMILE - Actually visible! */}
-              <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-8 h-4">
-                {/* Simple curved smile that's ALWAYS visible */}
-                <div className="absolute left-1 top-1 w-6 h-3 border-b-3 border-gray-800 rounded-full"></div>
-                {/* Make it even more obvious with a bigger curve */}
-                <div className="absolute left-0.5 top-0.5 w-7 h-4 border-b-2 border-gray-700 rounded-full opacity-60"></div>
+              {/* BIG OBVIOUS HAPPY SMILE */}
+              <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-6 h-3">
+                <div className="w-full h-full border-b-[3px] border-gray-700 rounded-full"></div>
               </div>
-              
-              {/* Little tongue sticking out - always visible and cute */}
-              <div className="absolute top-12.5 left-1/2 transform -translate-x-1/2 w-2 h-1.5 bg-pink-400 rounded-full"></div>
-              
+            
               {/* PROMINENT cheek blush - kawaii style */}
               <div className="absolute top-7 left-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
               <div className="absolute top-7 right-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
               
               {/* White chest marking - moved up so it doesn't cover smile */}
-              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-3 bg-white/95 rounded-full"></div>
-            </div>
+              <div className="absolute bottom-[-6px] left-1/2 transform -translate-x-1/2 w-3 h-2 bg-white/90 rounded-full"></div>
+              </div>
             
             {/* Fox Body - Much lower positioned so you can see the mouth! */}
             <div className="absolute top-14 left-1/2 transform -translate-x-1/2 w-12 h-9 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full shadow-md">
@@ -289,10 +283,11 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               className="absolute -left-1 top-16 w-2.5 h-4 bg-orange-200 rounded-full origin-bottom shadow-md border border-orange-300"
             ></animated.div>
             
-            {/* Other paws - positioned for much lower body */}
+            {/* Other paws - positioned for much lower body (normal fox anatomy!) */}
             <div className="absolute left-2 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
             <div className="absolute right-2 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
-            <div className="absolute right-4 top-19 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
+            {/* Right front paw - where the fox should have it */}
+            <div className="absolute right-1 top-16 w-2 h-3 bg-orange-200 rounded-full shadow-sm border border-orange-300"></div>
           </div>
         </animated.div>
       </animated.div>
@@ -332,7 +327,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
             initial={{ opacity: 0, scale: 0.9, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, x: 100 }}
-            className="fixed bottom-48 right-20 max-w-sm z-50"
+            className="fixed bottom-72 right-24 max-w-sm z-50"
           >
             <div 
               className="bg-gradient-to-br from-yellow-100 to-yellow-200 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border-2 border-yellow-300 relative"
@@ -349,13 +344,13 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
                 {encouragingMessage}
               </p>
               
-              {/* Speech bubble tail pointing to Foxie */}
+              {/* Speech bubble tail pointing straight down to Foxie */}
               <div 
-                className="absolute -bottom-2 right-4 w-4 h-4 bg-yellow-200 transform rotate-45 border-r-2 border-b-2 border-yellow-300"
+                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-yellow-200 rotate-45 border-r-2 border-b-2 border-yellow-300"
               />
               {/* Additional tail piece for better connection */}
               <div 
-                className="absolute -bottom-1 right-5 w-2 h-2 bg-yellow-200 transform rotate-45"
+                className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-yellow-200 rotate-45"
               />
             </div>
           </motion.div>
