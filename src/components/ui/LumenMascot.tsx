@@ -194,7 +194,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
         {/* Foxie the Fox - Professional & Adorable */}
         <animated.div 
           style={bodySpring}
-          className="relative w-20 h-24 cursor-pointer group"
+          className="relative w-20 h-20 cursor-pointer group"
           onClick={() => {
             // Toggle encouraging message box
             setShowEncouragingBox(!showEncouragingBox);
@@ -211,18 +211,18 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
           {/* ACTUALLY CUTE Fox - Big head, big eyes, kawaii style! */}
           <div className="relative w-20 h-20 group-hover:scale-105 transition-transform duration-300">
             
-            {/* Fox Head - BIGGER and cuter proportions (anime style) */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gradient-to-br from-orange-200 via-orange-300 to-orange-400 rounded-full shadow-lg">
-              {/* Head highlight - more prominent */}
-              <div className="absolute top-3 left-4 w-4 h-3 bg-white/80 rounded-full blur-[1px]"></div>
+            {/* Fox Head - Clean and proportional */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gradient-to-br from-orange-300 via-orange-400 to-orange-500 rounded-full shadow-lg">
+              {/* Head highlight - subtle and clean */}
+              <div className="absolute top-2 left-3 w-3 h-2 bg-white/60 rounded-full blur-[0.5px]"></div>
               
-              {/* Cute Fox Ears - Perfect proportions */}
-              <div className="absolute -top-3 left-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-orange-400 transform -rotate-12"></div>
-              <div className="absolute -top-3 right-3 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[10px] border-l-transparent border-r-transparent border-b-orange-400 transform rotate-12"></div>
+              {/* Clean Fox Ears */}
+              <div className="absolute -top-2 left-4 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-500 transform -rotate-12"></div>
+              <div className="absolute -top-2 right-4 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-orange-500 transform rotate-12"></div>
               
-              {/* Ear insides - pink and adorable */}
-              <div className="absolute -top-2 left-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform -rotate-12"></div>
-              <div className="absolute -top-2 right-4 w-0 h-0 border-l-[3px] border-r-[3px] border-b-[5px] border-l-transparent border-r-transparent border-b-pink-300 transform rotate-12"></div>
+              {/* Ear insides */}
+              <div className="absolute -top-1 left-4.5 w-0 h-0 border-l-[2px] border-r-[2px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-400 transform -rotate-12"></div>
+              <div className="absolute -top-1 right-4.5 w-0 h-0 border-l-[2px] border-r-[2px] border-b-[4px] border-l-transparent border-r-transparent border-b-pink-400 transform rotate-12"></div>
               
               {/* BIG ADORABLE EYES - Always sparkly and happy! */}
               <div className="absolute top-5 left-1/2 transform -translate-x-1/2 flex space-x-2">
@@ -254,18 +254,18 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
               {/* Perfect little nose */}
               <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-1.5 h-1 bg-gray-800 rounded-full"></div>
               
-              {/* BIG OBVIOUS HAPPY SMILE */}
-              <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-6 h-3">
-                <div className="w-full h-full border-b-[3px] border-gray-700 rounded-full"></div>
+              {/* Clean, visible smile */}
+              <div className="absolute top-11 left-1/2 transform -translate-x-1/2 w-5 h-2">
+                <div className="w-full h-full border-b-[2px] border-gray-800 rounded-full"></div>
               </div>
             
-              {/* PROMINENT cheek blush - kawaii style */}
-              <div className="absolute top-7 left-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
-              <div className="absolute top-7 right-0.5 w-3 h-2 bg-pink-300/60 rounded-full blur-[1px]"></div>
+              {/* Subtle cheek blush */}
+              <div className="absolute top-8 left-1 w-2 h-1.5 bg-pink-300/50 rounded-full blur-[0.5px]"></div>
+              <div className="absolute top-8 right-1 w-2 h-1.5 bg-pink-300/50 rounded-full blur-[0.5px]"></div>
               
-              {/* White chest marking - moved up so it doesn't cover smile */}
-              <div className="absolute bottom-[-6px] left-1/2 transform -translate-x-1/2 w-3 h-2 bg-white/90 rounded-full"></div>
-              </div>
+              {/* White chest marking - properly positioned */}
+              <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-2 bg-white/80 rounded-full"></div>
+            </div>
             
             {/* Fox Body - Much lower positioned so you can see the mouth! */}
             <div className="absolute top-14 left-1/2 transform -translate-x-1/2 w-12 h-9 bg-gradient-to-b from-orange-300 to-orange-400 rounded-full shadow-md">
