@@ -1,227 +1,260 @@
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import type { 
-  User, 
   EmotionEntry, 
-  EmotionFormData, 
-  ProgressStats, 
-  ApiResponse, 
-  PaginatedResponse 
-} from '../types';
+  JournalEntry, 
+  UserAnalytics, 
+  AIInsightResponse,
+  CreateEmotionRequest,
+  CreateJournalRequest,
+  User
+} from '../types/index';
 
-// Base API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-// Generic API client
-class ApiClient {
-  private baseURL: string;
+class ApiService {
+  private api: AxiosInstance;
+  private token: string | null = null;
 
-  constructor(baseURL: string) {
-    this.baseURL = baseURL;
-  }
-
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    const url = `${this.baseURL}${endpoint}`;
-    
-    const config: RequestInit = {
+  constructor() {
+    this.api = axios.create({
+      baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers,
       },
-      ...options,
-    };
+    });
 
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'API request failed');
+    // Request interceptor to add auth token
+    this.api.interceptors.request.use(
+      (config) => {
+        if (this.token) {
+          config.headers.Authorization = `Bearer ${this.token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
       }
-      
-      return data;
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
+    );
+
+    // Response interceptor for error handling
+    this.api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // Handle unauthorized - redirect to login
+          this.clearToken();
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  // Token management
+  setToken(token: string) {
+    this.token = token;
+    localStorage.setItem('lumen_token', token);
+  }
+
+  getToken(): string | null {
+    if (!this.token) {
+      this.token = localStorage.getItem('lumen_token');
     }
+    return this.token;
   }
 
-  // GET request
-  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET' });
+  clearToken() {
+    this.token = null;
+    localStorage.removeItem('lumen_token');
   }
 
-  // POST request
-  async post<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
+  // Authentication
+  async registerWithClerk(clerkToken: string, userData: {
+    firstName?: string;
+    lastName?: string;
+    email: string;
+    avatar?: string;
+  }): Promise<{ user: User; token: string }> {
+    const response: AxiosResponse = await this.api.post('/api/users/register', {
+      ...userData,
+      clerkToken
     });
+    return response.data.data;
   }
 
-  // PUT request
-  async put<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
+  async loginWithClerk(clerkToken: string): Promise<{ user: User; token: string }> {
+    const response: AxiosResponse = await this.api.post('/api/users/login', {
+      clerkToken
     });
+    return response.data.data;
   }
 
-  // DELETE request
-  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  // User management
+  async getUserProfile(): Promise<User> {
+    const response: AxiosResponse = await this.api.get('/api/users/profile');
+    return response.data.data;
+  }
+
+  async updateUserProfile(profileData: Partial<User>): Promise<User> {
+    const response: AxiosResponse = await this.api.put('/api/users/profile', profileData);
+    return response.data.data;
+  }
+
+  async updateUserPreferences(preferences: any): Promise<any> {
+    const response: AxiosResponse = await this.api.put('/api/users/preferences', { preferences });
+    return response.data.data;
+  }
+
+  // Emotion entries
+  async createEmotionEntry(emotionData: CreateEmotionRequest): Promise<EmotionEntry> {
+    const response: AxiosResponse = await this.api.post('/api/emotions', emotionData);
+    return response.data.data;
+  }
+
+  async getEmotionEntries(params?: {
+    page?: number;
+    limit?: number;
+    emotion?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<{ emotions: EmotionEntry[]; pagination: any }> {
+    const response: AxiosResponse = await this.api.get('/api/emotions', { params });
+    return response.data.data;
+  }
+
+  async getDailyEmotions(days: number = 30): Promise<{
+    dailyEntries: Record<string, EmotionEntry[]>;
+    totalDays: number;
+    totalEntries: number;
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/emotions/daily', {
+      params: { days }
+    });
+    return response.data.data;
+  }
+
+  async getEmotionEntry(id: string): Promise<EmotionEntry> {
+    const response: AxiosResponse = await this.api.get(`/api/emotions/${id}`);
+    return response.data.data;
+  }
+
+  async updateEmotionEntry(id: string, emotionData: Partial<CreateEmotionRequest>): Promise<EmotionEntry> {
+    const response: AxiosResponse = await this.api.put(`/api/emotions/${id}`, emotionData);
+    return response.data.data;
+  }
+
+  async deleteEmotionEntry(id: string): Promise<void> {
+    await this.api.delete(`/api/emotions/${id}`);
+  }
+
+  // Journal entries
+  async createJournalEntry(journalData: CreateJournalRequest): Promise<{
+    journalEntry: JournalEntry;
+    analysis?: {
+      sentiment: 'positive' | 'negative' | 'neutral';
+      keyThemes: string[];
+      suggestions: string[];
+    };
+  }> {
+    const response: AxiosResponse = await this.api.post('/api/journal', journalData);
+    return response.data.data;
+  }
+
+  async getJournalEntries(params?: {
+    page?: number;
+    limit?: number;
+    mood?: string;
+    startDate?: string;
+    endDate?: string;
+    includePrivate?: boolean;
+  }): Promise<{ entries: JournalEntry[]; pagination: any }> {
+    const response: AxiosResponse = await this.api.get('/api/journal', { params });
+    return response.data.data;
+  }
+
+  async getDailyJournals(days: number = 30, includePrivate: boolean = true): Promise<{
+    dailyEntries: Record<string, JournalEntry[]>;
+    totalDays: number;
+    totalEntries: number;
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/journal/daily', {
+      params: { days, includePrivate }
+    });
+    return response.data.data;
+  }
+
+  async searchJournalEntries(query: string, page: number = 1, limit: number = 20): Promise<{
+    entries: JournalEntry[];
+    pagination: any;
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/journal/search', {
+      params: { q: query, page, limit }
+    });
+    return response.data.data;
+  }
+
+  async getJournalEntry(id: string): Promise<JournalEntry> {
+    const response: AxiosResponse = await this.api.get(`/api/journal/${id}`);
+    return response.data.data;
+  }
+
+  async updateJournalEntry(id: string, journalData: Partial<CreateJournalRequest>): Promise<JournalEntry> {
+    const response: AxiosResponse = await this.api.put(`/api/journal/${id}`, journalData);
+    return response.data.data;
+  }
+
+  async deleteJournalEntry(id: string): Promise<void> {
+    await this.api.delete(`/api/journal/${id}`);
+  }
+
+  // Analytics
+  async getAnalyticsOverview(days: number = 30): Promise<UserAnalytics> {
+    const response: AxiosResponse = await this.api.get('/api/analytics/overview', {
+      params: { days }
+    });
+    return response.data.data;
+  }
+
+  async generateAIInsights(timeframe: 'week' | 'month' | 'all' = 'week', focus: 'emotions' | 'journal' | 'games' | 'all' = 'all'): Promise<AIInsightResponse> {
+    const response: AxiosResponse = await this.api.post('/api/analytics/insights', {
+      timeframe,
+      focus
+    });
+    return response.data.data;
+  }
+
+  async getEmotionAnalytics(days: number = 30): Promise<{
+    emotionStats: Record<string, any>;
+    totalEntries: number;
+    dateRange: { start: string; end: string };
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/analytics/emotions', {
+      params: { days }
+    });
+    return response.data.data;
+  }
+
+  async getMoodTrends(days: number = 30): Promise<{
+    trends: any[];
+    totalDays: number;
+    dateRange: { start: string; end: string };
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/analytics/trends', {
+      params: { days }
+    });
+    return response.data.data;
+  }
+
+  // Health check
+  async healthCheck(): Promise<{ success: boolean; message: string; timestamp: string; environment: string }> {
+    const response: AxiosResponse = await this.api.get('/health');
+    return response.data;
   }
 }
 
-// API client instance
-const apiClient = new ApiClient(API_BASE_URL);
+// Create and export singleton instance
+export const apiService = new ApiService();
 
-// User API services
-export const userApi = {
-  // Get current user profile
-  getProfile: (): Promise<ApiResponse<User>> => {
-    return apiClient.get<User>('/user/profile');
-  },
-
-  // Update user profile
-  updateProfile: (data: Partial<User>): Promise<ApiResponse<User>> => {
-    return apiClient.put<User>('/user/profile', data);
-  },
-
-  // Get user preferences
-  getPreferences: (): Promise<ApiResponse<User['preferences']>> => {
-    return apiClient.get<User['preferences']>('/user/preferences');
-  },
-
-  // Update user preferences
-  updatePreferences: (preferences: User['preferences']): Promise<ApiResponse<User['preferences']>> => {
-    return apiClient.put<User['preferences']>('/user/preferences', preferences);
-  },
-};
-
-// Emotion API services
-export const emotionApi = {
-  // Get emotion entries
-  getEntries: (params?: { page?: number; limit?: number }): Promise<ApiResponse<PaginatedResponse<EmotionEntry>>> => {
-    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
-    return apiClient.get<PaginatedResponse<EmotionEntry>>(`/emotions${query}`);
-  },
-
-  // Create new emotion entry
-  createEntry: (data: EmotionFormData): Promise<ApiResponse<EmotionEntry>> => {
-    return apiClient.post<EmotionEntry>('/emotions', data);
-  },
-
-  // Get specific emotion entry
-  getEntry: (id: string): Promise<ApiResponse<EmotionEntry>> => {
-    return apiClient.get<EmotionEntry>(`/emotions/${id}`);
-  },
-
-  // Update emotion entry
-  updateEntry: (id: string, data: Partial<EmotionFormData>): Promise<ApiResponse<EmotionEntry>> => {
-    return apiClient.put<EmotionEntry>(`/emotions/${id}`, data);
-  },
-
-  // Delete emotion entry
-  deleteEntry: (id: string): Promise<ApiResponse<void>> => {
-    return apiClient.delete<void>(`/emotions/${id}`);
-  },
-
-  // Get emotion trends
-  getTrends: (period: 'week' | 'month' | 'year' = 'week'): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>(`/emotions/trends?period=${period}`);
-  },
-};
-
-// Progress API services
-export const progressApi = {
-  // Get user progress stats
-  getStats: (): Promise<ApiResponse<ProgressStats>> => {
-    return apiClient.get<ProgressStats>('/progress/stats');
-  },
-
-  // Get achievement progress
-  getAchievements: (): Promise<ApiResponse<any[]>> => {
-    return apiClient.get<any[]>('/progress/achievements');
-  },
-
-  // Get streak information
-  getStreaks: (): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>('/progress/streaks');
-  },
-};
-
-// AI API services
-export const aiApi = {
-  // Get AI feedback for emotion
-  getFeedback: (emotionEntryId: string): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>(`/ai/feedback/${emotionEntryId}`);
-  },
-
-  // Generate personalized insights
-  getInsights: (): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>('/ai/insights');
-  },
-
-  // Get recommendations
-  getRecommendations: (): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>('/ai/recommendations');
-  },
-};
-
-// Game API services
-export const gameApi = {
-  // Get available games
-  getGames: (): Promise<ApiResponse<any[]>> => {
-    return apiClient.get<any[]>('/games');
-  },
-
-  // Start game session
-  startSession: (gameId: string): Promise<ApiResponse<any>> => {
-    return apiClient.post<any>('/games/sessions', { gameId });
-  },
-
-  // End game session
-  endSession: (sessionId: string, score: number): Promise<ApiResponse<any>> => {
-    return apiClient.put<any>(`/games/sessions/${sessionId}`, { score, completed: true });
-  },
-
-  // Get game progress
-  getProgress: (): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>('/games/progress');
-  },
-};
-
-// Analytics API services
-export const analyticsApi = {
-  // Get emotion analytics
-  getEmotionAnalytics: (period: string): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>(`/analytics/emotions?period=${period}`);
-  },
-
-  // Get progress analytics
-  getProgressAnalytics: (): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>('/analytics/progress');
-  },
-
-  // Get game analytics
-  getGameAnalytics: (): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>('/analytics/games');
-  },
-
-  // Export user data
-  exportData: (): Promise<ApiResponse<any>> => {
-    return apiClient.get<any>('/analytics/export');
-  },
-};
-
-// Export all API services
-export const api = {
-  user: userApi,
-  emotion: emotionApi,
-  progress: progressApi,
-  ai: aiApi,
-  game: gameApi,
-  analytics: analyticsApi,
-}; 
+// Export for backward compatibility
+export default apiService; 
