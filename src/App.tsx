@@ -1,28 +1,26 @@
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { ClerkProvider } from '@clerk/clerk-react';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { LoadingSpinner } from './components/ui';
 import { AppProvider, useAppContext } from './context/AppContext';
 import { FlowProvider, useFlow } from './context/FlowProvider';
-import { ClerkProvider } from './components/auth/ClerkProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import LoginRedirectHandler from './components/auth/LoginRedirectHandler';
+import { LoginRedirectHandler } from './components/auth/LoginRedirectHandler';
 import { Header, Footer } from './components/layout';
-import { ErrorBoundary, LoadingSpinner } from './components/ui';
-import './App.css';
 
-// Lazy load pages for better performance
+// Lazy load pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const About = lazy(() => import('./pages/About'));
 const Features = lazy(() => import('./pages/Features'));
 const Contact = lazy(() => import('./pages/Contact'));
 const SignInPage = lazy(() => import('./pages/SignInPage'));
-
 const WelcomePage = lazy(() => import('./pages/WelcomePage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const FlowPage = lazy(() => import('./pages/FlowPage'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Analytics = lazy(() => import('./pages/Analytics'));
-const Games = lazy(() => import('./pages/Games'));
 
 // Enhanced Conditional Layout Component
 const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -31,10 +29,10 @@ const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }
   const location = window.location.pathname;
   
   // Determine if header/footer should be shown
-  // Show header/footer ONLY for dashboard, analytics, games
+  // Show header/footer ONLY for dashboard, analytics
   // Hide header/footer for all other pages
   const shouldShowHeader = 
-    (location === '/dashboard' || location === '/analytics' || location === '/games') &&
+    (location === '/dashboard' || location === '/analytics') &&
     appState.showHeader;
   
   console.log('ConditionalLayout: State', {
@@ -126,14 +124,12 @@ function App() {
                         <div className="text-center">
                           <LoadingSpinner size="lg" />
                           <div className="mb-4"></div>
-                          <p className="text-gray-600">Loading flow page...</p>
+                          <p className="text-gray-600">Loading flow...</p>
                         </div>
                       </div>
                     }>
                       <ProtectedRoute>
-                        <ConditionalLayout>
-                          <FlowPage />
-                        </ConditionalLayout>
+                        <FlowPage />
                       </ProtectedRoute>
                     </Suspense>
                   } 
@@ -213,26 +209,6 @@ function App() {
                       <ProtectedRoute>
                         <ConditionalLayout>
                           <Analytics />
-                        </ConditionalLayout>
-                      </ProtectedRoute>
-                    </Suspense>
-                  } 
-                />
-                <Route 
-                  path="/games" 
-                  element={
-                    <Suspense fallback={
-                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-                        <div className="text-center">
-                          <LoadingSpinner size="lg" />
-                          <div className="mb-4"></div>
-                          <p className="text-gray-600">Loading games...</p>
-                        </div>
-                      </div>
-                    }>
-                      <ProtectedRoute>
-                        <ConditionalLayout>
-                          <Games />
                         </ConditionalLayout>
                       </ProtectedRoute>
                     </Suspense>

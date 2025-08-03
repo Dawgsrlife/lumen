@@ -122,7 +122,7 @@ const Header: React.FC = () => {
             message: 'Take a 5-minute break to practice mindfulness and reduce stress.',
             isRead: true,
             createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-            actionUrl: '/games'
+            actionUrl: '/flow'
           },
           {
             _id: '4',
@@ -202,9 +202,6 @@ const Header: React.FC = () => {
         case 'analytics_check':
           navigate('/analytics');
           break;
-        case 'meditation_session':
-          navigate('/games');
-          break;
         default:
           console.log('Unknown notification type:', notification.type);
       }
@@ -240,7 +237,6 @@ const Header: React.FC = () => {
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', protected: true },
     { label: 'Analytics', href: '/analytics', protected: true },
-    { label: 'Games', href: '/games', protected: true },
   ];
 
   return (

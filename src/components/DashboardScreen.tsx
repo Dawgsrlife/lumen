@@ -324,15 +324,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           >
             📊 View Analytics
           </motion.button>
-          
-          <motion.button
-            onClick={() => window.location.href = '/games'}
-            className="px-8 py-4 bg-gray-700 text-white rounded-xl font-semibold hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            🎮 Play Games
-          </motion.button>
         </motion.div>
       </div>
     </div>
