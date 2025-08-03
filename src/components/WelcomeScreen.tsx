@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { LumenIcon } from './ui';
 import { useAppContext } from '../context/AppContext';
 import { useUserFlowState } from '../hooks/useUserFlowState';
+import { useClerkUser } from '../hooks/useClerkUser';
 
 interface WelcomeScreenProps {
   username?: string;
@@ -12,7 +13,11 @@ interface WelcomeScreenProps {
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) => {
   const { state } = useAppContext();
   const { state: userFlowState } = useUserFlowState();
+  const { user } = useClerkUser();
   const [hasAnimated, setHasAnimated] = useState(false);
+
+  // Get username from Clerk user or fallback
+  const displayName = username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'there';
 
   useEffect(() => {
     console.log('WelcomeScreen mounted, hasAnimated:', hasAnimated);
@@ -83,7 +88,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) =
             transition={{ delay: 1.0, duration: 0.8 }}
           >
             <div className="mb-2"></div>
-            {username || ''}!
+            {displayName}!
           </motion.h2>
         </motion.div>
 
