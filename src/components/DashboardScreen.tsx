@@ -358,6 +358,15 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           transition={{ delay: 1.4, duration: 0.8 }}
         >
           <motion.button
+            onClick={() => window.location.href = '/flow?manual=true'}
+            className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            💭 Log Today's Emotion
+          </motion.button>
+          
+          <motion.button
             onClick={() => window.location.href = '/analytics'}
             className="px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-300 transform hover:scale-105 shadow-lg"
             whileHover={{ scale: 1.05 }}

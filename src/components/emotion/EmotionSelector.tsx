@@ -54,11 +54,7 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
               delay: 0.05 + index * 0.05,
               ease: "easeOut"
             }}
-            whileHover={{ 
-              scale: 1.03, 
-              y: -2,
-              transition: { duration: 0.1, ease: "easeOut" }
-            }}
+
           >
             <div className="text-4xl mb-4">{emotionData[emotion].emoji}</div>
             <div className="text-lg font-medium">{emotionData[emotion].label}</div>

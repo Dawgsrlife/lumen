@@ -28,16 +28,17 @@ const Games = lazy(() => import('./pages/Games'));
 const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { state: appState } = useAppContext();
   const { state: flowState } = useFlow();
+  const location = window.location.pathname;
   
   // Determine if header/footer should be shown
+  // Show header/footer ONLY for dashboard, analytics, games
+  // Hide header/footer for all other pages
   const shouldShowHeader = 
-    !flowState.currentStep.includes('welcome') &&
-    !flowState.currentStep.includes('emotion-selection') &&
-    !flowState.currentStep.includes('game') &&
-    !flowState.currentStep.includes('journaling') &&
+    (location === '/dashboard' || location === '/analytics' || location === '/games') &&
     appState.showHeader;
   
   console.log('ConditionalLayout: State', {
+    pathname: location,
     flowStep: flowState.currentStep,
     appShowHeader: appState.showHeader,
     shouldShowHeader,
@@ -57,8 +58,8 @@ const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }
     );
   }
   
-  // No header/footer for flow steps
-  console.log('ConditionalLayout: No header/footer for flow step:', flowState.currentStep);
+  // No header/footer for other pages
+  console.log('ConditionalLayout: No header/footer for page:', location);
   return (
     <div className="min-h-screen">
       {children}

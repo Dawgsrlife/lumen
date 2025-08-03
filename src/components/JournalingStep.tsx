@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useFlow } from '../context/FlowProvider';
 
 interface JournalingStepProps {
@@ -7,10 +7,22 @@ interface JournalingStepProps {
   onSkip?: () => void;
 }
 
+// JournalingStep now uses the centralized FlowBackground system
+
 const JournalingStep: React.FC<JournalingStepProps> = ({ onComplete, onSkip }) => {
   const { state, setJournalEntry } = useFlow();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [journalText, setJournalText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    // Detect typing for subtle feedback
+    if (journalText.length > 0) {
+      setIsTyping(true);
+      const typingTimer = setTimeout(() => setIsTyping(false), 1000);
+      return () => clearTimeout(typingTimer);
+    }
+  }, [journalText]);
 
   const handleSubmit = async () => {
     if (!journalText.trim()) {
@@ -54,72 +66,83 @@ const JournalingStep: React.FC<JournalingStepProps> = ({ onComplete, onSkip }) =
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-    >
-      <motion.div
-        initial={{ scale: 0.8, y: 50 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.8, y: 50 }}
-        transition={{ type: "spring", bounce: 0.4 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(251,191,36,0.05) 100%)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.2)',
-        }}
-      >
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 relative overflow-hidden">
+      {/* Main Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-12">
+        
+        {/* Header Section - Much More Minimal */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-          className="text-center mb-6"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center mb-16 max-w-lg"
         >
-          <div className="text-4xl mb-4">📝</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            How are you feeling now?
-          </h2>
-          <p className="text-gray-600">
-            Take a moment to reflect on your experience
+          <h1 className="text-3xl font-light text-gray-800 mb-4 tracking-wide">
+            How are you feeling?
+          </h1>
+          <p className="text-gray-500 text-sm font-light">
+            Take a moment to reflect
           </p>
         </motion.div>
 
-        {/* Journal Input */}
+        {/* Journal Input - Clean & Focused */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.3 }}
-          className="mb-6"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="w-full max-w-2xl mb-12"
         >
-          <textarea
-            value={journalText}
-            onChange={(e) => setJournalText(e.target.value)}
-            placeholder="Share your thoughts, feelings, or any insights from today's experience..."
-            className="w-full h-32 p-4 border border-gray-200 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            style={{
-              background: 'rgba(255,255,255,0.8)',
-              backdropFilter: 'blur(10px)',
-            }}
-          />
+          <div className="relative">
+            <textarea
+              value={journalText}
+              onChange={(e) => setJournalText(e.target.value)}
+              placeholder="Share your thoughts, feelings, or insights..."
+              className={`
+                w-full h-48 p-6 rounded-2xl border-0 
+                bg-white/80 backdrop-blur-sm
+                shadow-sm hover:shadow-md focus:shadow-lg
+                text-gray-700 text-lg leading-relaxed
+                placeholder-gray-400 font-light
+                resize-none outline-none
+                transition-all duration-300
+                ${isTyping ? 'ring-2 ring-blue-200/50' : ''}
+              `}
+              style={{
+                fontFamily: 'system-ui, -apple-system, sans-serif'
+              }}
+            />
+            
+            {/* Subtle character count */}
+            {journalText.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="absolute bottom-3 right-4 text-xs text-gray-400"
+              >
+                {journalText.length} characters
+              </motion.div>
+            )}
+          </div>
         </motion.div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Simplified */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.3 }}
-          className="flex flex-col gap-3"
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex flex-col sm:flex-row gap-4 w-full max-w-md"
         >
+          {/* Primary Action */}
           <motion.button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            className="flex-1 py-4 px-8 rounded-xl font-medium text-white
+                       bg-gradient-to-r from-blue-500 to-purple-500
+                       shadow-lg hover:shadow-xl
+                       transition-all duration-200
+                       disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">
@@ -127,35 +150,39 @@ const JournalingStep: React.FC<JournalingStepProps> = ({ onComplete, onSkip }) =
                 Saving...
               </span>
             ) : (
-              'Save & Continue'
+              'Continue'
             )}
           </motion.button>
-
+          
+          {/* Secondary Action */}
           {onSkip && (
             <motion.button
               onClick={handleSkip}
-              className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-300"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              className="py-4 px-8 rounded-xl font-medium text-gray-600
+                         bg-white/60 backdrop-blur-sm border border-gray-200
+                         hover:bg-white/80 hover:shadow-md
+                         transition-all duration-200"
             >
-              Skip for now
+              Skip
             </motion.button>
           )}
         </motion.div>
 
-        {/* Encouraging Message */}
+        {/* Inspirational Quote - Subtle */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.3 }}
-          className="text-center mt-6"
+          transition={{ duration: 1, delay: 1 }}
+          className="mt-16 text-center"
         >
-          <p className="text-sm text-gray-500 italic">
+          <p className="text-gray-400 text-sm font-light italic">
             "Every reflection is a step toward self-awareness"
           </p>
         </motion.div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
 

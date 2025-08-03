@@ -30,6 +30,15 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     "Remember: progress, not perfection. You're exactly where you need to be! ✨"
   ];
 
+  // Welcoming messages for landing page
+  const welcomingMessages = [
+    "Welcome to Lumen! I'm Luna, your magical companion on this journey! ✨",
+    "Ready to explore mindful gaming? Let's discover what we can do together! 🌟",
+    "I'm so excited to be your guide! Every emotion is valid and every step matters! 💫",
+    "Together we'll create a beautiful journey of self-discovery and growth! 🦋",
+    "Your mental wellness journey starts here. I believe in you! 🌱"
+  ];
+
   // Different greetings for different pages
   const getGreeting = (page: string) => {
     const greetings = {
@@ -38,9 +47,22 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       '/features': "Ooh, exploring features? I love showing off what we can do together! 💫",
       '/contact': "Want to meet the team? They're as awesome as you'd expect! 🌈",
       '/sign-in': "Welcome back! I'm so excited to see you again. Let's continue your journey! ✨",
-
     };
     return greetings[page as keyof typeof greetings] || "Hi! I'm Luna, your friendly Lumen guide! ✨";
+  };
+
+  // Get appropriate messages based on current page
+  const getMessagesForPage = (page: string) => {
+    // Welcoming messages for landing page
+    if (page === '/') {
+      return welcomingMessages;
+    }
+    // Encouraging messages for dashboard, analytics, and other app pages
+    if (page === '/dashboard' || page === '/analytics' || page === '/flow') {
+      return encouragingMessages;
+    }
+    // Default to encouraging messages
+    return encouragingMessages;
   };
 
   // Spring animation for floating movement with bounce
@@ -154,13 +176,14 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     return () => clearInterval(blinkInterval);
   }, []);
 
-  // Always show encouraging messages - cycle through the 5 messages randomly
+  // Show appropriate messages based on current page
   useEffect(() => {
     if (!isVisible) return;
     
     // Show first message immediately
     const showRandomMessage = () => {
-      const randomMessage = sample(encouragingMessages) || encouragingMessages[0];
+      const messages = getMessagesForPage(currentPage);
+      const randomMessage = sample(messages) || messages[0];
       setEncouragingMessage(randomMessage);
       
       // Add a subtle pulse animation when new message appears
@@ -187,7 +210,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     return () => {
       clearInterval(encouragingTimer);
     };
-  }, [isVisible]);
+  }, [isVisible, currentPage]);
 
   // Don't render if not visible
   if (!isVisible) return null;
