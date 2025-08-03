@@ -13,3 +13,4 @@ export { default as AnimatedBackground } from './AnimatedBackground';
 export { default as LumenMascot } from './LumenMascot';
 export { MoodContributionGraph } from './MoodContributionGraph';
 export { default as NotificationsModal } from './NotificationsModal';
+export { default as FlowBackground } from './FlowBackground';

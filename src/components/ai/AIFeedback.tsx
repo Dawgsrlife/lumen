@@ -73,7 +73,8 @@ const AIFeedback: React.FC<AIFeedbackProps> = ({
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
             <LoadingSpinner size="md" />
-            <p className="text-gray-600 mt-2">Generating personalized insights...</p>
+            <div className="mb-4"></div>
+            <p className="text-gray-600">Generating personalized insights...</p>
           </div>
         </div>
       </Card>

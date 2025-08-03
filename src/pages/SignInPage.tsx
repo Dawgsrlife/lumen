@@ -79,7 +79,7 @@ const SignInPage: React.FC = () => {
           <div ref={headingRef} className="text-center">
             <div className="mb-12">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
-                Welcome Back
+                Let's begin.
               </h1>
               <div className="mb-8"></div>
               <p className="text-lg text-gray-600 leading-relaxed text-center">
@@ -97,8 +97,8 @@ const SignInPage: React.FC = () => {
           >
             <div className="flex justify-center">
               <SignIn
-                redirectUrl="/dashboard"
-                afterSignInUrl="/dashboard"
+                redirectUrl="/flow"
+                afterSignInUrl="/flow"
                 appearance={{
                   elements: {
                     formButtonPrimary: "bg-black hover:bg-gray-800 transition-all",

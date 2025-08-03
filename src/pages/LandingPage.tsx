@@ -19,6 +19,11 @@ const LandingPage: React.FC = () => {
   const textRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
+  // Simple redirect for signed-in users
+  if (isLoaded && isSignedIn) {
+    return <Navigate to="/flow" replace />;
+  }
+
   const startLandingAnimations = () => {
     // GSAP animations for hero text to make it pop sharply
     const ctx = gsap.context(() => {
@@ -99,192 +104,94 @@ const LandingPage: React.FC = () => {
       }, "-=0.4")
       // Add sparkle burst effect
       .to(".text-sparkle", {
-        scale: "random(1.2, 1.8)",
-        opacity: "random(0.7, 1)",
-        rotation: "random(-180, 180)",
-        duration: 2,
-        ease: "power2.inOut",
-        stagger: 0.1,
-        repeat: -1,
-        yoyo: true
-      }, "-=1")
-      // Keep text clean and readable - no gradient effects
-
-      // Logo/brand animation - clean and professional
-      gsap.from(".logo", {
-        opacity: 0,
-        y: -20,
-        scale: 0.95,
-        duration: 0.8,
-        ease: "power2.out",
-        delay: 0.2,
-      });
-
-      // Nav links animation - same style as logo with slight stagger
-      gsap.from(".nav-link", {
-        opacity: 0,
-        y: -20,
+        scale: 1.2,
+        opacity: 1,
         duration: 0.6,
-        ease: "power2.out",
-        delay: 0.3,
-        stagger: 0.1, // Each link animates 0.1s after the previous
-      });
+        ease: "back.out(1.7)",
+        stagger: 0.1,
+      }, "-=0.8");
 
-      // Floating particles animation - smooth, minimalist movement
+      // Floating particles animation
       gsap.to(".floating-particle", {
-        y: "random(-30, 30)",
-        x: "random(-20, 20)",
+        y: -20,
+        x: "random(-10, 10)",
         rotation: "random(-180, 180)",
-        duration: "random(4, 8)",
+        duration: "random(3, 6)",
         ease: "power1.inOut",
         repeat: -1,
         yoyo: true,
-        stagger: {
-          amount: 2,
-          from: "random"
-        }
+        stagger: 0.2,
       });
 
-      // Subtle floating motion for particles
-      gsap.to(".floating-particle", {
-        scale: "random(0.8, 1.2)",
-        opacity: "random(0.3, 0.7)",
-        duration: "random(3, 6)",
-        ease: "power2.inOut",
-        repeat: -1,
-        yoyo: true,
-        stagger: 1
-      });
-
-      // Flying element that crosses the screen - minimalist and elegant
+      // Flying element animation
       gsap.to(".flying-element", {
         x: "100vw",
-        duration: 15,
-        ease: "none",
-        repeat: -1,
-        delay: 2
-      });
-
-      // Add subtle rotation and scale to flying element
-      gsap.to(".flying-element", {
+        y: "random(-100, 100)",
         rotation: 360,
-        scale: "random(0.8, 1.2)",
         duration: 8,
-        ease: "power2.inOut",
+        ease: "power1.inOut",
         repeat: -1,
-        yoyo: true
+        delay: 2,
       });
 
-      // Gentle background element animation
-      gsap.to(".animated-bg-element", {
-        y: "random(-20, 20)",
-        x: "random(-15, 15)",
-        scale: "random(0.9, 1.1)",
-        duration: "random(8, 12)",
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        stagger: 2
-      });
+      return () => ctx.revert();
     });
-
-    // Background elements fade in
-    gsap.to(".animated-bg-element", {
-      opacity: 0.1,
-      duration: 1.2,
-      ease: "power2.out",
-      delay: 0.5
-    });
-
-    return () => ctx.revert();
   };
 
   useEffect(() => {
-    if (!isLoaded) return;
-
-    console.log('🚀 Landing page loaded, starting intro sequence');
-    
-    // Show intro for 3.5 seconds, then start fade-out
-    const introTimeout = setTimeout(() => {
-      console.log('✨ Starting intro fade-out');
-      setShowIntro(false);
-      
-      // Wait for intro to completely fade out (1.2s) before showing content
-      setTimeout(() => {
-        console.log('✨ Intro fully faded, showing content');
+    if (showIntro) {
+      const timer = setTimeout(() => {
+        setShowIntro(false);
         setShowContent(true);
-        
-        // Start landing animations shortly after content appears
-        setTimeout(() => {
-          console.log('🎨 Starting landing animations');
-          const cleanup = startLandingAnimations();
-          // Store cleanup function for later use if needed
-          return cleanup;
-        }, 300);
-      }, 1200); // Wait for LumenIntro exit animation to complete
-    }, 3500);
+        startLandingAnimations();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showIntro]);
 
-    return () => clearTimeout(introTimeout);
-  }, [isLoaded]);
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lumen-primary"></div>
-      </div>
-    );
+  if (showIntro) {
+    return <LumenIntro show={showIntro} />;
   }
-
-  if (isSignedIn) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  console.log('🔍 Render state:', { showIntro, showContent, isLoaded, isSignedIn });
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Animated background */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      {/* Animated Background */}
       <AnimatedBackground />
       
-      {/* Lumen Brand Intro */}
-      <LumenIntro show={showIntro} />
+      {/* Mascot */}
+      <LumenMascot currentPage="/" />
       
-      {/* Cute Mascot - only show after intro */}
-      {showContent && <LumenMascot currentPage="/" />}
-      
-      {/* Landing Page Content - show directly after intro */}
+      {/* Main Content */}
       {showContent && (
         <>
-          {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--lumen-gradient-start)]/3 via-white/40 to-[var(--lumen-gradient-end)]/3 z-5"></div>
-          
-          {/* Animated background elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
-            <div className="animated-bg-element absolute top-20 left-20 w-32 h-32 rounded-full opacity-10" style={{ background: 'var(--lumen-primary)', filter: 'blur(2px)' }}></div>
-            <div className="animated-bg-element absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-10" style={{ background: 'var(--lumen-secondary)', filter: 'blur(2px)' }}></div>
-            <div className="animated-bg-element absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-10" style={{ background: 'var(--lumen-primary)', filter: 'blur(1px)' }}></div>
-          </div>
-          
-          {/* Minimalist Layout - Inspired by modern design */}
-          <div className="relative z-50 min-h-screen opacity-0" id="main-content">
-            {/* Readable Header Navigation */}
-            <nav className="flex justify-between items-center p-8 max-w-7xl mx-auto">
-              <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer logo">
-                <LumenIcon size="sm" />
+          {/* Navigation */}
+          <nav className="fixed top-0 left-0 right-0 z-50 p-6">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <LumenIcon size="md" />
                 <span className="text-xl font-bold text-gray-900">Lumen</span>
-              </a>
-              
-              <div className="hidden md:flex space-x-8">
-                <a href="/" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
-                <a href="/about" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
-                <a href="/features" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">FEATURES</a>
-                <a href="/contact" className="nav-link text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">CONTACT</a>
               </div>
-            </nav>
-
-            {/* Clean Grid Layout - Left Content, Right Visual */}
-            <div className="grid lg:grid-cols-2 gap-20 items-center max-w-7xl mx-auto px-8 py-24 lg:py-32">
               
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => window.location.href = '/sign-in'}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => window.location.href = '/sign-in'}
+                  className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-lg hover:from-yellow-500 hover:to-purple-700 transition-all duration-300"
+                >
+                  Get Started
+                </button>
+              </div>
+            </div>
+          </nav>
+
+          {/* Hero Section */}
+          <div id="main-content" className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
               {/* Left Content */}
               <div className="space-y-24">
                 {/* Main Headline */}

@@ -1,47 +1,46 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { ClerkProvider } from '@clerk/clerk-react';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+import { LoadingSpinner } from './components/ui';
 import { AppProvider, useAppContext } from './context/AppContext';
-import { ClerkProvider } from './components/auth/ClerkProvider';
+import { FlowProvider, useFlow } from './context/FlowProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import LoginRedirectHandler from './components/auth/LoginRedirectHandler';
 import { Header, Footer } from './components/layout';
-import { ErrorBoundary, LoadingSpinner } from './components/ui';
-import RootRedirect from './components/auth/RootRedirect';
-import './App.css';
 
-// Lazy load pages for better performance
+// Lazy load pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const About = lazy(() => import('./pages/About'));
 const Features = lazy(() => import('./pages/Features'));
 const Contact = lazy(() => import('./pages/Contact'));
 const SignInPage = lazy(() => import('./pages/SignInPage'));
-
 const WelcomePage = lazy(() => import('./pages/WelcomePage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const FlowPage = lazy(() => import('./pages/FlowPage'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Analytics = lazy(() => import('./pages/Analytics'));
-const Games = lazy(() => import('./pages/Games'));
-const Chat = lazy(() => import('./pages/Chat'));
 
-// Conditional Layout Component
+// Enhanced Conditional Layout Component
 const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { state } = useAppContext();
-  const location = useLocation();
+  const { state: appState } = useAppContext();
+  const { state: flowState } = useFlow();
+  const location = window.location.pathname;
   
-  // Always show header for main app pages (dashboard, chat, analytics, profile, games)
-  const mainAppPages = ['/dashboard', '/chat', '/analytics', '/profile', '/games'];
-  const isMainAppPage = mainAppPages.includes(location.pathname);
-  
-  // Show header if in main app pages OR if emotion flow is complete
-  const shouldShowHeader = isMainAppPage || state.showHeader;
+  // Determine if header/footer should be shown
+  // Show header/footer ONLY for dashboard, analytics
+  // Hide header/footer for all other pages
+  const shouldShowHeader = 
+    (location === '/dashboard' || location === '/analytics') &&
+    appState.showHeader;
   
   console.log('ConditionalLayout: State', {
-    showHeader: state.showHeader,
-    currentView: state.currentView,
-    user: state.user,
-    pathname: location.pathname,
-    isMainAppPage,
-    shouldShowHeader
+    pathname: location,
+    flowStep: flowState.currentStep,
+    appShowHeader: appState.showHeader,
+    shouldShowHeader,
+    user: appState.user
   });
   
   if (shouldShowHeader) {
@@ -57,8 +56,8 @@ const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }
     );
   }
   
-  // No header/footer for pre-emotion selection screens
-  console.log('ConditionalLayout: No header/footer');
+  // No header/footer for other pages
+  console.log('ConditionalLayout: No header/footer for page:', location);
   return (
     <div className="min-h-screen">
       {children}
@@ -66,120 +65,178 @@ const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }
   );
 };
 
+// Clerk Provider Wrapper
+const ClerkProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const navigate = useNavigate();
+  
+  return (
+    <ClerkProvider
+      publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''}
+      routerPush={(to) => navigate(to)}
+      routerReplace={(to) => navigate(to, { replace: true })}
+    >
+      {children}
+    </ClerkProvider>
+  );
+};
+
 function App() {
   return (
     <ErrorBoundary>
-      <ClerkProvider>
-        <AppProvider>
-          <Router>
-            <Routes>
-              {/* Root redirect based on auth status */}
-              <Route path="/" element={<RootRedirect />} />
-              
-              {/* Public Routes - No Header/Footer */}
-              <Route path="/landing" element={<LandingPage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/features" element={<Features />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/sign-in" element={
-                <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                  <SignInPage />
-                </Suspense>
-              } />
+      <Router>
+        <ClerkProviderWrapper>
+          <AppProvider>
+            <FlowProvider>
+              <Routes>
+                {/* Root redirect based on auth status */}
+                <Route path="/" element={<LoginRedirectHandler />} />
+                
+                {/* Public Routes - No Header/Footer */}
+                <Route path="/landing" element={<LandingPage />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/features" element={<Features />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/sign-in" element={
+                  <Suspense fallback={
+                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                      <div className="text-center">
+                        <LoadingSpinner size="lg" />
+                        <div className="mb-4"></div>
+                        <p className="text-gray-600">Loading sign-in page...</p>
+                      </div>
+                    </div>
+                  }>
+                    <SignInPage />
+                  </Suspense>
+                } />
 
-              
-              {/* Protected Routes - Conditional Header/Footer */}
-              <Route 
-                path="/welcome" 
-                element={
-                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                    <ProtectedRoute>
-                      <ConditionalLayout>
-                        <WelcomePage />
-                      </ConditionalLayout>
-                    </ProtectedRoute>
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/onboarding" 
-                element={
-                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                    <ProtectedRoute>
-                      <ConditionalLayout>
-                        <Onboarding />
-                      </ConditionalLayout>
-                    </ProtectedRoute>
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                    <ProtectedRoute>
-                      <ConditionalLayout>
-                        <Dashboard />
-                      </ConditionalLayout>
-                    </ProtectedRoute>
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                    <ProtectedRoute>
-                      <ConditionalLayout>
-                        <Profile />
-                      </ConditionalLayout>
-                    </ProtectedRoute>
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/analytics" 
-                element={
-                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                    <ProtectedRoute>
-                      <ConditionalLayout>
-                        <Analytics />
-                      </ConditionalLayout>
-                    </ProtectedRoute>
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/games" 
-                element={
-                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                    <ProtectedRoute>
-                      <ConditionalLayout>
-                        <Games />
-                      </ConditionalLayout>
-                    </ProtectedRoute>
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/chat" 
-                element={
-                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                    <ProtectedRoute>
-                      <ConditionalLayout>
-                        <Chat />
-                      </ConditionalLayout>
-                    </ProtectedRoute>
-                  </Suspense>
-                } 
-              />
-              
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Router>
-        </AppProvider>
-      </ClerkProvider>
+                {/* Protected Routes - Conditional Header/Footer */}
+                <Route 
+                  path="/welcome" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading welcome page...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <WelcomePage />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/flow" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading flow...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <FlowPage />
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/onboarding" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading onboarding...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <Onboarding />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading dashboard...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <Dashboard />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/analytics" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading analytics...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <Analytics />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading profile...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <Profile />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </FlowProvider>
+          </AppProvider>
+        </ClerkProviderWrapper>
+      </Router>
     </ErrorBoundary>
   );
 }

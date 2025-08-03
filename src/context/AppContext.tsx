@@ -135,61 +135,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const logEmotion = async (emotion: EmotionType) => {
     console.log('AppContext: Logging emotion', emotion);
     
-    try {
-      // Update local state immediately for better UX
-      const updatedUser = {
-        ...state.user!,
-        currentEmotion: emotion,
-        lastEmotionDate: new Date(),
-        hasPlayedGameToday: false
-      };
-      
-      dispatch({ type: 'SET_USER', payload: updatedUser });
-      dispatch({ type: 'SET_CURRENT_EMOTION', payload: emotion });
-      dispatch({ type: 'SET_SHOW_HEADER', payload: true });
-      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'game-prompt' });
+    // Update local state immediately for instant UX
+    const updatedUser = {
+      ...state.user!,
+      currentEmotion: emotion,
+      lastEmotionDate: new Date(),
+      hasPlayedGameToday: false
+    };
+    
+    dispatch({ type: 'SET_USER', payload: updatedUser });
+    dispatch({ type: 'SET_CURRENT_EMOTION', payload: emotion });
+    dispatch({ type: 'SET_SHOW_HEADER', payload: true });
+    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'game-prompt' });
 
-      // Try to save to API with enhanced data integration
-      try {
-        const emotionData = {
-          emotion,
-          intensity: 5,
-          context: 'dashboard',
-          timestamp: new Date().toISOString()
-        };
-        
-        const response = await apiService.createEmotionEntry(emotionData);
-        console.log('AppContext: Emotion saved to API', response);
-        
-        // Update user data with API response
-        if (response) {
-          const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-          const updatedWeeklyData = [...state.user!.weeklyData];
-          updatedWeeklyData[today] = true;
-          
-          dispatch({ 
-            type: 'UPDATE_WEEKLY_DATA', 
-            payload: updatedWeeklyData 
-          });
-          
-          // Update streak from API response
-          if (response.userData) {
-            dispatch({ 
-              type: 'UPDATE_STREAK', 
-              payload: response.userData.currentStreak 
-            });
-          }
-        }
-        
-      } catch (error) {
-        console.warn('AppContext: Failed to save emotion to API, using local state only:', error);
-        // Continue with local state even if API fails
-      }
-      
-    } catch (error) {
-      console.error('AppContext: Failed to log emotion:', error);
-      // Keep the emotion logged locally even if API fails
-    }
+    // Update weekly data for today
+    const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const updatedWeeklyData = [...state.user!.weeklyData];
+    updatedWeeklyData[today] = true;
+    
+    dispatch({ 
+      type: 'UPDATE_WEEKLY_DATA', 
+      payload: updatedWeeklyData 
+    });
+    
+    console.log('AppContext: Emotion logged successfully (local state only)');
   };
 
   // Enhanced initialization with better data checking
@@ -234,42 +203,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           weeklyData: [false, false, false, false, false, false, false],
         };
 
-        // Try to get today's emotion data from API
-        try {
-          const todayData = await apiService.getTodayEmotion();
-          console.log('AppContext: Got today\'s data from API', todayData);
-          
-          if (todayData.userData) {
-            userSession.currentStreak = todayData.userData.currentStreak;
-            userSession.weeklyData = todayData.userData.weeklyData;
-            userSession.currentEmotion = todayData.userData.currentEmotion as any;
-            userSession.hasPlayedGameToday = todayData.userData.hasPlayedGameToday;
+        // Use placeholder data instead of API calls for faster loading
+        console.log('AppContext: Using placeholder data for faster loading');
+        
+        // Simulate a quick API response with placeholder data
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Always assume user hasn't logged today for demo purposes
+        const todayData = {
+          hasLoggedToday: false,
+          todayEntry: null,
+          userData: {
+            currentStreak: 0,
+            longestStreak: 0,
+            weeklyData: [false, false, false, false, false, false, false],
+            currentEmotion: null,
+            hasPlayedGameToday: false,
           }
-          
-          if (todayData.hasLoggedToday && todayData.todayEntry) {
-            userSession.lastEmotionDate = new Date(todayData.todayEntry.createdAt);
-            userSession.currentEmotion = todayData.todayEntry.emotion as any;
-            console.log('AppContext: Found today\'s emotion', todayData.todayEntry.emotion);
-          }
-          
-        } catch (error) {
-          console.warn('Failed to get today\'s data from API:', error);
-        }
-
-        // Try to get user profile from API, but don't fail if it doesn't work
-        try {
-          const userProfile = await apiService.getUserProfile();
-          userSession.userId = userProfile.id;
-          userSession.username = userProfile.firstName || userProfile.email?.split('@')[0] || userSession.username;
-          console.log('AppContext: Got user profile from API');
-        } catch (error) {
-          console.warn('Failed to get user profile from API, using fallback data:', error);
+        };
+        
+        console.log('AppContext: Using placeholder today data', todayData);
+        
+        if (todayData.userData) {
+          userSession.currentStreak = todayData.userData.currentStreak;
+          userSession.weeklyData = todayData.userData.weeklyData;
+          userSession.currentEmotion = todayData.userData.currentEmotion as any;
+          userSession.hasPlayedGameToday = todayData.userData.hasPlayedGameToday;
         }
 
         dispatch({ type: 'SET_USER', payload: userSession });
 
         // Determine initial view based on today's data
-        if (userSession.currentEmotion && todayData?.hasLoggedToday) {
+        if (userSession.currentEmotion && todayData.hasLoggedToday) {
           // User already logged emotion today - go to dashboard
           console.log('AppContext: User has emotion today, going to dashboard');
           dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
