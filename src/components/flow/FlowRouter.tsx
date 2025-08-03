@@ -78,7 +78,10 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
           <GamePromptScreen
             selectedEmotion={flowState.selectedEmotion || 'happy'}
             onPlayGame={handleGamePromptContinue}
-            onSkipGame={() => flowState.actions.setCurrentStep('journaling')}
+            onSkipGame={() => {
+              flowState.actions.completeFlow();
+              if (onComplete) onComplete();
+            }}
           />
         );
 

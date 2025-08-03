@@ -33,6 +33,17 @@ const FlowPage: React.FC = () => {
         return;
       }
 
+      // Check if this is a manual flow request
+      const urlParams = new URLSearchParams(window.location.search);
+      const isManualFlow = urlParams.get('manual') === 'true';
+      
+      if (isManualFlow) {
+        console.log('Manual flow requested, starting at welcome step');
+        flowState.actions.setCurrentStep('welcome');
+        setIsCheckingDailyStatus(false);
+        return;
+      }
+
       console.log('Checking daily status for user:', user.id);
       try {
         setIsCheckingDailyStatus(true);

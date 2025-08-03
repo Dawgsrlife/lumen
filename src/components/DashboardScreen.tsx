@@ -280,32 +280,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <div className="mb-4"></div>
             
             <div className="mb-4"></div>
-            
-            <motion.button
-              onClick={onReset}
-              className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer w-full"
-              style={{
-                background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
-                boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {/* Minimal shimmer effect - subtle and elegant */}
-              <div 
-                className="absolute inset-0 rounded-xl opacity-30"
-                style={{
-                  background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
-                  backgroundSize: '200% 200%',
-                  animation: 'shimmer 3s ease-in-out infinite'
-                }}
-              ></div>
-              
-              {/* Clean, minimal button text */}
-              <span className="relative z-10">
-                Track New Feeling
-              </span>
-            </motion.button>
           </motion.div>
 
           {/* Weekly Progress Card */}
