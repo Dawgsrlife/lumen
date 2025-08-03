@@ -16,8 +16,10 @@ export default function Chat() {
   const [userAnalytics, setUserAnalytics] = useState<any>(null);
   const [recentEmotions, setRecentEmotions] = useState([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -27,6 +29,16 @@ export default function Chat() {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     const isBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
     setIsAtBottom(isBottom);
+    
+    // Calculate unread messages
+    if (!isBottom) {
+      const scrollPercentage = scrollTop / (scrollHeight - clientHeight);
+      const totalMessages = messages.length;
+      const unread = Math.ceil(totalMessages * (1 - scrollPercentage));
+      setUnreadCount(unread);
+    } else {
+      setUnreadCount(0);
+    }
   };
 
   useEffect(() => {
@@ -48,6 +60,19 @@ export default function Chat() {
 
     // Fetch user context data
     fetchUserContext();
+  }, []);
+
+  // Global keyboard listener for Enter key to focus input
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey && document.activeElement?.tagName !== 'INPUT') {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const fetchUserContext = async () => {
@@ -224,19 +249,32 @@ export default function Chat() {
 
               <div ref={messagesEndRef} />
               
-              {/* Scroll to bottom button */}
+              {/* Enhanced Scroll to bottom button */}
               {!isAtBottom && (
                 <motion.button
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   onClick={scrollToBottom}
-                  className="absolute bottom-20 right-6 w-10 h-10 bg-gray-900 text-white rounded-full shadow-lg hover:bg-gray-800 transition-all duration-200 cursor-pointer flex items-center justify-center"
+                  className="absolute bottom-20 right-6 w-12 h-12 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer flex items-center justify-center group"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                   </svg>
                 </motion.button>
+              )}
+
+              {/* Scroll indicator */}
+              {!isAtBottom && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="absolute bottom-32 right-6 bg-gray-900 text-white text-xs px-3 py-1 rounded-full shadow-lg"
+                >
+                  {unreadCount > 0 ? `${unreadCount} new` : 'New messages'}
+                </motion.div>
               )}
             </div>
 
@@ -245,11 +283,12 @@ export default function Chat() {
               <div className="mb-4"></div>
               <div className="relative">
                 <input
+                  ref={inputRef}
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleInputKeyDown}
-                  placeholder="Share what's on your mind..."
+                  placeholder="Share what's on your mind... (Press Enter to focus)"
                   className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 bg-gray-50/50 transition-all cursor-pointer"
                   disabled={isLoading}
                 />
