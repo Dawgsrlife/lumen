@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionType } from '../types';
 import { LumenMascot } from './ui';
-import { Header, Footer } from './layout';
 
 // Emotion data with premium styling
 const emotionData: Record<EmotionType, { 
@@ -205,9 +204,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
-      {/* Header */}
-      <Header />
-      
       {/* Luna Mascot */}
       <LumenMascot currentPage="/dashboard" />
 
@@ -371,8 +367,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </motion.button>
         </motion.div>
       </div>
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
