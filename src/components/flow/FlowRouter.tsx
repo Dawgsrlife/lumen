@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import WelcomeScreen from '../WelcomeScreen';
 import EmotionSelectionScreen from '../EmotionSelectionScreen';
 import GamePromptScreen from '../GamePromptScreen';
-import UnityGame from '../games/UnityGame';
+import FlowGameSection from './FlowGameSection';
 import JournalingStep from '../JournalingStep';
 import { useFlowState } from '../../hooks/useFlowState';
 import { LumenMascot } from '../ui';
@@ -84,19 +84,13 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
 
       case 'game':
         return (
-          <UnityGame
-            gameId="lumen-minigames"
-            gameName="default"
-            gameTitle="Lumen Minigames"
-            description="A collection of therapeutic games"
-            buildUrl="/unity-builds/lumen-minigames/"
-            emotionData={{
-              emotion: flowState.selectedEmotion || 'happy',
-              intensity: 5,
-              context: { source: 'flow', timestamp: new Date().toISOString() }
-            }}
+          <FlowGameSection
+            emotion={flowState.selectedEmotion || 'happy'}
             onGameComplete={handleGameComplete}
             onRewardEarned={(reward) => console.log('Reward earned:', reward)}
+            onSkip={() => {
+              flowState.actions.setCurrentStep('journaling');
+            }}
           />
         );
 

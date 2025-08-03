@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Unity, useUnityContext } from 'react-unity-webgl';
-import { LoadingSpinner } from '../ui';
+
 import type { UnityGameData, UnityReward } from '../../services/unity';
 
 interface UnityGameProps {
@@ -178,27 +178,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
             }}
           />
           
-          {/* Loading overlay */}
-          {!isLoaded && (
-            <div className="absolute inset-0 bg-gray-900/90 flex items-center justify-center">
-              <div className="text-center">
-                <LoadingSpinner size="lg" />
-                <div className="mb-4"></div>
-                <p className="text-white text-lg mb-4">
-                  Loading {gameTitle}...
-                </p>
-                <div className="w-64 h-2 bg-gray-700 rounded-full mb-4 mx-auto overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-yellow-400 to-purple-500 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.round(loadingProgression * 100)}%` }}
-                  />
-                </div>
-                <p className="text-gray-300 text-sm">
-                  {Math.round(loadingProgression * 100)}%
-                </p>
-              </div>
-            </div>
-          )}
+
 
           {/* Error overlay */}
           {error && (
