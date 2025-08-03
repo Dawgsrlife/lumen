@@ -78,14 +78,15 @@ const SignInPage: React.FC = () => {
           {/* Heading */}
           <div ref={headingRef} className="text-center">
             <div className="mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 text-center" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
                 Welcome Back
               </h1>
               <div className="mb-8"></div>
               <p className="text-lg text-gray-600 leading-relaxed text-center">
                 Continue your journey towards mental wellness and growth.
               </p>
-              <div className="w-24 h-1 mx-auto bg-gradient-to-r from-[#FBBF24] to-[#8B5CF6] rounded-full mt-6" />
+              <div className="w-32 h-1.5 mx-auto bg-gradient-to-r from-[#FBBF24] to-[#8B5CF6] rounded-full mt-8 opacity-80 hover:opacity-100 transition-opacity cursor-pointer" 
+                   title="Your wellness journey starts here" />
             </div>
           </div>
 
