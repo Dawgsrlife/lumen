@@ -21,7 +21,7 @@ const LandingPage: React.FC = () => {
 
   // Simple redirect for signed-in users
   if (isLoaded && isSignedIn) {
-    return <Navigate to="/flow" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const startLandingAnimations = () => {

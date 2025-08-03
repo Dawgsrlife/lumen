@@ -196,14 +196,12 @@ interface DashboardScreenProps {
   selectedEmotion: EmotionType;
   currentStreak: number;
   weeklyData: boolean[];
-  onReset: () => void;
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = ({ 
   selectedEmotion, 
   currentStreak, 
-  weeklyData, 
-  onReset 
+  weeklyData
 }) => {
   const emotion = emotionData[selectedEmotion];
   const { state } = useFlow();
