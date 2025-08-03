@@ -27,8 +27,8 @@ export interface UnityMessage {
 
 class UnityService {
   private static instance: UnityService;
-  private unityInstance: any = null;
-  private messageHandlers: Map<string, (data: any) => void> = new Map();
+  private unityInstance: unknown = null;
+  private messageHandlers: Map<string, (data: unknown) => void> = new Map();
 
   private constructor() {}
 
@@ -40,13 +40,13 @@ class UnityService {
   }
 
   // Initialize Unity instance
-  public initializeUnity(unityInstance: any): void {
+  public initializeUnity(unityInstance: unknown): void {
     this.unityInstance = unityInstance;
     console.log('Unity instance initialized');
   }
 
   // Send message to Unity
-  public sendMessageToUnity(gameObject: string, method: string, data?: any): void {
+  public sendMessageToUnity(gameObject: string, method: string, data?: unknown): void {
     if (this.unityInstance) {
       this.unityInstance.SendMessage(gameObject, method, data);
     } else {
@@ -55,7 +55,7 @@ class UnityService {
   }
 
   // Register message handler from Unity
-  public onMessageFromUnity(type: string, handler: (data: any) => void): void {
+  public onMessageFromUnity(type: string, handler: (data: unknown) => void): void {
     this.messageHandlers.set(type, handler);
   }
 
@@ -79,7 +79,7 @@ class UnityService {
   }
 
   // Send user progress data to Unity
-  public sendProgressToUnity(progress: any): void {
+  public sendProgressToUnity(progress: unknown): void {
     this.sendMessageToUnity('GameManager', 'ReceiveProgressData', progress);
   }
 
@@ -89,7 +89,7 @@ class UnityService {
   }
 
   // Start a specific game
-  public startGame(gameId: string, userData?: any): void {
+  public startGame(gameId: string, userData?: unknown): void {
     this.sendMessageToUnity('GameManager', 'StartGame', {
       gameId,
       userData,
@@ -102,7 +102,7 @@ class UnityService {
   }
 
   // Get Unity instance
-  public getUnityInstance(): any {
+  public getUnityInstance(): unknown {
     return this.unityInstance;
   }
 
@@ -114,7 +114,7 @@ class UnityService {
   // Global message handler for Unity WebGL
   public setupGlobalMessageHandler(): void {
     // This will be called by Unity WebGL
-    (window as any).receiveMessageFromUnity = (message: UnityMessage) => {
+    (window as Record<string, unknown>).receiveMessageFromUnity = (message: UnityMessage) => {
       this.handleUnityMessage(message);
     };
   }
@@ -130,7 +130,7 @@ export const unityService = UnityService.getInstance();
 
 // Global message handler for Unity WebGL
 if (typeof window !== 'undefined') {
-  (window as any).receiveMessageFromUnity = (message: UnityMessage) => {
+  (window as Record<string, unknown>).receiveMessageFromUnity = (message: UnityMessage) => {
     unityService.handleUnityMessage(message);
   };
 } 

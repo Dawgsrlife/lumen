@@ -90,40 +90,72 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
 
   // Initialize microphone recording (works in all browsers)
   const initializeMicrophone = async () => {
+    console.log('🎤 Initializing microphone...');
     try {
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('MediaDevices API not supported in this browser');
+      }
+
       // Try to get microphone access first
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('🎤 Requesting microphone access...');
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        }
+      });
+      
+      console.log('🎤 Microphone access granted, creating MediaRecorder...');
       
       // Create MediaRecorder for audio recording
-      const mediaRecorder = new MediaRecorder(stream);
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
       mediaRecorderRef.current = mediaRecorder;
       
+      console.log('🎤 MediaRecorder created successfully');
+      
       mediaRecorder.ondataavailable = (event) => {
+        console.log('🎤 Audio data available, size:', event.data.size);
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
       
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        console.log('🎤 Recording stopped, processing audio...');
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        console.log('🎤 Audio blob created, size:', audioBlob.size);
         handleAudioRecording(audioBlob);
         audioChunksRef.current = [];
+      };
+
+      mediaRecorder.onstart = () => {
+        console.log('🎤 MediaRecorder started successfully');
+      };
+
+      mediaRecorder.onerror = (event) => {
+        console.error('🎤 MediaRecorder error:', event);
       };
       
       setIsConnected(true);
       addMessage({
         id: 'system-1',
-        text: '🎤 Voice therapy session ready! Press and hold the microphone button to record your voice, or type your message below.',
+        text: '🎤 Voice therapy session ready! Click the microphone button to record your voice, or type your message below.',
         isUser: false,
         timestamp: new Date()
       });
       
+      console.log('🎤 Microphone initialization complete!');
+      
     } catch (error) {
-      console.error('Microphone access denied:', error);
+      console.error('🎤 Microphone initialization failed:', error);
       setIsConnected(true); // Allow text-only mode
       addMessage({
         id: 'system-1',
-        text: '💬 Voice therapy session ready! Microphone access was denied, but you can type your messages below.',
+        text: `💬 Voice therapy session ready! Microphone access failed (${error.message}), but you can type your messages below.`,
         isUser: false,
         timestamp: new Date()
       });
@@ -167,31 +199,42 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
 
   // Start voice recording
   const startRecording = () => {
-    console.log('Starting audio recording...');
+    console.log('🎤 START RECORDING BUTTON CLICKED');
+    console.log('🎤 MediaRecorder available:', !!mediaRecorderRef.current);
+    console.log('🎤 MediaRecorder state:', mediaRecorderRef.current?.state);
     
     if (!mediaRecorderRef.current) {
-      console.log('MediaRecorder not available');
-      addMessage({
-        id: `system-${Date.now()}`,
-        text: "Microphone not available. Please allow microphone access or use the text input below.",
-        isUser: false,
-        timestamp: new Date()
+      console.log('🎤 MediaRecorder not available - trying to reinitialize');
+      initializeMicrophone().then(() => {
+        if (mediaRecorderRef.current) {
+          startRecording();
+        }
       });
       return;
     }
 
     try {
+      console.log('🎤 Current state:', mediaRecorderRef.current.state);
       if (mediaRecorderRef.current.state === 'inactive') {
+        console.log('🎤 Clearing audio chunks and starting recording...');
         audioChunksRef.current = [];
-        mediaRecorderRef.current.start();
+        mediaRecorderRef.current.start(1000); // Record in 1 second chunks
         setIsRecording(true);
         setIsListening(true);
-        console.log('Recording started');
+        console.log('🎤 Recording started successfully!');
+      } else {
+        console.log('🎤 MediaRecorder not in inactive state:', mediaRecorderRef.current.state);
       }
     } catch (error) {
-      console.error('Error starting recording:', error);
+      console.error('🎤 Error starting recording:', error);
       setIsRecording(false);
       setIsListening(false);
+      addMessage({
+        id: `system-${Date.now()}`,
+        text: `Recording failed: ${error.message}. Please try again or use text input.`,
+        isUser: false,
+        timestamp: new Date()
+      });
     }
   };
 
@@ -428,11 +471,11 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
                 Debug: Recording: {isRecording ? 'Yes' : 'No'} | Connected: {isConnected ? 'Yes' : 'No'} | Microphone: {mediaRecorderRef.current ? 'Available' : 'Not Available'}
               </div>
               
-              {/* Test button */}
-              <div className="flex justify-center mb-4">
+              {/* Test button and microphone test */}
+              <div className="flex justify-center gap-2 mb-4">
                 <Button
                   onClick={() => {
-                    console.log('Test button clicked!');
+                    console.log('🧪 Test chat interface button clicked!');
                     addMessage({
                       id: `test-${Date.now()}`,
                       text: "🎤 This is a test message to verify the interface is working",
@@ -441,9 +484,37 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
                     });
                     generateAIResponse("This is a test message to verify the interface is working");
                   }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm"
                 >
-                  Test Voice Input
+                  🧪 Test Chat
+                </Button>
+                
+                <Button
+                  onClick={async () => {
+                    console.log('🔧 Test microphone access button clicked!');
+                    try {
+                      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                      console.log('✅ Microphone access successful!', stream);
+                      addMessage({
+                        id: `mic-test-${Date.now()}`,
+                        text: "✅ Microphone access granted! You can now use voice recording.",
+                        isUser: false,
+                        timestamp: new Date()
+                      });
+                      stream.getTracks().forEach(track => track.stop());
+                    } catch (error) {
+                      console.error('❌ Microphone access failed:', error);
+                      addMessage({
+                        id: `mic-error-${Date.now()}`,
+                        text: `❌ Microphone access failed: ${error.message}`,
+                        isUser: false,
+                        timestamp: new Date()
+                      });
+                    }
+                  }}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded text-sm"
+                >
+                  🔧 Test Mic
                 </Button>
               </div>
               

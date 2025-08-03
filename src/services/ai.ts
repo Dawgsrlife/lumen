@@ -25,7 +25,7 @@ export interface AIFeedbackResponse {
 
 export class AIService {
   private static instance: AIService;
-  private model: any;
+  private model: unknown;
 
   private constructor() {
     this.model = genAI.getGenerativeModel({ model: 'gemini-pro' });
@@ -56,7 +56,7 @@ export class AIService {
   private buildPrompt(request: AIFeedbackRequest): string {
     const { emotion, intensity, context, recentEmotions, userGoals } = request;
     
-    let prompt = `You are a compassionate mental health AI assistant. Analyze the user's emotional state and provide supportive, actionable feedback.
+    const prompt = `You are a compassionate mental health AI assistant. Analyze the user's emotional state and provide supportive, actionable feedback.
 
 Current Emotion: ${emotion}
 Intensity Level: ${intensity}/10
@@ -135,7 +135,7 @@ Focus on being supportive, non-judgmental, and providing practical suggestions.`
     return fallbackResponses[emotion as keyof typeof fallbackResponses] || fallbackResponses['😐'];
   }
 
-  async generateWeeklyInsight(weeklyData: any): Promise<string> {
+  async generateWeeklyInsight(weeklyData: unknown): Promise<string> {
     try {
       const prompt = `Analyze this weekly emotional data and provide a brief, supportive insight:
 
@@ -152,7 +152,7 @@ Provide a 2-3 sentence insight that's encouraging and actionable.`;
     }
   }
 
-  async generateMoodPrediction(historicalData: any): Promise<string> {
+  async generateMoodPrediction(historicalData: unknown): Promise<string> {
     try {
       const prompt = `Based on this emotional history, provide a gentle prediction or pattern observation:
 

@@ -2,8 +2,13 @@ import React, { useEffect } from 'react';
 import WelcomeScreen from '../WelcomeScreen';
 import EmotionSelectionScreen from '../EmotionSelectionScreen';
 import GamePromptScreen from '../GamePromptScreen';
+<<<<<<< HEAD
 import UnityGame from '../games/UnityGame';
 import VoiceChatStep from '../VoiceChatStep';
+=======
+import FlowGameSection from './FlowGameSection';
+import JournalingStep from '../JournalingStep';
+>>>>>>> 519870a3c64af4e3c4ae19806452d630dab00558
 import { useFlowState } from '../../hooks/useFlowState';
 import { LumenMascot } from '../ui';
 import type { EmotionType } from '../../types';
@@ -34,11 +39,43 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
 
   const handleGamePromptContinue = () => {
     console.log('Game prompt continue');
+    
+    // Update URL with game parameter based on selected emotion
+    const emotionToGameName: Record<string, string> = {
+      'frustration': 'boxbreathing',
+      'stress': 'boxbreathing', 
+      'anxiety': 'boxbreathing',
+      'sad': 'colorbloom',
+      'grief': 'memorylantern',
+      'lethargy': 'rythmgrow',
+      'anger': 'balancingact',
+      'happy': 'colorbloom',
+      'loneliness': 'memorylantern',
+      'fear': 'boxbreathing'
+    };
+    
+    const selectedEmotion = flowState.selectedEmotion;
+    const gameName = selectedEmotion ? emotionToGameName[selectedEmotion] : null;
+    
+    if (gameName) {
+      // Update URL without page refresh
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('game', gameName);
+      window.history.replaceState({}, '', newUrl.toString());
+      console.log('Updated URL with game parameter:', gameName);
+    }
+    
     flowState.actions.setCurrentStep('game');
   };
 
   const handleGameComplete = (data: any) => {
     console.log('Game completed');
+    
+    // Remove game parameter from URL when moving to journaling
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.delete('game');
+    window.history.replaceState({}, '', newUrl.toString());
+    
     flowState.actions.completeGame(data);
     flowState.actions.setCurrentStep('voice-chat');
   };
@@ -83,19 +120,13 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
 
       case 'game':
         return (
-          <UnityGame
-            gameId="lumen-minigames"
-            gameName="default"
-            gameTitle="Lumen Minigames"
-            description="A collection of therapeutic games"
-            buildUrl="/unity-builds/lumen-minigames/"
-            emotionData={{
-              emotion: flowState.selectedEmotion || 'happy',
-              intensity: 5,
-              context: { source: 'flow', timestamp: new Date().toISOString() }
-            }}
+          <FlowGameSection
+            emotion={flowState.selectedEmotion || 'happy'}
             onGameComplete={handleGameComplete}
             onRewardEarned={(reward) => console.log('Reward earned:', reward)}
+            onSkip={() => {
+              flowState.actions.setCurrentStep('journaling');
+            }}
           />
         );
 

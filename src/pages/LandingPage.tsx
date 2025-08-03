@@ -20,6 +20,21 @@ const LandingPage: React.FC = () => {
   const buttonRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
 
+  useEffect(() => {
+    if (showIntro) {
+      const timer = setTimeout(() => {
+        console.log('🎬 Starting landing page animations');
+        setShowIntro(false);
+        setShowContent(true);
+        // Add a small delay to ensure DOM is ready
+        setTimeout(() => {
+          startLandingAnimations();
+        }, 100);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showIntro]);
+
   // Simple redirect for signed-in users
   if (isLoaded && isSignedIn) {
     return <Navigate to="/dashboard" replace />;
@@ -168,21 +183,6 @@ const LandingPage: React.FC = () => {
       return () => ctx.revert();
     });
   };
-
-  useEffect(() => {
-    if (showIntro) {
-      const timer = setTimeout(() => {
-        console.log('🎬 Starting landing page animations');
-        setShowIntro(false);
-        setShowContent(true);
-        // Add a small delay to ensure DOM is ready
-        setTimeout(() => {
-          startLandingAnimations();
-        }, 100);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [showIntro]);
 
   if (showIntro) {
     return <LumenIntro show={showIntro} />;

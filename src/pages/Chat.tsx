@@ -16,11 +16,16 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'end',
+      inline: 'nearest'
+    });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    const timer = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timer);
   }, [messages]);
 
   useEffect(() => {
@@ -127,13 +132,11 @@ export default function Chat() {
           <div className="mb-4"></div>
         </div>
 
-        {/* Chat Container */}
+        {/* Fixed-Size Chat Container */}
         <div className="max-w-4xl mx-auto">
-          <Card className="h-[600px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
-            {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4">
-              <div className="mb-4"></div>
-              
+          <Card className="h-[700px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
+            {/* Messages Area - Fixed height with scroll */}
+            <div className="h-[570px] overflow-y-auto px-6 pt-6 pb-4 space-y-4">
               <AnimatePresence>
                 {messages.map((message) => (
                   <motion.div
@@ -165,8 +168,7 @@ export default function Chat() {
                           : 'bg-gray-50 text-gray-800 rounded-bl-sm border border-gray-100'
                       }`}>
                         <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
-                        <div className="mb-2"></div>
-                        <p className={`text-xs ${
+                        <p className={`text-xs mt-2 ${
                           message.role === 'user' ? 'text-gray-300' : 'text-gray-500'
                         }`}>
                           {message.timestamp.toLocaleTimeString([], { 
@@ -201,9 +203,8 @@ export default function Chat() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <div className="border-t border-gray-100 bg-white p-6">
-              <div className="mb-4"></div>
+            {/* Fixed Input Area - Always at bottom, fixed height */}
+            <div className="h-[130px] border-t border-gray-100 bg-white p-6 pb-8 flex flex-col justify-center">
               <div className="relative">
                 <input
                   type="text"
@@ -222,14 +223,14 @@ export default function Chat() {
                   <Send className="h-4 w-4" />
                 </button>
               </div>
-              <div className="mb-4"></div>
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-gray-500 mt-2 text-center">
                 Lumi is here to listen and support you. For urgent concerns, please contact a mental health professional.
               </p>
             </div>
           </Card>
         </div>
       </div>
+      <div className="mb-8"></div>
     </div>
   );
 }
