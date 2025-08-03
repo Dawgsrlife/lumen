@@ -41,7 +41,6 @@ export const useUserFlowState = () => {
         error: null,
       });
     } catch (error) {
-      console.error('Failed to initialize flow state:', error);
       setState(prev => ({
         ...prev,
         isLoading: false,

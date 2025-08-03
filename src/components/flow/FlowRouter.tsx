@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import WelcomeScreen from '../WelcomeScreen';
 import EmotionSelectionScreen from '../EmotionSelectionScreen';
 import FlowGameSection from './FlowGameSection';
@@ -45,8 +45,7 @@ const FlowRouter: React.FC<FlowRouterProps> = ({
     if (idx < stepOrder.length - 1) setCurrentStep(stepOrder[idx + 1]);
   };
 
-  // Debug logging
-  console.log('Current step:', currentStep, 'Selected emotion:', selectedEmotion);
+
 
   switch (currentStep) {
     case 'welcome':

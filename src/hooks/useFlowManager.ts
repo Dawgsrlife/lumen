@@ -30,11 +30,7 @@ export const useFlowManager = (): FlowManager => {
   const initializeFlow = useCallback((): FlowStep | null => {
     if (userFlowState.isLoading) return null;
     
-    console.log('Flow initialization:', {
-      hasLoggedEmotionToday: userFlowState.hasLoggedEmotionToday,
-      isManualFlow,
-      currentStep: 'initializing'
-    });
+
 
     // Set manual flow state
     setManualFlow(isManualFlow);
@@ -52,16 +48,12 @@ export const useFlowManager = (): FlowManager => {
     }
 
     if (currentStep === 'welcome' && !isManualFlow) {
-      console.log('Welcome screen auto-transition timer started');
-      
       autoTransitionTimerRef.current = setTimeout(() => {
-        console.log('Welcome screen auto-transitioning to emotion selection');
         // This will be handled by the parent component
         // We return a cleanup function
       }, 3500);
 
       return () => {
-        console.log('Welcome screen auto-transition timer cleared');
         if (autoTransitionTimerRef.current) {
           clearTimeout(autoTransitionTimerRef.current);
           autoTransitionTimerRef.current = null;

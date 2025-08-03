@@ -235,7 +235,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onReset 
 }) => {
   const emotion = emotionData[selectedEmotion];
-  const loggedDays = weeklyData.filter(Boolean).length;
+
 
   return (
     <motion.div

@@ -50,7 +50,6 @@ const FlowPage: React.FC = () => {
 
   const handleRewardEarned = (reward: UnityReward) => {
     // TODO: Add reward handling to flow state
-    console.log('Reward earned:', reward);
   };
 
   const handleSkipGame = () => {
@@ -105,13 +104,7 @@ const FlowPage: React.FC = () => {
   return (
     <FlowErrorBoundary>
       <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
-        {/* Debug Info - Remove this later */}
-        <div className="fixed top-4 left-4 z-50 bg-black/80 text-white p-2 rounded text-xs">
-          <div>Step: {flowState.currentStep}</div>
-          <div>Emotion: {flowState.selectedEmotion || 'none'}</div>
-          <div>Manual: {flowState.isManualFlow ? 'yes' : 'no'}</div>
-          <div>Logged: {flowState.hasLoggedToday ? 'yes' : 'no'}</div>
-        </div>
+
         {/* Dynamic Background */}
         <FlowBackground theme={backgroundTheme} />
         {/* Only show mascot after welcome screen */}

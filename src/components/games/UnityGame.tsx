@@ -33,7 +33,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
 }) => {
   const [gameData, setGameData] = useState<UnityGameData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+
 
   // Initialize Unity context
   const {
@@ -52,8 +52,8 @@ const UnityGame: React.FC<UnityGameProps> = ({
   });
 
   // Event handlers
-  const handleGameStart = useCallback((data: unknown) => {
-    console.log('Game started:', data);
+  const handleGameStart = useCallback(() => {
+    // Game started event
   }, []);
 
   const handleGameEnd = useCallback((data: UnityGameData) => {
@@ -66,12 +66,10 @@ const UnityGame: React.FC<UnityGameProps> = ({
   }, [onRewardEarned]);
 
   const handleError = useCallback((message: string) => {
-    console.error('Unity Error:', message);
     setError(`Unity Error: ${message}`);
   }, []);
 
   const handleLoaded = useCallback(() => {
-    setIsInitialized(true);
     setError(null);
   }, []);
 
@@ -100,7 +98,6 @@ const UnityGame: React.FC<UnityGameProps> = ({
       sendMessage(gameObject, method, parameter);
       return true;
     } catch (err) {
-      console.warn(`Unity message failed: ${gameObject}.${method}`);
       return false;
     }
   }, [isLoaded, sendMessage]);
@@ -127,18 +124,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
     }
   }, [isLoaded, gameName, sendUnityMessage]);
 
-  const handleStartGame = () => {
-    if (!isLoaded) return;
 
-    const gameStartData = JSON.stringify({
-      gameId,
-      gameName,
-      userData: { emotionData }
-    });
-
-    sendUnityMessage('GameManager', 'StartGame', gameStartData) ||
-    sendUnityMessage('GameController', 'StartGame', gameStartData);
-  };
 
   const handleFullscreen = () => {
     requestFullscreen(true);
