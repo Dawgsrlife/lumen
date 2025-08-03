@@ -202,6 +202,9 @@ const Header: React.FC = () => {
         case 'analytics_check':
           navigate('/analytics');
           break;
+        case 'meditation_session':
+          navigate('/chat');
+          break;
         default:
           console.log('Unknown notification type:', notification.type);
       }
@@ -237,6 +240,7 @@ const Header: React.FC = () => {
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', protected: true },
     { label: 'Analytics', href: '/analytics', protected: true },
+    { label: 'Chat', href: '/chat', protected: true },
   ];
 
   return (
