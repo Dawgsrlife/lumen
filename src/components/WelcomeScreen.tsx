@@ -17,7 +17,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) =
   const [hasAnimated, setHasAnimated] = useState(false);
 
   // Get username from Clerk user or fallback
-  const displayName = username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'there';
+  const displayName = username || user?.firstName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'there';
 
   useEffect(() => {
     console.log('WelcomeScreen mounted, hasAnimated:', hasAnimated);
