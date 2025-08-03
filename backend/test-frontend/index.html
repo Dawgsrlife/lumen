@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumen Backend Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .token-display {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+        .emotion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .emotion-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .emotion-btn:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .emotion-btn.selected {
+            border-color: #007bff;
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lumen Backend API Test</h1>
+    
+    <!-- Authentication Section -->
+    <div class="section">
+        <h2>Authentication</h2>
+        <div class="form-group">
+            <label for="clerkToken">Clerk Token (for testing):</label>
+            <input type="text" id="clerkToken" placeholder="Enter a test clerk token">
+        </div>
+        <button onclick="registerUser()">Register User</button>
+        <button onclick="loginUser()">Login User</button>
+        <button onclick="getProfile()">Get Profile</button>
+        <div id="tokenDisplay" class="token-display" style="display: none;">
+            <strong>JWT Token:</strong> <span id="jwtToken"></span>
+        </div>
+    </div>
+
+    <!-- Emotions Section -->
+    <div class="section">
+        <h2>Emotion Tracking</h2>
+        <div class="form-group">
+            <label>Select Emotion:</label>
+            <div class="emotion-grid">
+                <div class="emotion-btn" data-emotion="happy">😊 Happy</div>
+                <div class="emotion-btn" data-emotion="sad">😢 Sad</div>
+                <div class="emotion-btn" data-emotion="anxiety">😰 Anxiety</div>
+                <div class="emotion-btn" data-emotion="stress">😵 Stress</div>
+                <div class="emotion-btn" data-emotion="frustration">😤 Frustration</div>
+                <div class="emotion-btn" data-emotion="loneliness">😔 Loneliness</div>
+                <div class="emotion-btn" data-emotion="lethargy">😴 Lethargy</div>
+                <div class="emotion-btn" data-emotion="fear">😨 Fear</div>
+                <div class="emotion-btn" data-emotion="grief">💔 Grief</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="intensity">Intensity (1-10):</label>
+            <input type="number" id="intensity" min="1" max="10" value="5">
+        </div>
+        <div class="form-group">
+            <label for="context">Context:</label>
+            <textarea id="context" rows="3" placeholder="What's happening?"></textarea>
+        </div>
+        <button onclick="logEmotion()">Log Emotion</button>
+        <button onclick="getEmotions()">Get Emotions</button>
+        <button onclick="getDailyEmotions()">Get Daily Emotions</button>
+    </div>
+
+    <!-- Journal Section -->
+    <div class="section">
+        <h2>Journal Entries</h2>
+        <div class="form-group">
+            <label for="journalContent">Journal Content:</label>
+            <textarea id="journalContent" rows="5" placeholder="Write your thoughts..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="journalMood">Mood:</label>
+            <select id="journalMood">
+                <option value="happy">Happy</option>
+                <option value="sad">Sad</option>
+                <option value="anxiety">Anxiety</option>
+                <option value="stress">Stress</option>
+                <option value="frustration">Frustration</option>
+                <option value="loneliness">Loneliness</option>
+                <option value="lethargy">Lethargy</option>
+                <option value="fear">Fear</option>
+                <option value="grief">Grief</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="journalTags">Tags (comma-separated):</label>
+            <input type="text" id="journalTags" placeholder="work, family, health">
+        </div>
+        <button onclick="createJournalEntry()">Create Journal Entry</button>
+        <button onclick="getJournalEntries()">Get Journal Entries</button>
+        <button onclick="searchJournal()">Search Journal</button>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="section">
+        <h2>Analytics</h2>
+        <button onclick="getAnalyticsOverview()">Get Analytics Overview</button>
+        <button onclick="generateAIInsights()">Generate AI Insights</button>
+        <button onclick="getEmotionAnalytics()">Get Emotion Analytics</button>
+        <button onclick="getMoodTrends()">Get Mood Trends</button>
+    </div>
+
+    <!-- Health Check -->
+    <div class="section">
+        <h2>Health Check</h2>
+        <button onclick="healthCheck()">Check API Health</button>
+    </div>
+
+    <!-- Response Display -->
+    <div class="section">
+        <h2>API Response</h2>
+        <div id="response" class="response">No response yet...</div>
+    </div>
+
+    <script>
+        let jwtToken = localStorage.getItem('lumen_jwt_token');
+        
+        // Update token display
+        function updateTokenDisplay() {
+            const display = document.getElementById('tokenDisplay');
+            const tokenSpan = document.getElementById('jwtToken');
+            if (jwtToken) {
+                display.style.display = 'block';
+                tokenSpan.textContent = jwtToken;
+            } else {
+                display.style.display = 'none';
+            }
+        }
+
+        // API helper function
+        async function apiCall(endpoint, options = {}) {
+            const baseUrl = 'http://localhost:5001';
+            const url = `${baseUrl}${endpoint}`;
+            
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(jwtToken && { 'Authorization': `Bearer ${jwtToken}` })
+                },
+                ...options
+            };
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                const responseDiv = document.getElementById('response');
+                responseDiv.className = 'response ' + (response.ok ? 'success' : 'error');
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                return data;
+            } catch (error) {
+                const responseDiv = document.getElementById('response');
+                responseDiv.className = 'response error';
+                responseDiv.textContent = `Error: ${error.message}`;
+                throw error;
+            }
+        }
+
+        // Authentication functions
+        async function registerUser() {
+            const clerkToken = document.getElementById('clerkToken').value || 'test-clerk-token';
+            const data = await apiCall('/api/users/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    clerkToken,
+                    firstName: 'Test',
+                    lastName: 'User',
+                    email: 'test@example.com',
+                    avatar: 'https://example.com/avatar.jpg'
+                })
+            });
+            
+            if (data.success && data.data.token) {
+                jwtToken = data.data.token;
+                localStorage.setItem('lumen_jwt_token', jwtToken);
+                updateTokenDisplay();
+            }
+        }
+
+        async function loginUser() {
+            const clerkToken = document.getElementById('clerkToken').value || 'test-clerk-token';
+            const data = await apiCall('/api/users/login', {
+                method: 'POST',
+                body: JSON.stringify({ clerkToken })
+            });
+            
+            if (data.success && data.data.token) {
+                jwtToken = data.data.token;
+                localStorage.setItem('lumen_jwt_token', jwtToken);
+                updateTokenDisplay();
+            }
+        }
+
+        async function getProfile() {
+            await apiCall('/api/users/profile');
+        }
+
+        // Emotion functions
+        async function logEmotion() {
+            const selectedEmotion = document.querySelector('.emotion-btn.selected');
+            if (!selectedEmotion) {
+                alert('Please select an emotion first');
+                return;
+            }
+            
+            const emotion = selectedEmotion.dataset.emotion;
+            const intensity = parseInt(document.getElementById('intensity').value);
+            const context = document.getElementById('context').value;
+            
+            await apiCall('/api/emotions', {
+                method: 'POST',
+                body: JSON.stringify({
+                    emotion,
+                    intensity,
+                    context
+                })
+            });
+        }
+
+        async function getEmotions() {
+            await apiCall('/api/emotions');
+        }
+
+        async function getDailyEmotions() {
+            await apiCall('/api/emotions/daily?days=7');
+        }
+
+        // Journal functions
+        async function createJournalEntry() {
+            const content = document.getElementById('journalContent').value;
+            const mood = document.getElementById('journalMood').value;
+            const tags = document.getElementById('journalTags').value
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0);
+            
+            await apiCall('/api/journal', {
+                method: 'POST',
+                body: JSON.stringify({
+                    content,
+                    mood,
+                    tags,
+                    isPrivate: true
+                })
+            });
+        }
+
+        async function getJournalEntries() {
+            await apiCall('/api/journal');
+        }
+
+        async function searchJournal() {
+            const query = prompt('Enter search query:');
+            if (query) {
+                await apiCall(`/api/journal/search?q=${encodeURIComponent(query)}`);
+            }
+        }
+
+        // Analytics functions
+        async function getAnalyticsOverview() {
+            await apiCall('/api/analytics/overview?days=30');
+        }
+
+        async function generateAIInsights() {
+            await apiCall('/api/analytics/insights', {
+                method: 'POST',
+                body: JSON.stringify({
+                    timeframe: 'week',
+                    focus: 'all'
+                })
+            });
+        }
+
+        async function getEmotionAnalytics() {
+            await apiCall('/api/analytics/emotions?days=30');
+        }
+
+        async function getMoodTrends() {
+            await apiCall('/api/analytics/trends?days=30');
+        }
+
+        // Health check
+        async function healthCheck() {
+            await apiCall('/health');
+        }
+
+        // Emotion selection
+        document.querySelectorAll('.emotion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            });
+        });
+
+        // Initialize
+        updateTokenDisplay();
+    </script>
+</body>
+</html> 
