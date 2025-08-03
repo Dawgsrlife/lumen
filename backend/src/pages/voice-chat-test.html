@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumen Voice Chat Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            margin: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .status {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .status.disconnected {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .status.connecting {
+            background: #feebc8;
+            color: #dd6b20;
+        }
+
+        .status.connected {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .setup-section {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.danger {
+            background: #e53e3e;
+        }
+
+        .btn.danger:hover {
+            background: #c53030;
+        }
+
+        .voice-controls {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .mic-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: #e53e3e;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mic-button:hover {
+            transform: scale(1.05);
+        }
+
+        .mic-button.recording {
+            background: #38a169;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .conversation {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.assistant {
+            background: white;
+            border: 2px solid #e2e8f0;
+        }
+
+        .message .timestamp {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .therapeutic-context {
+            background: #edf2f7;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .therapeutic-context h3 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .techniques {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .technique-tag {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .audio-visual {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .wave-container {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .wave-bar {
+            width: 4px;
+            height: 20px;
+            background: #a0aec0;
+            border-radius: 2px;
+            animation: wave 1.5s infinite ease-in-out;
+        }
+
+        .wave-bar.active {
+            background: #667eea;
+        }
+
+        @keyframes wave {
+            0%, 40%, 100% { transform: scaleY(0.4); }
+            20% { transform: scaleY(1.0); }
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .info {
+            background: #bee3f8;
+            color: #2b6cb0;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Lumen Voice Therapy</h1>
+            <p>Real-time AI-powered therapeutic conversations using evidence-based techniques</p>
+        </div>
+
+        <div id="status" class="status disconnected">
+            🔌 Disconnected - Ready to start session
+        </div>
+
+        <div class="setup-section">
+            <h3>🎯 Session Setup</h3>
+            <div class="form-group">
+                <label for="emotionSelect">Current Emotion:</label>
+                <select id="emotionSelect">
+                    <option value="anxiety">😰 Anxiety</option>
+                    <option value="sad">😢 Sad</option>
+                    <option value="stress">😫 Stress</option>
+                    <option value="anger">😠 Anger</option>
+                    <option value="frustration">😤 Frustration</option>
+                    <option value="loneliness">😔 Loneliness</option>
+                    <option value="fear">😨 Fear</option>
+                    <option value="grief">😭 Grief</option>
+                    <option value="happy">😊 Happy</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="intensityRange">Intensity Level: <span id="intensityValue">5</span>/10</label>
+                <input type="range" id="intensityRange" min="1" max="10" value="5">
+            </div>
+            <div class="form-group">
+                <label for="clerkId">Test User ID:</label>
+                <input type="text" id="clerkId" value="test_voice_user_123" placeholder="Enter test user ID">
+            </div>
+            <button id="startBtn" class="btn" onclick="startSession()">Start Voice Therapy Session</button>
+            <button id="endBtn" class="btn danger" onclick="endSession()" disabled>End Session</button>
+        </div>
+
+        <div id="therapeuticContext" class="therapeutic-context" style="display: none;">
+            <h3>🧠 Therapeutic Context</h3>
+            <p><strong>Primary Concern:</strong> <span id="primaryConcern"></span></p>
+            <p><strong>Session Goals:</strong> <span id="sessionGoals"></span></p>
+            <div class="techniques">
+                <div class="technique-tag">CBT</div>
+                <div class="technique-tag">DBT</div>
+                <div class="technique-tag">Mindfulness</div>
+            </div>
+        </div>
+
+        <div id="voiceControls" class="voice-controls" style="display: none;">
+            <div class="audio-visual">
+                <div class="wave-container">
+                    <div class="wave-bar" style="animation-delay: -0.1s;"></div>
+                    <div class="wave-bar" style="animation-delay: -0.2s;"></div>
+                    <div class="wave-bar" style="animation-delay: -0.3s;"></div>
+                    <div class="wave-bar" style="animation-delay: -0.4s;"></div>
+                    <div class="wave-bar" style="animation-delay: -0.5s;"></div>
+                </div>
+            </div>
+            
+            <button id="micBtn" class="mic-button" onclick="toggleRecording()">
+                🎤
+            </button>
+            <p id="micStatus">Click microphone to start speaking</p>
+        </div>
+
+        <div id="conversation" class="conversation" style="display: none;">
+            <h3>💬 Conversation</h3>
+            <div id="messages"></div>
+        </div>
+
+        <div class="info">
+            <strong>💡 How to use:</strong><br>
+            1. Select your current emotion and intensity<br>
+            2. Start the session to connect to AI therapist<br>
+            3. Click the microphone to speak (hold while talking)<br>
+            4. Listen to therapeutic responses with evidence-based techniques<br>
+            5. End session to save conversation as journal entry
+        </div>
+    </div>
+
+    <script>
+        let currentSession = null;
+        let websocket = null;
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        const API_BASE = 'http://localhost:5001';
+        const WS_BASE = 'ws://localhost:5001';
+
+        // Update intensity display
+        document.getElementById('intensityRange').addEventListener('input', (e) => {
+            document.getElementById('intensityValue').textContent = e.target.value;
+        });
+
+        async function startSession() {
+            try {
+                updateStatus('connecting', '🔄 Starting voice therapy session...');
+                
+                const emotion = document.getElementById('emotionSelect').value;
+                const intensity = parseInt(document.getElementById('intensityRange').value);
+                const clerkId = document.getElementById('clerkId').value;
+
+                // Start session
+                const response = await fetch(`${API_BASE}/api/voice-chat/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${clerkId}`
+                    },
+                    body: JSON.stringify({ emotion, intensity })
+                });
+
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+
+                currentSession = result.data;
+                
+                // Show therapeutic context
+                displayTherapeuticContext(currentSession.therapeuticContext);
+                
+                // Connect WebSocket
+                await connectWebSocket(currentSession.sessionId);
+                
+                // Update UI
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('endBtn').disabled = false;
+                document.getElementById('voiceControls').style.display = 'block';
+                document.getElementById('conversation').style.display = 'block';
+                
+                addMessage('system', 'Voice therapy session started. The AI therapist is ready to listen.');
+
+            } catch (error) {
+                console.error('Start session error:', error);
+                updateStatus('disconnected', `❌ Error: ${error.message}`);
+                showError(`Failed to start session: ${error.message}`);
+            }
+        }
+
+        async function connectWebSocket(sessionId) {
+            return new Promise((resolve, reject) => {
+                const wsUrl = `${WS_BASE}/ws/voice-chat/${sessionId}`;
+                websocket = new WebSocket(wsUrl);
+
+                websocket.onopen = () => {
+                    updateStatus('connected', '✅ Connected - Voice therapy session active');
+                    resolve();
+                };
+
+                websocket.onmessage = (event) => {
+                    const message = JSON.parse(event.data);
+                    handleWebSocketMessage(message);
+                };
+
+                websocket.onclose = () => {
+                    updateStatus('disconnected', '🔌 Disconnected');
+                    if (currentSession) {
+                        addMessage('system', 'Connection lost. Please restart session if needed.');
+                    }
+                };
+
+                websocket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    updateStatus('disconnected', '❌ Connection error');
+                    reject(error);
+                };
+
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    if (websocket.readyState !== WebSocket.OPEN) {
+                        reject(new Error('Connection timeout'));
+                    }
+                }, 10000);
+            });
+        }
+
+        function handleWebSocketMessage(message) {
+            switch (message.type) {
+                case 'connected':
+                    addMessage('system', message.message);
+                    break;
+                
+                case 'response':
+                    if (message.text) {
+                        addMessage('assistant', message.text);
+                    }
+                    
+                    if (message.audioData) {
+                        playAudioResponse(message.audioData);
+                    }
+                    break;
+                
+                case 'error':
+                    showError(message.message);
+                    break;
+                
+                case 'pong':
+                    // Keepalive response
+                    break;
+            }
+        }
+
+        async function toggleRecording() {
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                await stopRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        sampleRate: 16000,
+                        channelCount: 1,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm'
+                });
+                
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const arrayBuffer = await audioBlob.arrayBuffer();
+                    const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+                    
+                    // Send to WebSocket
+                    if (websocket && websocket.readyState === WebSocket.OPEN) {
+                        websocket.send(JSON.stringify({
+                            type: 'audio',
+                            audioData: base64Audio,
+                            mimeType: 'audio/webm'
+                        }));
+                        
+                        addMessage('user', '[Audio message sent]');
+                    }
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                
+                document.getElementById('micBtn').classList.add('recording');
+                document.getElementById('micStatus').textContent = 'Recording... Click to stop';
+                activateWaveVisual();
+
+            } catch (error) {
+                console.error('Recording error:', error);
+                showError(`Microphone error: ${error.message}`);
+            }
+        }
+
+        async function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+                
+                document.getElementById('micBtn').classList.remove('recording');
+                document.getElementById('micStatus').textContent = 'Processing... Please wait';
+                deactivateWaveVisual();
+                
+                setTimeout(() => {
+                    document.getElementById('micStatus').textContent = 'Click microphone to speak again';
+                }, 2000);
+            }
+        }
+
+        function activateWaveVisual() {
+            const waveBars = document.querySelectorAll('.wave-bar');
+            waveBars.forEach(bar => bar.classList.add('active'));
+        }
+
+        function deactivateWaveVisual() {
+            const waveBars = document.querySelectorAll('.wave-bar');
+            waveBars.forEach(bar => bar.classList.remove('active'));
+        }
+
+        function playAudioResponse(audioData) {
+            try {
+                // Convert base64 to audio blob and play
+                const binaryString = atob(audioData);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                
+                const audioBlob = new Blob([bytes], { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                
+                audio.play().catch(error => {
+                    console.error('Audio playback error:', error);
+                });
+                
+            } catch (error) {
+                console.error('Audio processing error:', error);
+            }
+        }
+
+        async function endSession() {
+            try {
+                if (isRecording) {
+                    await stopRecording();
+                }
+
+                if (websocket) {
+                    websocket.close();
+                    websocket = null;
+                }
+
+                if (currentSession) {
+                    const clerkId = document.getElementById('clerkId').value;
+                    const response = await fetch(`${API_BASE}/api/voice-chat/end/${currentSession.sessionId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${clerkId}`
+                        }
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        addMessage('system', `Session ended. Conversation saved as journal entry. Duration: ${result.data.duration} minutes.`);
+                    }
+                }
+
+                // Reset UI
+                currentSession = null;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('endBtn').disabled = true;
+                document.getElementById('voiceControls').style.display = 'none';
+                document.getElementById('therapeuticContext').style.display = 'none';
+                updateStatus('disconnected', '✅ Session ended successfully');
+
+            } catch (error) {
+                console.error('End session error:', error);
+                showError(`Error ending session: ${error.message}`);
+            }
+        }
+
+        function displayTherapeuticContext(context) {
+            document.getElementById('primaryConcern').textContent = context.primaryConcern;
+            document.getElementById('sessionGoals').textContent = context.sessionGoals.join(', ');
+            document.getElementById('therapeuticContext').style.display = 'block';
+        }
+
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const roleIcon = role === 'user' ? '👤' : role === 'assistant' ? '🤖' : 'ℹ️';
+            
+            messageDiv.innerHTML = `
+                <div class="timestamp">${roleIcon} ${timestamp}</div>
+                <div>${content}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateStatus(type, message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            
+            document.querySelector('.container').insertBefore(errorDiv, document.querySelector('.setup-section'));
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // Keepalive ping every 30 seconds
+        setInterval(() => {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                websocket.send(JSON.stringify({ type: 'ping' }));
+            }
+        }, 30000);
+
+        console.log('🎙️ Lumen Voice Chat Test Interface Loaded');
+        console.log('🔧 Configure your microphone and start a therapeutic conversation!');
+    </script>
+</body>
+</html>
