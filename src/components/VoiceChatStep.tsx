@@ -67,13 +67,13 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
         timestamp: new Date()
       });
 
-      // Initialize microphone and add therapeutic message
-      setTimeout(async () => {
-        await initializeMicrophone();
+      // Initialize speech recognition and add therapeutic message
+      setTimeout(() => {
+        initializeSpeechRecognition();
         setTimeout(() => {
           addMessage({
             id: 'therapy-1',
-            text: `It sounds like you experienced ${selectedEmotion} during the activity. That's completely valid. Feel free to record a voice message or type about what made you feel this way.`,
+            text: `It sounds like you experienced ${selectedEmotion} during the activity. That's completely valid. Feel free to speak or type about what made you feel this way.`,
             isUser: false,
             timestamp: new Date()
           });
@@ -88,74 +88,99 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
     }
   };
 
-  // Initialize microphone recording (works in all browsers)
-  const initializeMicrophone = async () => {
-    console.log('🎤 Initializing microphone...');
+  // Initialize speech recognition directly (better approach)
+  const initializeSpeechRecognition = () => {
+    console.log('🎤 Initializing speech recognition...');
     try {
-      // Check if mediaDevices is supported
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('MediaDevices API not supported in this browser');
+      // Check if speech recognition is available
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        throw new Error('Speech recognition not supported in this browser');
       }
 
-      // Try to get microphone access first
-      console.log('🎤 Requesting microphone access...');
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 44100
-        }
-      });
-      
-      console.log('🎤 Microphone access granted, creating MediaRecorder...');
-      
-      // Create MediaRecorder for audio recording
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-      mediaRecorderRef.current = mediaRecorder;
-      
-      console.log('🎤 MediaRecorder created successfully');
-      
-      mediaRecorder.ondataavailable = (event) => {
-        console.log('🎤 Audio data available, size:', event.data.size);
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-      
-      mediaRecorder.onstop = () => {
-        console.log('🎤 Recording stopped, processing audio...');
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        console.log('🎤 Audio blob created, size:', audioBlob.size);
-        handleAudioRecording(audioBlob);
-        audioChunksRef.current = [];
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        console.log('🎤 Speech recognition started');
+        setIsListening(true);
+        setIsRecording(true);
       };
 
-      mediaRecorder.onstart = () => {
-        console.log('🎤 MediaRecorder started successfully');
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        const confidence = event.results[0][0].confidence;
+        console.log('🎤 Speech recognized:', transcript, 'Confidence:', confidence);
+        
+        // Add user message with actual transcript
+        addMessage({
+          id: `user-${Date.now()}`,
+          text: `🎤 "${transcript}"`,
+          isUser: true,
+          timestamp: new Date()
+        });
+        
+        // Generate AI response based on actual speech
+        generateAIResponse(transcript);
       };
 
-      mediaRecorder.onerror = (event) => {
-        console.error('🎤 MediaRecorder error:', event);
+      recognition.onerror = (event: any) => {
+        console.error('🎤 Speech recognition error:', event.error);
+        setIsListening(false);
+        setIsRecording(false);
+        
+        if (event.error === 'no-speech') {
+          addMessage({
+            id: `system-${Date.now()}`,
+            text: "I didn't hear anything clearly. Please try speaking again or use the text input below.",
+            isUser: false,
+            timestamp: new Date()
+          });
+        } else if (event.error === 'not-allowed') {
+          addMessage({
+            id: `system-${Date.now()}`,
+            text: "Microphone access was denied. Please enable microphone permissions and refresh the page, or use text input.",
+            isUser: false,
+            timestamp: new Date()
+          });
+        } else {
+          addMessage({
+            id: `system-${Date.now()}`,
+            text: `Speech recognition error: ${event.error}. Please try again or use text input.`,
+            isUser: false,
+            timestamp: new Date()
+          });
+        }
       };
+
+      recognition.onend = () => {
+        console.log('🎤 Speech recognition ended');
+        setIsRecording(false);
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
       
       setIsConnected(true);
       addMessage({
         id: 'system-1',
-        text: '🎤 Voice therapy session ready! Click the microphone button to record your voice, or type your message below.',
+        text: '🎤 Voice therapy session ready! Click the microphone button to speak, or type your message below.',
         isUser: false,
         timestamp: new Date()
       });
       
-      console.log('🎤 Microphone initialization complete!');
+      console.log('🎤 Speech recognition initialization complete!');
       
     } catch (error) {
-      console.error('🎤 Microphone initialization failed:', error);
+      console.error('🎤 Speech recognition initialization failed:', error);
       setIsConnected(true); // Allow text-only mode
       addMessage({
         id: 'system-1',
-        text: `💬 Voice therapy session ready! Microphone access failed (${error.message}), but you can type your messages below.`,
+        text: `💬 Voice therapy session ready! Speech recognition failed (${error.message}), but you can type your messages below.`,
         isUser: false,
         timestamp: new Date()
       });
@@ -163,93 +188,153 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
   };
 
   // Handle audio recording completion
-  const handleAudioRecording = (audioBlob: Blob) => {
+  const handleAudioRecording = async (audioBlob: Blob) => {
+    console.log('🎤 Processing audio recording...');
+    
     // Create audio URL for playback
     const audioUrl = URL.createObjectURL(audioBlob);
     
-    // Show recorded message
+    // Show initial message while transcribing
+    const tempMessageId = `user-temp-${Date.now()}`;
     addMessage({
-      id: `user-${Date.now()}`,
-      text: `🎤 [Voice message recorded - ${Math.round(audioBlob.size / 1024)}KB]`,
+      id: tempMessageId,
+      text: `🎤 [Processing voice message...]`,
       isUser: true,
       timestamp: new Date(),
       audioData: audioUrl
     });
     
-    // Simulate processing the audio and generate response
-    setTimeout(() => {
-      const responses = [
-        "I can hear the emotion in your voice. Thank you for sharing that with me. What stands out most about that experience?",
-        "Your voice tells me this is really important to you. I appreciate you opening up. How are you feeling as you talk about this?",
-        "I hear you, and I want you to know that what you're experiencing is completely valid. What would help you process this further?",
-        "Thank you for trusting me with your thoughts. Sometimes speaking our feelings aloud helps us understand them better. What else comes to mind?",
-        "I can sense the sincerity in your voice. Your willingness to share shows real courage. What aspect of this would you like to explore more?"
-      ];
+    try {
+      // Use Web Speech API for transcription
+      const transcription = await transcribeAudio(audioBlob);
       
-      const response = responses[Math.floor(Math.random() * responses.length)];
+      if (transcription && transcription.trim()) {
+        // Update message with transcription
+        setMessages(prev => prev.map(msg => 
+          msg.id === tempMessageId 
+            ? { ...msg, text: `🎤 "${transcription}"` }
+            : msg
+        ));
+        
+        // Generate AI response based on actual transcription
+        generateAIResponse(transcription);
+      } else {
+        // No transcription detected
+        setMessages(prev => prev.map(msg => 
+          msg.id === tempMessageId 
+            ? { ...msg, text: `🎤 [Voice recorded but no speech detected - please try speaking more clearly or use text input]` }
+            : msg
+        ));
+      }
+    } catch (error) {
+      console.error('🎤 Transcription failed:', error);
       
-      addMessage({
-        id: `ai-${Date.now()}`,
-        text: response,
-        isUser: false,
-        timestamp: new Date()
-      });
-    }, 2000);
+      // Update message with error
+      setMessages(prev => prev.map(msg => 
+        msg.id === tempMessageId 
+          ? { ...msg, text: `🎤 [Voice recorded but transcription failed - please use text input: ${error.message}]` }
+          : msg
+      ));
+    }
   };
 
-  // Start voice recording
+  // Transcribe audio using Web Speech API
+  const transcribeAudio = (audioBlob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      try {
+        // Check if speech recognition is available
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+          reject(new Error('Speech recognition not supported in this browser'));
+          return;
+        }
+
+        // Create audio element to play the recorded audio
+        const audio = new Audio(URL.createObjectURL(audioBlob));
+        const recognition = new SpeechRecognition();
+        
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        recognition.maxAlternatives = 1;
+
+        let transcription = '';
+        
+        recognition.onresult = (event: any) => {
+          console.log('🎤 Speech recognition result:', event.results);
+          if (event.results && event.results[0]) {
+            transcription = event.results[0][0].transcript;
+            console.log('🎤 Transcribed text:', transcription);
+          }
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error('🎤 Speech recognition error:', event.error);
+          reject(new Error(`Speech recognition failed: ${event.error}`));
+        };
+
+        recognition.onend = () => {
+          console.log('🎤 Speech recognition ended, transcription:', transcription);
+          resolve(transcription);
+        };
+
+        // Start recognition and play audio simultaneously
+        recognition.start();
+        audio.play().catch(err => {
+          console.warn('🎤 Audio playback failed (but continuing with recognition):', err);
+        });
+        
+      } catch (error) {
+        console.error('🎤 Error setting up transcription:', error);
+        reject(error);
+      }
+    });
+  };
+
+  // Start speech recognition
   const startRecording = () => {
-    console.log('🎤 START RECORDING BUTTON CLICKED');
-    console.log('🎤 MediaRecorder available:', !!mediaRecorderRef.current);
-    console.log('🎤 MediaRecorder state:', mediaRecorderRef.current?.state);
+    console.log('🎤 START SPEECH RECOGNITION BUTTON CLICKED');
+    console.log('🎤 Recognition available:', !!recognitionRef.current);
     
-    if (!mediaRecorderRef.current) {
-      console.log('🎤 MediaRecorder not available - trying to reinitialize');
-      initializeMicrophone().then(() => {
-        if (mediaRecorderRef.current) {
+    if (!recognitionRef.current) {
+      console.log('🎤 Speech recognition not available - trying to reinitialize');
+      initializeSpeechRecognition();
+      setTimeout(() => {
+        if (recognitionRef.current) {
           startRecording();
         }
-      });
+      }, 500);
       return;
     }
 
     try {
-      console.log('🎤 Current state:', mediaRecorderRef.current.state);
-      if (mediaRecorderRef.current.state === 'inactive') {
-        console.log('🎤 Clearing audio chunks and starting recording...');
-        audioChunksRef.current = [];
-        mediaRecorderRef.current.start(1000); // Record in 1 second chunks
-        setIsRecording(true);
-        setIsListening(true);
-        console.log('🎤 Recording started successfully!');
-      } else {
-        console.log('🎤 MediaRecorder not in inactive state:', mediaRecorderRef.current.state);
-      }
+      console.log('🎤 Starting speech recognition...');
+      recognitionRef.current.start();
+      console.log('🎤 Speech recognition started successfully!');
     } catch (error) {
-      console.error('🎤 Error starting recording:', error);
+      console.error('🎤 Error starting speech recognition:', error);
       setIsRecording(false);
       setIsListening(false);
       addMessage({
         id: `system-${Date.now()}`,
-        text: `Recording failed: ${error.message}. Please try again or use text input.`,
+        text: `Speech recognition failed: ${error.message}. Please try again or use text input.`,
         isUser: false,
         timestamp: new Date()
       });
     }
   };
 
-  // Stop voice recording
+  // Stop speech recognition
   const stopRecording = () => {
-    console.log('Stopping audio recording...');
+    console.log('🎤 Stopping speech recognition...');
     
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+    if (recognitionRef.current) {
       try {
-        mediaRecorderRef.current.stop();
-        setIsRecording(false);
-        setIsListening(false);
-        console.log('Recording stopped');
+        recognitionRef.current.stop();
+        console.log('🎤 Speech recognition stopped');
       } catch (error) {
-        console.error('Error stopping recording:', error);
+        console.error('🎤 Error stopping speech recognition:', error);
       }
     }
   };
@@ -468,7 +553,7 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
               
               {/* Debug info */}
               <div className="text-center text-xs text-gray-400 mb-2">
-                Debug: Recording: {isRecording ? 'Yes' : 'No'} | Connected: {isConnected ? 'Yes' : 'No'} | Microphone: {mediaRecorderRef.current ? 'Available' : 'Not Available'}
+                Debug: Recording: {isRecording ? 'Yes' : 'No'} | Connected: {isConnected ? 'Yes' : 'No'} | Speech Recognition: {recognitionRef.current ? 'Available' : 'Not Available'}
               </div>
               
               {/* Test button and microphone test */}
@@ -530,9 +615,9 @@ const VoiceChatStep: React.FC<VoiceChatStepProps> = ({
                 </div>
               )}
               
-              {!isListening && mediaRecorderRef.current && (
+              {!isListening && recognitionRef.current && (
                 <div className="text-center mb-4">
-                  <p className="text-sm text-gray-600">🎤 Press and hold the microphone to record your voice message</p>
+                  <p className="text-sm text-gray-600">🎤 Click the microphone to start speaking</p>
                 </div>
               )}
 

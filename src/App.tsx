@@ -32,17 +32,10 @@ const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }
   const location = window.location.pathname;
   
   // Determine if header/footer should be shown
-<<<<<<< HEAD
-  // Show header/footer for dashboard, analytics, chat, games, clinic (main navigation pages)
+  // Show header/footer for dashboard, analytics, chat, profile, games, clinic (main navigation pages)
   // Hide header/footer for all other pages (flow, welcome, etc.)
   const shouldShowHeader = 
-    location === '/dashboard' || location === '/analytics' || location === '/chat' || location === '/games' || location === '/clinic';
-=======
-  // Show header/footer for dashboard, analytics, chat, profile (main navigation pages)
-  // Hide header/footer for all other pages (flow, welcome, etc.)
-  const shouldShowHeader = 
-    location === '/dashboard' || location === '/analytics' || location === '/chat' || location === '/profile';
->>>>>>> 519870a3c64af4e3c4ae19806452d630dab00558
+    location === '/dashboard' || location === '/analytics' || location === '/chat' || location === '/profile' || location === '/games' || location === '/clinic';
   
   console.log('ConditionalLayout: State', {
     pathname: location,

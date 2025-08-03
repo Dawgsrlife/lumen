@@ -2,13 +2,8 @@ import React, { useEffect } from 'react';
 import WelcomeScreen from '../WelcomeScreen';
 import EmotionSelectionScreen from '../EmotionSelectionScreen';
 import GamePromptScreen from '../GamePromptScreen';
-<<<<<<< HEAD
-import UnityGame from '../games/UnityGame';
-import VoiceChatStep from '../VoiceChatStep';
-=======
 import FlowGameSection from './FlowGameSection';
-import JournalingStep from '../JournalingStep';
->>>>>>> 519870a3c64af4e3c4ae19806452d630dab00558
+import VoiceChatStep from '../VoiceChatStep';
 import { useFlowState } from '../../hooks/useFlowState';
 import { LumenMascot } from '../ui';
 import type { EmotionType } from '../../types';
@@ -125,7 +120,7 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
             onGameComplete={handleGameComplete}
             onRewardEarned={(reward) => console.log('Reward earned:', reward)}
             onSkip={() => {
-              flowState.actions.setCurrentStep('journaling');
+              flowState.actions.setCurrentStep('voice-chat');
             }}
           />
         );

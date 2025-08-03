@@ -103,8 +103,8 @@ const FlowPage: React.FC = () => {
         return 'emotions';
       case 'game':
         return 'game'; // Clean background for Unity games
-      case 'journaling':
-        return 'survey'; // Writing/reflection theme
+      case 'voice-chat':
+        return 'survey'; // Voice therapy/reflection theme
       case 'feedback':
         return 'survey'; // Writing/reflection theme
       default:
