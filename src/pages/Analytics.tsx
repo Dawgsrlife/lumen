@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { LumenMascot } from '../components/ui';
+import { Header, Footer } from '../components/layout';
 import { useClerkUser } from '../hooks/useClerkUser';
 import {
   LineChart,
@@ -17,36 +18,15 @@ const Analytics: React.FC = () => {
   const { user } = useClerkUser();
   const [selectedTimeRange, setSelectedTimeRange] = useState<'7days' | 'month' | '3months' | 'alltime'>('7days');
 
-  // Mock data for charts
+  // Simplified mock data for charts
   const moodData = [
-    { date: 'Mon', mood: 4, journal: 'Feeling productive today' },
-    { date: 'Tue', mood: 3, journal: 'A bit overwhelmed but managing' },
-    { date: 'Wed', mood: 5, journal: 'Amazing day! Everything clicked' },
-    { date: 'Thu', mood: 2, journal: 'Struggling with anxiety today' },
-    { date: 'Fri', mood: 4, journal: 'Found some peace in meditation' },
-    { date: 'Sat', mood: 5, journal: 'Wonderful time with friends' },
-    { date: 'Sun', mood: 4, journal: 'Reflecting on a good week' },
-  ];
-
-  const journalHighlights = [
-    {
-      date: 'Jan 10',
-      title: 'Moments of Growth',
-      snippet: 'Today I realized how far I\'ve come in managing my anxiety. The breathing exercises really help.',
-      mood: 5
-    },
-    {
-      date: 'Jan 8',
-      title: 'Your Reflections',
-      snippet: 'Sometimes the hardest days teach us the most about ourselves and our resilience.',
-      mood: 3
-    },
-    {
-      date: 'Jan 6',
-      title: 'Beautiful Moments',
-      snippet: 'Spent quality time with family today. These moments remind me what truly matters in life.',
-      mood: 5
-    }
+    { date: 'Mon', mood: 4 },
+    { date: 'Tue', mood: 3 },
+    { date: 'Wed', mood: 5 },
+    { date: 'Thu', mood: 2 },
+    { date: 'Fri', mood: 4 },
+    { date: 'Sat', mood: 5 },
+    { date: 'Sun', mood: 4 },
   ];
 
   if (!user) {
@@ -70,19 +50,22 @@ const Analytics: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      {/* Header */}
+      <Header />
+      
       {/* Luna Mascot */}
       <LumenMascot currentPage="/analytics" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
         {/* Beautiful Header - Inspired by Landing Page */}
         <motion.div 
-          className="text-center mb-20"
+          className="text-center mb-20 flex flex-col items-center justify-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
           <motion.h1 
-            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6"
+            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6 text-center"
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -92,7 +75,7 @@ const Analytics: React.FC = () => {
           </motion.h1>
           
           <motion.p 
-            className="text-xl leading-relaxed text-gray-600 max-w-3xl mx-auto font-light"
+            className="text-xl leading-relaxed text-gray-600 max-w-3xl mx-auto font-light text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -101,7 +84,7 @@ const Analytics: React.FC = () => {
           </motion.p>
         </motion.div>
 
-        {/* Time Range Filters */}
+        {/* Simple Time Range Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -130,207 +113,177 @@ const Analytics: React.FC = () => {
           ))}
         </motion.div>
 
-        <div className="space-y-16">
-          {/* Clean Chart Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Mood Journey</h2>
-              <p className="text-gray-600 text-lg">A gentle look at your emotional patterns over time</p>
-            </div>
-            
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart 
-                data={moodData} 
-                margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
-              >
-                <defs>
-                  <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" opacity={0.5} />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#94a3b8" 
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: '#64748b', fontSize: 12 }}
-                />
-                <YAxis 
-                  stroke="#94a3b8" 
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: '#64748b', fontSize: 12 }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    border: 'none',
-                    borderRadius: '12px',
-                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                    fontSize: '13px',
-                    padding: '12px 16px',
-                    backdropFilter: 'blur(10px)'
-                  }}
-                  formatter={(value) => {
-                    return [`${value}/5 😊`, 'Mood'];
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="mood"
-                  stroke="url(#moodGradient)"
-                  fill="url(#moodGradient)"
-                  strokeWidth={3}
-                  name="Mood"
-                  dot={{ 
-                    fill: '#fbbf24', 
-                    strokeWidth: 2, 
-                    r: 5,
-                    stroke: '#ffffff'
-                  }}
-                  activeDot={{ 
-                    r: 8, 
-                    stroke: '#8b5cf6', 
-                    strokeWidth: 3,
-                    fill: '#ffffff'
-                  }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </motion.div>
-
-          {/* Simple Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Average Mood Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
-            >
-              <div className="text-5xl mb-4">📊</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Average Mood</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-2">
-                4.2
-              </div>
-              <p className="text-gray-600">Out of 5 stars</p>
-            </motion.div>
-
-            {/* Check-ins Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
-            >
-              <div className="text-5xl mb-4">📝</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Total Check-ins</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-2">
-                28
-              </div>
-              <p className="text-gray-600">This month</p>
-            </motion.div>
-
-            {/* Streak Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
-            >
-              <div className="text-5xl mb-4">🔥</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Current Streak</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-2">
-                7
-              </div>
-              <p className="text-gray-600">Days in a row</p>
-            </motion.div>
+        {/* Simple Chart Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 mb-16"
+        >
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Mood Journey</h2>
+            <p className="text-gray-600 text-lg">A gentle look at your emotional patterns over time</p>
           </div>
+          
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart 
+              data={moodData} 
+              margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
+            >
+              <defs>
+                <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" opacity={0.5} />
+              <XAxis 
+                dataKey="date" 
+                stroke="#94a3b8" 
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: '#64748b', fontSize: 12 }}
+              />
+              <YAxis 
+                stroke="#94a3b8" 
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: '#64748b', fontSize: 12 }}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                  fontSize: '13px',
+                  padding: '12px 16px',
+                  backdropFilter: 'blur(10px)'
+                }}
+                formatter={(value) => {
+                  return [`${value}/5 😊`, 'Mood'];
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="mood"
+                stroke="url(#moodGradient)"
+                fill="url(#moodGradient)"
+                strokeWidth={3}
+                name="Mood"
+                dot={{ 
+                  fill: '#fbbf24', 
+                  strokeWidth: 2, 
+                  r: 5,
+                  stroke: '#ffffff'
+                }}
+                activeDot={{ 
+                  r: 8, 
+                  stroke: '#8b5cf6', 
+                  strokeWidth: 3,
+                  fill: '#ffffff'
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </motion.div>
 
-          {/* Simple Journal Highlights */}
+        {/* Simple Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          {/* Average Mood Card */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.9 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
           >
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Reflections</h2>
-              <p className="text-gray-600 text-lg">Beautiful moments from your journey</p>
+            <div className="text-5xl mb-4">📊</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Average Mood</h3>
+            <div className="text-4xl font-bold text-gray-900 mb-2">
+              4.2
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {journalHighlights.map((entry, index) => (
-                <motion.div
-                  key={entry.date}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 1.0 + index * 0.1 }}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 text-center"
-                >
-                  <div className="flex items-center justify-center mb-4">
-                    <span className="text-2xl">{entry.mood === 5 ? '😊' : entry.mood === 3 ? '😐' : '😔'}</span>
-                  </div>
-                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{entry.title}</h4>
-                  <p className="text-gray-600 leading-relaxed mb-4">{entry.snippet}</p>
-                  <span className="text-sm text-gray-500 font-medium">{entry.date}</span>
-                </motion.div>
-              ))}
-            </div>
+            <p className="text-gray-600">Out of 5 stars</p>
           </motion.div>
 
-          {/* Beautiful Action Buttons - Inspired by Landing Page */}
+          {/* Check-ins Card */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
           >
-            <motion.button
-              onClick={() => window.location.href = '/flow?manual=true'}
-              className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
-              style={{
-                background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
-                boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {/* Minimal shimmer effect - subtle and elegant */}
-              <div 
-                className="absolute inset-0 rounded-xl opacity-30"
-                style={{
-                  background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
-                  backgroundSize: '200% 200%',
-                  animation: 'shimmer 3s ease-in-out infinite'
-                }}
-              ></div>
-              
-              {/* Clean, minimal button text */}
-              <span className="relative z-10">
-                💭 Log Today's Emotion
-              </span>
-            </motion.button>
-            
-            <motion.button
-              onClick={() => window.location.href = '/dashboard'}
-              className="px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-xl font-semibold border border-gray-200 hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              🏠 Back to Dashboard
-            </motion.button>
+            <div className="text-5xl mb-4">📝</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Total Check-ins</h3>
+            <div className="text-4xl font-bold text-gray-900 mb-2">
+              28
+            </div>
+            <p className="text-gray-600">This month</p>
+          </motion.div>
+
+          {/* Streak Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
+          >
+            <div className="text-5xl mb-4">🔥</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Current Streak</h3>
+            <div className="text-4xl font-bold text-gray-900 mb-2">
+              7
+            </div>
+            <p className="text-gray-600">Days in a row</p>
           </motion.div>
         </div>
+
+        {/* Beautiful Action Buttons - Inspired by Landing Page */}
+        <motion.div
+          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+        >
+          <motion.button
+            onClick={() => window.location.href = '/flow?manual=true'}
+            className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
+            style={{
+              background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
+              boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {/* Minimal shimmer effect - subtle and elegant */}
+            <div 
+              className="absolute inset-0 rounded-xl opacity-30"
+              style={{
+                background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
+                backgroundSize: '200% 200%',
+                animation: 'shimmer 3s ease-in-out infinite'
+              }}
+            ></div>
+            
+            {/* Clean, minimal button text */}
+            <span className="relative z-10">
+              💭 Log Today's Emotion
+            </span>
+          </motion.button>
+          
+          <motion.button
+            onClick={() => window.location.href = '/dashboard'}
+            className="px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-xl font-semibold border border-gray-200 hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            🏠 Back to Dashboard
+          </motion.button>
+        </motion.div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
