@@ -135,7 +135,7 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {flowState.currentStep !== 'welcome' && <LumenMascot currentPage="/flow" />}
+      {flowState.currentStep !== 'welcome' && flowState.currentStep !== 'game' && <LumenMascot currentPage="/flow" />}
       {renderStep()}
     </div>
   );

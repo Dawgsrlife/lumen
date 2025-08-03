@@ -32,6 +32,7 @@ export type FlowAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'RESET_FLOW' }
+  | { type: 'COMPLETE_FLOW' }
   | { type: 'NEXT_STEP' }
   | { type: 'PREVIOUS_STEP' }
   | { type: 'SKIP_TO_EMOTION_SELECTION' }
@@ -78,6 +79,9 @@ const flowReducer = (state: FlowState, action: FlowAction): FlowState => {
         hasCompletedToday: state.hasCompletedToday,
       };
     
+    case 'COMPLETE_FLOW':
+      return { ...state, hasCompletedToday: true };
+    
     case 'NEXT_STEP':
       const nextSteps: Record<FlowStep, FlowStep> = {
         'welcome': 'emotion-selection',
@@ -122,6 +126,7 @@ interface FlowContextType {
   nextStep: () => void;
   previousStep: () => void;
   resetFlow: () => void;
+  completeFlow: () => void;
   setEmotion: (emotion: string) => void;
   setGameData: (data: any) => void;
   setJournalEntry: (entry: string) => void;
@@ -150,6 +155,10 @@ export const FlowProvider: React.FC<FlowProviderProps> = ({ children }) => {
 
   const resetFlow = () => {
     dispatch({ type: 'RESET_FLOW' });
+  };
+
+  const completeFlow = () => {
+    dispatch({ type: 'COMPLETE_FLOW' });
   };
 
   const setEmotion = (emotion: string) => {
@@ -182,6 +191,7 @@ export const FlowProvider: React.FC<FlowProviderProps> = ({ children }) => {
     nextStep,
     previousStep,
     resetFlow,
+    completeFlow,
     setEmotion,
     setGameData,
     setJournalEntry,

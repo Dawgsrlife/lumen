@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionType } from '../types';
+import { LumenMascot } from './ui';
+import { useFlow } from '../context/FlowProvider';
 
 // Emotion data with premium styling
 const emotionData: Record<EmotionType, { 
@@ -204,9 +206,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onReset 
 }) => {
   const emotion = emotionData[selectedEmotion];
+  const { state } = useFlow();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      {/* Show mascot only if user has completed flow today */}
+      {state.hasCompletedToday && <LumenMascot currentPage="/dashboard" />}
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
         {/* Beautiful Header - Inspired by Landing Page */}
         <motion.div
