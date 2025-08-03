@@ -14,6 +14,16 @@ const FlowPage: React.FC = () => {
   const [isCheckingDailyStatus, setIsCheckingDailyStatus] = useState(true);
   const [hasLoggedToday, setHasLoggedToday] = useState(false);
 
+  // Add initial state logging
+  useEffect(() => {
+    console.log('FlowPage state:', {
+      currentStep: flowState.currentStep,
+      selectedEmotion: flowState.selectedEmotion,
+      hasLoggedToday: flowState.hasLoggedToday,
+      isLoading: flowState.isLoading
+    });
+  }, [flowState]);
+
   // Check daily emotion status on mount
   useEffect(() => {
     const checkDailyStatus = async () => {
@@ -119,6 +129,11 @@ const FlowPage: React.FC = () => {
     navigate('/dashboard');
   };
 
+  const handleFlowComplete = () => {
+    console.log('Flow completed, navigating to dashboard');
+    navigate('/dashboard', { replace: true });
+  };
+
   // Show loading while checking daily status
   if (isCheckingDailyStatus) {
     return <FlowLoadingState stage="checking-daily-status" />;
@@ -160,12 +175,7 @@ const FlowPage: React.FC = () => {
           <LumenMascot currentPage="/flow" />
         )}
         {/* Flow Router */}
-        <FlowRouter
-          onComplete={() => {
-            // Handle flow completion
-            navigate('/dashboard');
-          }}
-        />
+        <FlowRouter onComplete={handleFlowComplete} />
       </div>
     </FlowErrorBoundary>
   );

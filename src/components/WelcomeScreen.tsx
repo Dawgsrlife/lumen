@@ -15,15 +15,26 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) =
   const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
+    console.log('WelcomeScreen mounted, hasAnimated:', hasAnimated);
+    
     // Only trigger animation and auto-advance once
     if (!hasAnimated) {
+      console.log('Starting welcome animation...');
       setHasAnimated(true);
       
       const timer = setTimeout(() => {
-        onComplete?.();
+        console.log('Welcome timer fired, calling onComplete');
+        if (onComplete) {
+          onComplete();
+        } else {
+          console.error('onComplete is undefined!');
+        }
       }, 3000); // Increased duration for better UX
       
-      return () => clearTimeout(timer);
+      return () => {
+        console.log('Cleaning up welcome timer');
+        clearTimeout(timer);
+      };
     }
   }, [onComplete, hasAnimated]);
 
@@ -72,7 +83,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) =
             transition={{ delay: 1.0, duration: 0.8 }}
           >
             <div className="mb-2"></div>
-            {username || 'there'}!
+            {username || ''}!
           </motion.h2>
         </motion.div>
 
