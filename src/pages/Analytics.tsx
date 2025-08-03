@@ -147,6 +147,7 @@ const Analytics: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Your Beautiful Journey Over Time
             </h1>
+            <div className="mb-4"></div>
             <p className="text-xl text-gray-600">
               Insights and patterns from your mental wellness journey
             </p>

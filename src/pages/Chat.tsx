@@ -190,11 +190,11 @@ export default function Chat() {
                     <div className={`flex items-start space-x-3 max-w-[80%] ${
                       message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                     }`}>
-                      {/* Avatar */}
+                      {/* Avatar - Simplified */}
                       <div className={`p-2 rounded-full ${
                         message.role === 'user' 
                           ? 'bg-gray-100 text-gray-600' 
-                          : 'bg-gradient-to-r from-yellow-400 to-purple-600 text-white'
+                          : 'bg-gray-200 text-gray-700'
                       }`}>
                         {message.role === 'user' ? (
                           user?.imageUrl ? (
@@ -211,7 +211,7 @@ export default function Chat() {
                         )}
                       </div>
 
-                      {/* Message Bubble */}
+                      {/* Message Bubble - Simplified */}
                       <div className={`p-4 rounded-2xl ${
                         message.role === 'user'
                           ? 'bg-gray-900 text-white rounded-br-sm'
@@ -233,7 +233,7 @@ export default function Chat() {
                 ))}
               </AnimatePresence>
 
-              {/* Loading Indicator */}
+              {/* Loading Indicator - Simplified */}
               {isLoading && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -241,7 +241,7 @@ export default function Chat() {
                   className="flex justify-start"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-purple-600 text-white">
+                    <div className="p-2 rounded-full bg-gray-200 text-gray-700">
                       <Bot className="h-4 w-4" />
                     </div>
                     <div className="bg-gray-50 p-4 rounded-2xl rounded-bl-sm border border-gray-100">
@@ -253,7 +253,7 @@ export default function Chat() {
 
               <div ref={messagesEndRef} />
               
-              {/* Enhanced Scroll to bottom button */}
+              {/* Scroll to bottom button - Strategic Color Placement #1 */}
               {!isAtBottom && (
                 <motion.button
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -270,7 +270,7 @@ export default function Chat() {
                 </motion.button>
               )}
 
-              {/* Scroll indicator */}
+              {/* Scroll indicator - Simplified */}
               {!isAtBottom && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -282,7 +282,7 @@ export default function Chat() {
               )}
             </div>
 
-            {/* Input Area */}
+            {/* Input Area - Simplified */}
             <div className="border-t border-gray-100 bg-white p-6">
               <div className="mb-4"></div>
               <div className="relative">
@@ -293,13 +293,14 @@ export default function Chat() {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleInputKeyDown}
                   placeholder="Share what's on your mind... (Press Enter to focus)"
-                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 bg-gray-50/50 transition-all cursor-pointer"
+                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500 bg-gray-50/50 transition-all cursor-pointer"
                   disabled={isLoading}
                 />
+                {/* Send Button - Strategic Color Placement #2 */}
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isLoading}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-yellow-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-lg hover:from-yellow-500 hover:to-purple-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
                 >
                   <Send className="h-4 w-4" />
                 </button>
