@@ -242,6 +242,34 @@ async function main() {
             description: 'REST API Endpoints'
         },
         {
+            file: path.join(__dirname, 'voice-chat-tests.js'),
+            description: 'Voice Chat & WebSocket'
+        },
+        {
+            file: path.join(__dirname, 'clinical-analytics-tests.js'),
+            description: 'Clinical Analytics & Assessments'
+        },
+        {
+            file: path.join(__dirname, 'games-tests.js'),
+            description: 'Games & Therapeutic Activities'
+        },
+        {
+            file: path.join(__dirname, 'clerk-service-tests.js'),
+            description: 'Clerk Authentication Service'
+        },
+        {
+            file: path.join(__dirname, 'error-edge-case-tests.js'),
+            description: 'Error Handling & Edge Cases'
+        },
+        {
+            file: path.join(__dirname, 'performance-tests.js'),
+            description: 'Performance & Load Testing'
+        },
+        {
+            file: path.join(__dirname, 'security-tests.js'),
+            description: 'Security & Vulnerability Testing'
+        },
+        {
             file: path.join(__dirname, 'integration-tests.js'),
             description: 'Integration & Workflows'
         }
