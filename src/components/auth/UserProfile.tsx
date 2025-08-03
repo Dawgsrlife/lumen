@@ -13,30 +13,21 @@ export const UserProfile: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const profileRef = useRef<HTMLDivElement>(null);
-  const navRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.set([navRef.current, contentRef.current], {
+      gsap.set(contentRef.current, {
         opacity: 0,
         y: 30
       });
 
-      const tl = gsap.timeline();
-
-      tl.to(navRef.current, {
+      gsap.to(contentRef.current, {
         opacity: 1,
         y: 0,
-        duration: 0.3,
+        duration: 0.6,
         ease: "power2.out"
-      })
-        .to(contentRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.3,
-          ease: "power2.out"
-        }, "-=0.1");
+      });
     });
 
     return () => ctx.revert();
@@ -74,28 +65,62 @@ export const UserProfile: React.FC = () => {
       {/* Subtle overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--lumen-gradient-start)]/3 via-white/40 to-[var(--lumen-gradient-end)]/3 z-5"></div>
 
-      {/* Floating blur circles */}
+      {/* Minimalist Particle Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
-        <div className="absolute top-20 left-20 w-32 h-32 rounded-full opacity-10" style={{ background: 'var(--lumen-primary)', filter: 'blur(2px)' }}></div>
-        <div className="absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-10" style={{ background: 'var(--lumen-secondary)', filter: 'blur(2px)' }}></div>
-        <div className="absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-10" style={{ background: 'var(--lumen-primary)', filter: 'blur(1px)' }}></div>
-        <div className="absolute top-1/3 right-1/3 w-20 h-20 rounded-full opacity-10" style={{ background: 'var(--lumen-secondary)', filter: 'blur(1px)' }}></div>
+        {/* Clean white background */}
+        <div className="absolute inset-0 bg-white"></div>
+        
+        {/* Colorful floating particles */}
+        {[...Array(30)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              background: i % 3 === 0 ? 'var(--lumen-primary)' : i % 3 === 1 ? 'var(--lumen-secondary)' : '#8B5CF6'
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.random() * 20 - 10, 0],
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.8, 0.3]
+            }}
+            transition={{
+              duration: Math.random() * 4 + 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: Math.random() * 2
+            }}
+          />
+        ))}
+        
+        {/* Subtle connecting lines */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={`line-${i}`}
+            className="absolute h-px"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${Math.random() * 150 + 50}px`,
+              transform: `rotate(${Math.random() * 360}deg)`,
+              background: 'linear-gradient(90deg, transparent, var(--lumen-primary), transparent)'
+            }}
+            animate={{
+              opacity: [0, 0.3, 0]
+            }}
+            transition={{
+              duration: Math.random() * 5 + 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: Math.random() * 3
+            }}
+          />
+        ))}
       </div>
 
-      {/* Header */}
-      <nav ref={navRef} className="relative z-50 flex justify-between items-center p-8 max-w-7xl mx-auto">
-        <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
-          <LumenIcon size="sm" />
-          <span className="text-xl font-bold text-gray-900">Lumen</span>
-        </a>
 
-        <div className="hidden md:flex space-x-8">
-          <a href="/" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">HOME</a>
-          <a href="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">ABOUT</a>
-          <a href="/features" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">FEATURES</a>
-          <a href="/contact" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">CONTACT</a>
-        </div>
-      </nav>
 
       {/* Main content */}
       <div className="relative z-50 flex items-center justify-center min-h-[calc(100vh-120px)] px-8 pb-16">
@@ -108,6 +133,7 @@ export const UserProfile: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
+            <div className="mb-16"></div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Your Profile
             </h1>
@@ -115,7 +141,7 @@ export const UserProfile: React.FC = () => {
             <p className="text-lg text-gray-600 leading-relaxed text-center">
               Manage your account and preferences
             </p>
-            <div className="w-32 h-1.5 mx-auto bg-gradient-to-r from-[#FBBF24] to-[#8B5CF6] rounded-full mt-8 opacity-80 hover:opacity-100 transition-opacity cursor-pointer" 
+            <div className="w-32 h-1 mx-auto bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 rounded-full mt-8 opacity-80 hover:opacity-100 transition-opacity cursor-pointer" 
                  title="Your wellness journey" />
           </motion.div>
 
@@ -182,31 +208,31 @@ export const UserProfile: React.FC = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h3>
                 <div className="mb-4"></div>
                 <div className="space-y-4">
-                  <motion.button 
-                    onClick={() => navigate('/dashboard')}
-                    className="w-full bg-gradient-to-r from-[var(--lumen-primary)] to-[var(--lumen-primary)]/90 text-white py-3 px-4 rounded-xl hover:from-[var(--lumen-primary)]/90 hover:to-[var(--lumen-primary)] transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Go to Dashboard
-                  </motion.button>
-                  <motion.button 
-                    onClick={() => navigate('/analytics')}
-                    className="w-full bg-gradient-to-r from-[var(--lumen-secondary)] to-[var(--lumen-secondary)]/90 text-white py-3 px-4 rounded-xl hover:from-[var(--lumen-secondary)]/90 hover:to-[var(--lumen-secondary)] transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    View Analytics
-                  </motion.button>
-                  <motion.button 
-                    onClick={handleSignOut}
-                    disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    whileHover={{ scale: isLoading ? 1 : 1.02 }}
-                    whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                  >
-                    {isLoading ? 'Signing out...' : 'Sign Out'}
-                  </motion.button>
+                   <motion.button 
+                     onClick={() => navigate('/dashboard')}
+                     className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white py-3 px-4 rounded-xl hover:from-yellow-500 hover:to-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer font-semibold"
+                     whileHover={{ scale: 1.02 }}
+                     whileTap={{ scale: 0.98 }}
+                   >
+                     Go to Dashboard
+                   </motion.button>
+                   <motion.button 
+                     onClick={() => navigate('/analytics')}
+                     className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 px-4 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer font-semibold"
+                     whileHover={{ scale: 1.02 }}
+                     whileTap={{ scale: 0.98 }}
+                   >
+                     View Analytics
+                   </motion.button>
+                   <motion.button 
+                     onClick={handleSignOut}
+                     disabled={isLoading}
+                     className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-semibold"
+                     whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                     whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                   >
+                     {isLoading ? 'Signing out...' : 'Sign Out'}
+                   </motion.button>
                 </div>
               </div>
             </div>
