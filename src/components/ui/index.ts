@@ -11,3 +11,4 @@ export { default as MinigameCard } from './MinigameCard';
 export { default as LumenIntro } from './LumenIntro';
 export { default as AnimatedBackground } from './AnimatedBackground';
 export { default as LumenMascot } from './LumenMascot';
+export { default as NotificationsModal } from './NotificationsModal';
