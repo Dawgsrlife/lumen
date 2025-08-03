@@ -47,14 +47,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     navigate('/flow?manual=true');
   };
 
-  const handleViewAnalytics = () => {
-    navigate('/analytics');
-  };
-
-  const handlePlayGames = () => {
-    navigate('/flow?manual=true');
-  };
-
   const getMoodColor = (mood: number) => {
     if (mood >= 7) return 'bg-green-500';
     if (mood >= 5) return 'bg-yellow-500';
@@ -159,28 +151,14 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           </Card>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Button */}
         <div className="mt-12 text-center">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              onClick={handleLogEmotion}
-              className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-xl font-semibold hover:from-yellow-500 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
-            >
-              Log Today's Emotion
-            </Button>
-            <Button
-              onClick={handleViewAnalytics}
-              className="px-8 py-4 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
-            >
-              View Analytics
-            </Button>
-            <Button
-              onClick={handlePlayGames}
-              className="px-8 py-4 bg-white text-gray-900 border-2 border-gray-200 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
-            >
-              Play Games
-            </Button>
-          </div>
+          <Button
+            onClick={handleLogEmotion}
+            className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-xl font-semibold hover:from-yellow-500 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
+          >
+            Log Today's Emotion
+          </Button>
         </div>
 
         {/* Mascot - only show if user has completed flow */}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionType } from '../types';
 
@@ -116,6 +116,14 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
   onPlayGame, 
   onSkipGame 
 }) => {
+  const [isSkipLoading, setIsSkipLoading] = useState(false);
+
+  const handleSkipGame = async () => {
+    setIsSkipLoading(true);
+    // Add a small delay to show the loading state
+    await new Promise(resolve => setTimeout(resolve, 800));
+    onSkipGame();
+  };
   const emotion = emotionData[selectedEmotion];
 
   return (
@@ -228,7 +236,7 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
         >
           <motion.button
             onClick={onPlayGame}
-            className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl text-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl text-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -239,14 +247,24 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
           </motion.button>
           
           <motion.button
-            onClick={onSkipGame}
-            className="px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl text-lg font-medium hover:bg-gray-200 transition-all duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={handleSkipGame}
+            disabled={isSkipLoading}
+            className="px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl text-lg font-medium hover:bg-gray-200 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            whileHover={{ scale: isSkipLoading ? 1 : 1.05 }}
+            whileTap={{ scale: isSkipLoading ? 1 : 0.95 }}
           >
             <span className="flex items-center justify-center gap-2">
-              <span>⏭️</span>
-              Maybe later
+              {isSkipLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                  <span>Taking you to dashboard...</span>
+                </>
+              ) : (
+                <>
+                  <span>⏭️</span>
+                  Maybe later
+                </>
+              )}
             </span>
           </motion.button>
         </motion.div>
