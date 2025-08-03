@@ -5,13 +5,17 @@ import compression from 'compression';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import path from 'path';
 
 import { connectDatabase } from './config/database.js';
 import emotionsRouter from './routes/emotions.js';
 import journalRouter from './routes/journal.js';
 import analyticsRouter from './routes/analytics.js';
+import clinicalAnalyticsRouter from './routes/clinical-analytics.js';
 import usersRouter from './routes/users.js';
 import notificationsRouter from './routes/notifications.js';
+import gamesRouter from './routes/games.js';
+import voiceChatRouter, { setupVoiceChatWebSocket } from './routes/voiceChat.js';
 
 // Load environment variables
 dotenv.config();
@@ -79,6 +83,17 @@ app.use('/api/emotions', emotionsRouter);
 app.use('/api/journal', journalRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/clinical-analytics', clinicalAnalyticsRouter);
+app.use('/api/games', gamesRouter);
+app.use('/api/voice-chat', voiceChatRouter);
+
+// Serve static files
+app.use('/test-frontend', express.static(path.join(__dirname, '../test-frontend')));
+
+// Serve voice chat test page
+app.get('/voice-chat-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages/voice-chat-test.html'));
+});
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -105,12 +120,17 @@ const startServer = async () => {
     // Connect to database
     await connectDatabase();
     
-    // Start listening
-    app.listen(PORT, () => {
+    // Start listening with WebSocket support
+    const server = app.listen(PORT, () => {
       console.log(`🚀 Lumen API server running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log(`🧪 Test interface: http://localhost:${PORT}/test-frontend/`);
+      console.log(`🎙️ Voice chat WebSocket: ws://localhost:${PORT}/ws/voice-chat`);
       console.log(`🔗 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
+
+    // Setup WebSocket for voice chat
+    setupVoiceChatWebSocket(server);
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);

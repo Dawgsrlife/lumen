@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import jwt from 'jsonwebtoken';
+// JWT import removed - using Clerk authentication instead
 import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { UserModel } from '../models/User.js';
 import type { User, UserPreferences } from '../types/index.js';
@@ -70,10 +70,8 @@ router.post('/register',
 
       await user.save();
 
-      // Generate JWT token
-      const token = jwt.sign({ clerkId }, JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN || '7d'
-      } as any);
+      // Using Clerk authentication instead of JWT
+      const token = clerkId; // Simplified for Clerk integration
 
       res.status(201).json({
         success: true,
@@ -307,10 +305,8 @@ router.post('/login',
       user.lastLoginAt = new Date();
       await user.save();
 
-      // Generate new JWT token
-      const token = jwt.sign({ clerkId }, JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN || '7d'
-      } as any);
+      // Using Clerk authentication instead of JWT
+      const token = clerkId; // Simplified for Clerk integration
 
       res.json({
         success: true,
