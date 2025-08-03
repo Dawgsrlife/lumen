@@ -201,3 +201,20 @@ export interface AppError {
   details?: any;
   timestamp: Date;
 } 
+
+export interface Notification {
+  _id?: string;
+  userId: string;
+  type: 'emotion_log' | 'analytics_check' | 'meditation_session';
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+  actionUrl?: string;
+}
+
+export interface NotificationResponse {
+  success: boolean;
+  notifications?: Notification[];
+  message?: string;
+} 

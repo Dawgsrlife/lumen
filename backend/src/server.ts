@@ -11,6 +11,7 @@ import emotionsRouter from './routes/emotions.js';
 import journalRouter from './routes/journal.js';
 import analyticsRouter from './routes/analytics.js';
 import usersRouter from './routes/users.js';
+import notificationsRouter from './routes/notifications.js';
 
 // Load environment variables
 dotenv.config();
@@ -77,6 +78,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/emotions', emotionsRouter);
 app.use('/api/journal', journalRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // 404 handler
 app.use('*', (req, res) => {
