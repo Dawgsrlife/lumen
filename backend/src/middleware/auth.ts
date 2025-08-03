@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { UserModel } from '../models/User.js';
+import { clerkService } from '../services/clerk.js';
 import type { AuthUser } from '../types/index.js';
 
 // Extend Express Request interface to include user
@@ -13,15 +13,10 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET;
 const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
 
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
-
 if (!CLERK_SECRET_KEY) {
-  throw new Error('CLERK_SECRET_KEY environment variable is required');
+  console.warn('CLERK_SECRET_KEY not set - authentication will be disabled');
 }
 
 export const authenticateToken = async (
@@ -41,35 +36,50 @@ export const authenticateToken = async (
       return;
     }
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, JWT_SECRET) as { clerkId: string };
-    const clerkId = decoded.clerkId;
-
-    // Find or create user in our database
-    let user = await UserModel.findOne({ clerkId });
+    // Verify token with Clerk
+    const authUser = await clerkService.verifyToken(token);
     
-    if (!user) {
-      // Create new user if they don't exist
-      // This will be handled by the user creation endpoint
+    if (!authUser) {
       res.status(401).json({
         success: false,
-        error: 'User not found. Please complete registration.'
+        error: 'Invalid token'
       });
       return;
     }
 
-    // Update last login
-    user.lastLoginAt = new Date();
-    await user.save();
+    // Find or create user in our database
+    let user = await UserModel.findOne({ clerkId: authUser.clerkId });
+    
+    if (!user) {
+      // Create new user if they don't exist
+      user = new UserModel({
+        clerkId: authUser.clerkId,
+        email: authUser.email,
+        firstName: authUser.firstName,
+        lastName: authUser.lastName,
+        avatar: authUser.avatar,
+        createdAt: new Date(),
+        lastLoginAt: new Date(),
+        preferences: {
+          theme: 'system',
+          notifications: true,
+          privacyLevel: 'private',
+          language: 'en'
+        }
+      });
+      await user.save();
+    } else {
+      // Update last login and user info
+      user.lastLoginAt = new Date();
+      user.email = authUser.email;
+      user.firstName = authUser.firstName;
+      user.lastName = authUser.lastName;
+      user.avatar = authUser.avatar;
+      await user.save();
+    }
 
-    req.user = {
-      clerkId: user.clerkId,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatar: user.avatar
-    };
-    req.clerkId = clerkId;
+    req.user = authUser;
+    req.clerkId = authUser.clerkId;
 
     next();
   } catch (error) {
@@ -107,18 +117,15 @@ export const optionalAuth = async (
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token) {
-      const decoded = jwt.verify(token, JWT_SECRET) as { clerkId: string };
-      const user = await UserModel.findOne({ clerkId: decoded.clerkId });
+      const authUser = await clerkService.verifyToken(token);
       
-      if (user) {
-        req.user = {
-          clerkId: user.clerkId,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          avatar: user.avatar
-        };
-        req.clerkId = decoded.clerkId;
+      if (authUser) {
+        const user = await UserModel.findOne({ clerkId: authUser.clerkId });
+        
+        if (user) {
+          req.user = authUser;
+          req.clerkId = authUser.clerkId;
+        }
       }
     }
     

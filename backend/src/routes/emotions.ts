@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
+import { JournalEntryModel } from '../models/JournalEntry.js';
 import { UserModel } from '../models/User.js';
 import type { CreateEmotionRequest, EmotionEntry, ApiResponse } from '../types/index.js';
 
@@ -13,6 +14,7 @@ const validateEmotionEntry = [
     .isIn(['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'])
     .withMessage('Invalid emotion type'),
   body('intensity')
+    .optional()
     .isInt({ min: 1, max: 10 })
     .withMessage('Intensity must be between 1 and 10'),
   body('context')
@@ -58,17 +60,31 @@ router.post('/',
         });
       }
 
-      // Create emotion entry
+      // Get the most recent journal entry to associate with
+      const latestJournalEntry = await JournalEntryModel.findOne({ clerkId })
+        .sort({ createdAt: -1 })
+        .limit(1)
+        .lean();
+
+      // Create emotion entry with auto-assigned intensity if not provided
       const emotionEntry = new EmotionEntryModel({
         userId: user.id,
         clerkId,
         emotion,
-        intensity,
+        intensity: intensity || 5, // Auto-assign 5 if not provided
         context,
         surveyResponses
       });
 
       await emotionEntry.save();
+
+      // If there's a recent journal entry, associate it with this emotion
+      if (latestJournalEntry) {
+        await JournalEntryModel.findByIdAndUpdate(
+          latestJournalEntry._id,
+          { emotionEntryId: emotionEntry.id }
+        );
+      }
 
       res.status(201).json({
         success: true,

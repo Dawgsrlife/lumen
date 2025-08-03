@@ -14,35 +14,41 @@ const gameSessionSchema = new Schema<GameSessionDocument>({
     required: true,
     index: true
   },
-  gameId: {
+  gameType: {
     type: String,
+    enum: ['mindfulness', 'breathing', 'meditation', 'gratitude', 'mood_tracker'],
     required: true,
     index: true
-  },
-  score: {
-    type: Number,
-    required: true,
-    min: 0
   },
   duration: {
     type: Number,
     required: true,
-    min: 0 // duration in seconds
+    min: 1,
+    max: 480 // max 8 hours
   },
-  completed: {
-    type: Boolean,
-    default: false
+  score: {
+    type: Number,
+    min: 0,
+    max: 100
   },
-  achievements: [{
+  notes: {
     type: String,
-    trim: true
-  }],
-  startedAt: {
-    type: Date,
-    default: Date.now
+    trim: true,
+    maxlength: 1000
   },
-  completedAt: {
-    type: Date
+  emotionBefore: {
+    type: String,
+    enum: ['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'],
+    default: 'happy'
+  },
+  emotionAfter: {
+    type: String,
+    enum: ['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief']
+  },
+  completionStatus: {
+    type: String,
+    enum: ['completed', 'incomplete', 'abandoned'],
+    default: 'completed'
   }
 }, {
   timestamps: true,
@@ -58,8 +64,7 @@ const gameSessionSchema = new Schema<GameSessionDocument>({
 
 // Indexes for efficient queries
 gameSessionSchema.index({ clerkId: 1, createdAt: -1 });
-gameSessionSchema.index({ clerkId: 1, gameId: 1 });
-gameSessionSchema.index({ clerkId: 1, completed: 1 });
+gameSessionSchema.index({ clerkId: 1, gameType: 1 });
 gameSessionSchema.index({ clerkId: 1, 'createdAt': 1 }, { 
   partialFilterExpression: { 
     createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } 
@@ -71,20 +76,14 @@ gameSessionSchema.virtual('date').get(function() {
   return (this as any).createdAt.toISOString().split('T')[0];
 });
 
-// Virtual for duration in minutes
+// Virtual for duration in minutes (already in minutes)
 gameSessionSchema.virtual('durationMinutes').get(function() {
-  return Math.round(this.duration / 60);
+  return this.duration;
 });
 
 // Ensure virtuals are included in JSON output
 gameSessionSchema.set('toJSON', { virtuals: true });
 
-// Auto-set completedAt when completed is set to true
-gameSessionSchema.pre('save', function(next) {
-  if (this.isModified('completed') && this.completed && !this.completedAt) {
-    this.completedAt = new Date();
-  }
-  next();
-});
+// No pre-save hooks needed for simplified structure
 
 export const GameSessionModel = mongoose.model<GameSessionDocument>('GameSession', gameSessionSchema); 

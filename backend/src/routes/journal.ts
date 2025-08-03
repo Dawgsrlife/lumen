@@ -1,12 +1,35 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
+import multer, { FileFilterCallback } from 'multer';
 import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { JournalEntryModel } from '../models/JournalEntry.js';
+import { EmotionEntryModel } from '../models/EmotionEntry.js';
 import { UserModel } from '../models/User.js';
 import { aiService } from '../services/ai.js';
 import type { CreateJournalRequest, JournalEntry } from '../types/index.js';
 
+// Extend Request interface for multer
+interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+}
+
 const router = Router();
+
+// Multer configuration for audio uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB limit for Gemini API
+  },
+  fileFilter: (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    // Accept audio files
+    if (file.mimetype.startsWith('audio/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only audio files are allowed'));
+    }
+  },
+});
 
 // Validation middleware
 const validateJournalEntry = [
@@ -33,11 +56,153 @@ const validateJournalEntry = [
 ];
 
 /**
+ * POST /api/journal/audio
+ * Create a journal entry from audio input with transcription and analysis
+ */
+router.post('/audio',
+  authenticateToken,
+  requireAuth,
+  upload.single('audio'),
+  body('mood')
+    .isIn(['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'])
+    .withMessage('Mood must be one of the specified emotion types'),
+  body('tags')
+    .optional()
+    .isArray()
+    .withMessage('Tags must be an array'),
+  body('isPrivate')
+    .optional()
+    .isBoolean()
+    .withMessage('isPrivate must be a boolean'),
+  body('emotionEntryId')
+    .optional()
+    .isMongoId()
+    .withMessage('emotionEntryId must be a valid MongoDB ID'),
+  async (req: MulterRequest, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+          errors: errors.array()
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Audio file is required'
+        });
+      }
+
+      const clerkId = req.clerkId!;
+      const { mood, tags = [], isPrivate = false, emotionEntryId } = req.body;
+
+      // Convert audio file to base64 for Gemini API
+      const audioBase64 = req.file.buffer.toString('base64');
+
+      // Analyze audio with AI service
+      let content = '';
+      let audioAnalysis = undefined;
+      
+      try {
+        audioAnalysis = await aiService.analyzeAudioJournal(audioBase64);
+        content = audioAnalysis.transcription;
+      } catch (audioError) {
+        console.error('Audio analysis failed:', audioError);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to process audio. Please try again or use text input.'
+        });
+      }
+
+      // Find the most recent emotion entry if not provided
+      let associatedEmotionEntryId = emotionEntryId;
+      if (!associatedEmotionEntryId) {
+        const latestEmotionEntry = await EmotionEntryModel
+          .findOne({ clerkId })
+          .sort({ createdAt: -1 });
+        
+        if (latestEmotionEntry) {
+          associatedEmotionEntryId = latestEmotionEntry._id;
+        }
+      }
+
+      // Create journal entry with transcribed content
+      const journalEntry = new JournalEntryModel({
+        clerkId,
+        content,
+        mood,
+        tags,
+        isPrivate,
+        emotionEntryId: associatedEmotionEntryId,
+        metadata: {
+          source: 'audio',
+          audioAnalysis
+        }
+      });
+
+      await journalEntry.save();
+
+      // Perform AI analysis with audio context
+      try {
+        const analysis = await aiService.analyzeJournalEntry(journalEntry.toObject(), audioBase64);
+        
+        // Update emotion intensity if audio analysis suggests changes
+        if (associatedEmotionEntryId && analysis.intensityAdjustment) {
+          await EmotionEntryModel.findByIdAndUpdate(
+            associatedEmotionEntryId,
+            { 
+              $inc: { intensity: analysis.intensityAdjustment },
+              $set: { 
+                metadata: { 
+                  aiAdjusted: true,
+                  source: 'audio_journal_analysis'
+                }
+              }
+            }
+          );
+        }
+
+        res.status(201).json({
+          success: true,
+          message: 'Audio journal entry created successfully',
+          data: {
+            journalEntry: journalEntry.toObject(),
+            analysis,
+            audioAnalysis
+          }
+        });
+      } catch (analysisError) {
+        console.error('AI analysis failed:', analysisError);
+        // Still return success since journal entry was created
+        res.status(201).json({
+          success: true,
+          message: 'Audio journal entry created (analysis unavailable)',
+          data: {
+            journalEntry: journalEntry.toObject(),
+            audioAnalysis
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Audio journal creation error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to create audio journal entry',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+);
+
+/**
  * POST /api/journal
  * Create a new journal entry
  */
-router.post('/', 
-  authenticateToken, 
+router.post('/',
+  authenticateToken,
   requireAuth,
   validateJournalEntry,
   async (req: Request, res: Response) => {
@@ -63,6 +228,18 @@ router.post('/',
         });
       }
 
+      // Get the most recent emotion entry to associate with if not provided
+      let associatedEmotionEntryId = emotionEntryId;
+      if (!associatedEmotionEntryId) {
+        const latestEmotionEntry = await EmotionEntryModel.findOne({ clerkId })
+          .sort({ createdAt: -1 })
+          .limit(1)
+          .lean();
+        if (latestEmotionEntry) {
+          associatedEmotionEntryId = latestEmotionEntry._id.toString();
+        }
+      }
+
       // Create journal entry
       const journalEntry = new JournalEntryModel({
         userId: user.id,
@@ -71,7 +248,7 @@ router.post('/',
         mood,
         tags,
         isPrivate,
-        emotionEntryId
+        emotionEntryId: associatedEmotionEntryId
       });
 
       await journalEntry.save();
@@ -79,6 +256,16 @@ router.post('/',
       // Generate AI analysis for the entry
       try {
         const analysis = await aiService.analyzeJournalEntry(journalEntry);
+        
+        // Apply intensity adjustment to the associated emotion entry if it exists
+        if (journalEntry.emotionEntryId && analysis.intensityAdjustment) {
+          const emotionEntry = await EmotionEntryModel.findById(journalEntry.emotionEntryId);
+          if (emotionEntry) {
+            const newIntensity = Math.max(1, Math.min(10, emotionEntry.intensity + analysis.intensityAdjustment));
+            emotionEntry.intensity = newIntensity;
+            await emotionEntry.save();
+          }
+        }
         
         res.status(201).json({
           success: true,

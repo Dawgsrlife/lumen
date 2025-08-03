@@ -202,19 +202,38 @@ export interface AppError {
   timestamp: Date;
 }
 
+export interface Notification {
+  _id?: string;
+  userId: string;
+  type: 'emotion_log' | 'analytics_check' | 'meditation_session';
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+  actionUrl?: string;
+}
+
+export interface NotificationResponse {
+  success: boolean;
+  notifications?: Notification[];
+  message?: string;
+}
+
 // Journal Types
 export interface JournalEntry {
   id: string;
   userId: string;
+  emotionEntryId?: string;
   title: string;
   content: string;
-  emotionEntryId?: string;
+  mood?: number; // 1-10 scale
   tags: string[];
+  isPrivate: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Analytics Types  
+// Analytics Types
 export interface UserAnalytics {
   userId: string;
   totalEntries: number;
@@ -227,14 +246,36 @@ export interface UserAnalytics {
   weeklyProgress: EmotionTrend[];
   gamesPlayed: number;
   achievementsUnlocked: Achievement[];
+  weeklyStats: {
+    averageMood: number;
+    totalEntries: number;
+    moodTrend: EmotionTrend[];
+    topEmotions: { emotion: EmotionType; count: number }[];
+  };
+  monthlyStats: {
+    averageMood: number;
+    totalEntries: number;
+    streakData: { current: number; longest: number };
+    gameActivity: { gamesPlayed: number; averageScore: number };
+  };
+  insights: string[];
+  lastUpdated: Date;
 }
 
 // AI Response Types
 export interface AIInsightResponse {
+  success: boolean;
   insights: string[];
   recommendations: string[];
   summary: string;
   resources: string[];
+  detailedInsights?: {
+    summary: string;
+    recommendations: string[];
+    moodAnalysis: string;
+    trendObservations: string[];
+  };
+  error?: string;
 }
 
 // Request Types
@@ -249,7 +290,9 @@ export interface CreateJournalRequest {
   title: string;
   content: string;
   emotionEntryId?: string;
+  mood?: number;
   tags?: string[];
+  isPrivate?: boolean;
 }
 
 // Post-Game Feedback Types
