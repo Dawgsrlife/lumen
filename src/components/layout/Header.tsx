@@ -1,16 +1,37 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useClerk } from '@clerk/clerk-react';
 import { useClerkUser } from '../../hooks/useClerkUser';
 import LumenIcon from '../ui/LumenIcon';
 
 const Header: React.FC = () => {
   const { user, isAuthenticated } = useClerkUser();
+  const { signOut } = useClerk();
+  const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
   const isLandingPage = location.pathname === '/landing';
   const isWelcomePage = location.pathname === '/welcome';
+
+  const handleSignOut = async () => {
+    console.log('🔄 Header: Starting sign out process...');
+    setIsSigningOut(true);
+    try {
+      console.log('📤 Header: Calling Clerk signOut...');
+      await signOut();
+      console.log('✅ Header: Sign out successful, navigating to home...');
+      navigate('/');
+    } catch (error) {
+      console.error('❌ Header: Sign out error:', error);
+    } finally {
+      setIsSigningOut(false);
+      setIsMenuOpen(false);
+      console.log('🏁 Header: Sign out process completed');
+    }
+  };
 
   // Don't show header on landing or welcome pages for minimal design
   if (isLandingPage || isWelcomePage) {
@@ -24,7 +45,7 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-[100]">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo with LumenIcon */}
@@ -35,7 +56,7 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <>
                 {navItems.map((item) => (
                   <Link
@@ -50,6 +71,13 @@ const Header: React.FC = () => {
                     {item.label}
                   </Link>
                 ))}
+              </>
+            ) : (
+              <>
+                <Link to="/" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer">HOME</Link>
+                <Link to="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer">ABOUT</Link>
+                <Link to="/features" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer">FEATURES</Link>
+                <Link to="/contact" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer">CONTACT</Link>
               </>
             )}
           </nav>
@@ -88,27 +116,25 @@ const Header: React.FC = () => {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                     <Link
                       to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Profile
                     </Link>
                     <Link
                       to="/dashboard"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Dashboard
                     </Link>
                     <hr className="my-1" />
                     <button
-                      onClick={() => {
-                        // Handle sign out
-                        setIsMenuOpen(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer disabled:cursor-not-allowed"
+                      disabled={isSigningOut}
                     >
-                      Sign Out
+                      {isSigningOut ? 'Signing Out...' : 'Sign Out'}
                     </button>
                   </div>
                 )}
