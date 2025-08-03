@@ -27,9 +27,6 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
     >
-      <h2 className="text-5xl md:text-6xl lg:text-7xl font-light text-gray-900 text-center mb-12">
-        How are you feeling?
-      </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 sm:gap-12 lg:gap-16 max-w-7xl mx-auto px-4">
         {(Object.keys(emotionData) as EmotionType[]).map((emotion) => (
           <motion.button

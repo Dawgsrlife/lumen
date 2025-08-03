@@ -198,6 +198,84 @@ export interface NavItem {
 export interface AppError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
   timestamp: Date;
+}
+
+// Journal Types
+export interface JournalEntry {
+  id: string;
+  userId: string;
+  title: string;
+  content: string;
+  emotionEntryId?: string;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Analytics Types  
+export interface UserAnalytics {
+  userId: string;
+  totalEntries: number;
+  averageMood: number;
+  emotionDistribution: Record<EmotionType, number>;
+  streakData: {
+    current: number;
+    longest: number;
+  };
+  weeklyProgress: EmotionTrend[];
+  gamesPlayed: number;
+  achievementsUnlocked: Achievement[];
+}
+
+// AI Response Types
+export interface AIInsightResponse {
+  insights: string[];
+  recommendations: string[];
+  summary: string;
+  resources: string[];
+}
+
+// Request Types
+export interface CreateEmotionRequest {
+  emotion: EmotionType;
+  intensity: number;
+  context: string;
+  surveyResponses?: SurveyResponse[];
+}
+
+export interface CreateJournalRequest {
+  title: string;
+  content: string;
+  emotionEntryId?: string;
+  tags?: string[];
+}
+
+// Post-Game Feedback Types
+export interface PostGameFeedback {
+  id: string;
+  userId: string;
+  gameId: string;
+  gameName: string;
+  emotion: EmotionType;
+  feelsBetter: boolean;
+  timestamp: Date;
+  sessionData?: {
+    score?: number;
+    duration?: number;
+    achievements?: string[];
+  };
+}
+
+export interface CreateFeedbackRequest {
+  gameId: string;
+  gameName: string;
+  emotion: EmotionType;
+  feelsBetter: boolean;
+  sessionData?: {
+    score?: number;
+    duration?: number;
+    achievements?: string[];
+  };
 } 

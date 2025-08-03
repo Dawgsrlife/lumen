@@ -1,4 +1,5 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { 
   EmotionEntry, 
   JournalEntry, 
@@ -6,6 +7,8 @@ import type {
   AIInsightResponse,
   CreateEmotionRequest,
   CreateJournalRequest,
+  PostGameFeedback,
+  CreateFeedbackRequest,
   User
 } from '../types/index';
 
@@ -250,6 +253,29 @@ class ApiService {
   async healthCheck(): Promise<{ success: boolean; message: string; timestamp: string; environment: string }> {
     const response: AxiosResponse = await this.api.get('/health');
     return response.data;
+  }
+
+  // Post-Game Feedback
+  async createFeedback(feedbackData: CreateFeedbackRequest): Promise<PostGameFeedback> {
+    const response: AxiosResponse = await this.api.post('/api/feedback', feedbackData);
+    return response.data.data;
+  }
+
+  async getFeedback(gameId?: string, emotion?: string): Promise<PostGameFeedback[]> {
+    const response: AxiosResponse = await this.api.get('/api/feedback', {
+      params: { gameId, emotion }
+    });
+    return response.data.data;
+  }
+
+  async getFeedbackStats(): Promise<{
+    totalResponses: number;
+    positiveResponses: number;
+    responsesByGame: Record<string, { positive: number; total: number }>;
+    responsesByEmotion: Record<string, { positive: number; total: number }>;
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/feedback/stats');
+    return response.data.data;
   }
 }
 

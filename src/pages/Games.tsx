@@ -355,7 +355,7 @@ const Games: React.FC = () => {
           gameId={selectedGameData.id}
           gameTitle={selectedGameData.title}
           description={selectedGameData.description}
-          buildUrl={selectedGameData.buildUrl}
+          buildUrl={selectedGameData.buildUrl || '/unity-builds/lumen-minigames'}
           onGameComplete={handleUnityGameComplete}
           onRewardEarned={handleUnityRewardEarned}
         />
