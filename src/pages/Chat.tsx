@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -108,19 +108,6 @@ export default function Chat() {
 
   return (
     <div className="bg-gradient-to-br from-yellow-50 to-purple-50 p-6">
-      {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-6"
-      >
-        <div className="flex items-center justify-center mb-2">
-          <Sparkles className="h-8 w-8 text-yellow-500 mr-2" />
-          <h1 className="text-3xl font-bold text-gray-800">Chat with Lumi</h1>
-        </div>
-        <p className="text-gray-600">Your compassionate AI companion</p>
-      </motion.div>
-
       {/* Fixed-Size Chat Container */}
       <div className="max-w-4xl mx-auto">
         <Card className="h-[700px] flex flex-col overflow-hidden">

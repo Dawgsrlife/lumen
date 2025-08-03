@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionType } from '../types';
-import { LumenMascot } from './ui';
 
 // Emotion data with premium styling
 const emotionData: Record<EmotionType, { 
@@ -85,6 +84,8 @@ const WeeklyProgress: React.FC<{ weeklyData: boolean[] }> = ({ weeklyData }) => 
         <h4 className="text-lg font-semibold text-gray-900 mb-2">This Week</h4>
         <p className="text-sm text-gray-600">{loggedDays}/7 days</p>
       </div>
+      
+      <div className="mb-4"></div>
       
       <div className="grid grid-cols-7 gap-2">
         {weeklyData.map((logged, index) => (
@@ -175,6 +176,8 @@ const StreakCounter: React.FC<{ currentStreak: number }> = ({ currentStreak }) =
       
       <div className="mb-4"></div>
       
+      <div className="mb-4"></div>
+      
       <motion.p
         className="text-sm text-gray-700 font-medium"
         initial={{ opacity: 0 }}
@@ -204,9 +207,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
-      {/* Luna Mascot */}
-      <LumenMascot currentPage="/dashboard" />
-
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
         {/* Beautiful Header - Inspired by Landing Page */}
         <motion.div
@@ -225,6 +225,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             Welcome back
           </motion.h1>
           
+          <div className="mb-4"></div>
+          
           <motion.p
             className="text-xl leading-relaxed text-gray-600 max-w-2xl mx-auto font-light text-center"
             initial={{ opacity: 0, y: 20 }}
@@ -234,6 +236,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             Here's your gentle overview for today
           </motion.p>
         </motion.div>
+
+        <div className="mb-4"></div>
 
         {/* Clean Three-card Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
@@ -258,7 +262,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               Current Mood
             </h3>
             
+            <div className="mb-4"></div>
+            
             <p className="text-xl text-gray-700 mb-6 font-semibold">{emotion.label}</p>
+            
+            <div className="mb-4"></div>
             
             <motion.p
               className="text-gray-600 mb-8 italic font-light"
@@ -268,6 +276,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             >
               "{emotion.encouragingMessage}"
             </motion.p>
+            
+            <div className="mb-4"></div>
             
             <div className="mb-4"></div>
             
@@ -323,6 +333,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <StreakCounter currentStreak={currentStreak} />
           </motion.div>
         </div>
+
+        <div className="mb-4"></div>
+        
+        <div className="mb-4"></div>
 
         {/* Beautiful Action Buttons - Inspired by Landing Page */}
         <motion.div

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LumenMascot, FlowBackground } from '../components/ui';
+import { FlowBackground } from '../components/ui';
 import { FlowRouter, FlowErrorBoundary, FlowLoadingState } from '../components/flow';
 import { useFlowState } from '../hooks/useFlowState';
 import { useClerkUser } from '../hooks/useClerkUser';
@@ -175,10 +175,6 @@ const FlowPage: React.FC = () => {
 
         {/* Dynamic Background */}
         <FlowBackground theme={backgroundTheme} />
-        {/* Only show mascot after welcome screen */}
-        {flowState.currentStep !== 'welcome' && (
-          <LumenMascot currentPage="/flow" />
-        )}
         {/* Flow Router */}
         <FlowRouter onComplete={handleFlowComplete} />
       </div>
