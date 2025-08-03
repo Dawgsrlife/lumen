@@ -180,6 +180,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
       transition={{ duration: 0.3 }}
       className={className}
     >
+      <div className="mb-4"></div>
       {/* Clean game container */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         {/* Game canvas */}
@@ -188,7 +189,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
             unityProvider={unityProvider}
             style={{ 
               width: '100%', 
-              height: '600px',
+              height: '500px',
               display: 'block'
             }}
           />
@@ -249,7 +250,9 @@ const UnityGame: React.FC<UnityGameProps> = ({
         <div className="p-6 bg-gray-50">
           <div className="mb-4"></div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">{gameTitle}</h3>
+          <div className="mb-4"></div>
           <p className="text-gray-600 text-sm mb-4">{description}</p>
+          <div className="mb-4"></div>
 
           {/* Status indicator */}
           <div className="flex items-center justify-between">
@@ -280,11 +283,12 @@ const UnityGame: React.FC<UnityGameProps> = ({
                   });
                 }
               }}
-              className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors duration-200 opacity-60 hover:opacity-100 cursor-pointer"
+              className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-purple-600 text-white text-sm rounded-lg hover:from-yellow-500 hover:to-purple-700 transition-all duration-200 cursor-pointer font-medium"
             >
-              Skip for now
+              Skip Game
             </button>
           </div>
+          <div className="mb-4"></div>
 
           {/* Game Results */}
           {gameData && (
@@ -294,6 +298,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
               className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-4 border border-blue-500/20"
             >
               <h4 className="font-semibold text-gray-900 mb-3">Game Results</h4>
+              <div className="mb-4"></div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Score:</span>
@@ -327,6 +332,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
           )}
         </div>
       </div>
+      <div className="mb-4"></div>
     </motion.div>
   );
 };
