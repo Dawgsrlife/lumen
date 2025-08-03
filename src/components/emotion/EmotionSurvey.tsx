@@ -169,7 +169,7 @@ const EmotionSurvey: React.FC<EmotionSurveyProps> = ({
               <button
                 key={index}
                 onClick={() => handleAnswerChange(option)}
-                className={`w-full p-3 text-left rounded-lg border transition-all ${
+                className={`w-full p-3 text-left rounded-lg border transition-all cursor-pointer ${
                   currentAnswer === option
                     ? 'border-lumen-primary bg-lumen-primary/10 text-lumen-primary'
                     : 'border-gray-200 hover:border-lumen-primary/50'
@@ -193,7 +193,7 @@ const EmotionSurvey: React.FC<EmotionSurveyProps> = ({
                 <button
                   key={value}
                   onClick={() => handleAnswerChange(value)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  className={`w-8 h-8 rounded-full border-2 transition-all cursor-pointer ${
                     currentAnswer === value
                       ? 'border-lumen-primary bg-lumen-primary text-white'
                       : 'border-gray-300 hover:border-lumen-primary/50'

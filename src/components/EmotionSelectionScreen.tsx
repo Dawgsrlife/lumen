@@ -32,6 +32,8 @@ const EmotionSelectionScreen: React.FC<EmotionSelectionScreenProps> = ({ onEmoti
             How are you feeling today?
           </motion.h1>
           
+          <div className="mb-4"></div>
+          
           <motion.p
             className="text-lg text-gray-600"
             initial={{ opacity: 0, y: 20 }}

@@ -1,138 +1,106 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionType } from '../types';
+import { LumenMascot } from './ui';
+import { Header, Footer } from './layout';
 
-// Emotion data for display with enhanced gradients
+// Emotion data with premium styling
 const emotionData: Record<EmotionType, { 
   emoji: string; 
   label: string; 
-  gradient: string;
-  color: string;
   encouragingMessage: string;
+  gradient: string;
 }> = {
   happy: { 
     emoji: '😊', 
     label: 'Happy', 
-    gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-    color: '#FFD700',
-    encouragingMessage: 'Your joy is beautiful!'
+    encouragingMessage: 'Your joy is beautiful!',
+    gradient: 'from-yellow-400 to-orange-500'
   },
   sad: { 
     emoji: '😢', 
     label: 'Sad', 
-    gradient: 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
-    color: '#4169E1',
-    encouragingMessage: 'It\'s okay to feel this way'
+    encouragingMessage: 'It\'s okay to feel this way',
+    gradient: 'from-blue-400 to-purple-500'
   },
   loneliness: { 
     emoji: '😔', 
     label: 'Loneliness', 
-    gradient: 'linear-gradient(135deg, #8A2BE2 0%, #9370DB 100%)',
-    color: '#8A2BE2',
-    encouragingMessage: 'You\'re not alone'
+    encouragingMessage: 'You\'re not alone',
+    gradient: 'from-purple-400 to-pink-500'
   },
   anxiety: { 
     emoji: '😰', 
     label: 'Anxiety', 
-    gradient: 'linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%)',
-    color: '#FF6B6B',
-    encouragingMessage: 'Take deep breaths'
+    encouragingMessage: 'Take deep breaths',
+    gradient: 'from-yellow-400 to-red-500'
   },
   frustration: { 
     emoji: '😤', 
     label: 'Frustration', 
-    gradient: 'linear-gradient(135deg, #FF4500 0%, #FF8C00 100%)',
-    color: '#FF4500',
-    encouragingMessage: 'This feeling will pass'
+    encouragingMessage: 'This feeling will pass',
+    gradient: 'from-orange-400 to-red-500'
   },
   stress: { 
     emoji: '😵', 
     label: 'Stress', 
-    gradient: 'linear-gradient(135deg, #20B2AA 0%, #48D1CC 100%)',
-    color: '#20B2AA',
-    encouragingMessage: 'You\'re doing great'
+    encouragingMessage: 'You\'re doing great',
+    gradient: 'from-teal-400 to-blue-500'
   },
   lethargy: { 
     emoji: '😴', 
     label: 'Lethargy', 
-    gradient: 'linear-gradient(135deg, #708090 0%, #A9A9A9 100%)',
-    color: '#708090',
-    encouragingMessage: 'Be gentle with yourself'
+    encouragingMessage: 'Be gentle with yourself',
+    gradient: 'from-gray-400 to-slate-500'
   },
   fear: { 
     emoji: '😨', 
     label: 'Fear', 
-    gradient: 'linear-gradient(135deg, #663399 0%, #9966CC 100%)',
-    color: '#663399',
-    encouragingMessage: 'You\'re safe here'
+    encouragingMessage: 'You\'re safe here',
+    gradient: 'from-indigo-400 to-purple-500'
   },
   grief: { 
     emoji: '💔', 
     label: 'Grief', 
-    gradient: 'linear-gradient(135deg, #CD5C5C 0%, #F08080 100%)',
-    color: '#CD5C5C',
-    encouragingMessage: 'Your feelings are valid'
+    encouragingMessage: 'Your feelings are valid',
+    gradient: 'from-rose-400 to-pink-500'
   },
 };
 
-// Enhanced Animated Particles Component
-const AnimatedParticles: React.FC = () => {
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      {[...Array(15)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1.5 h-1.5 bg-gradient-to-r from-blue-200/40 to-purple-200/40 rounded-full"
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            scale: 0,
-            opacity: 0,
-          }}
-          animate={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            scale: [0, 1, 0],
-            opacity: [0, 0.6, 0],
-          }}
-          transition={{
-            duration: 10 + Math.random() * 5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: Math.random() * 3,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// Enhanced Weekly View Component
-const WeeklyView: React.FC<{ weeklyData: boolean[] }> = ({ weeklyData }) => {
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// Simple Weekly Progress Component
+const WeeklyProgress: React.FC<{ weeklyData: boolean[] }> = ({ weeklyData }) => {
+  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   const loggedDays = weeklyData.filter(Boolean).length;
   
+  const getProgressMessage = (loggedDays: number) => {
+    if (loggedDays === 0) return 'Start your journey today';
+    if (loggedDays === 7) return 'Perfect week! 🌟';
+    if (loggedDays >= 5) return 'Great progress! 💪';
+    if (loggedDays >= 3) return 'Good start! 👍';
+    return 'Keep going! 💫';
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h4 className="text-sm font-medium text-gray-700">Weekly Progress</h4>
-        <span className="text-sm text-gray-500">{loggedDays}/7 days</span>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h4 className="text-lg font-semibold text-gray-900 mb-2">This Week</h4>
+        <p className="text-sm text-gray-600">{loggedDays}/7 days</p>
       </div>
       
       <div className="grid grid-cols-7 gap-2">
         {weeklyData.map((logged, index) => (
           <div key={index} className="text-center">
-            <div className="text-xs text-gray-500 mb-1">{days[index]}</div>
+            <div className="text-xs text-gray-500 mb-1 font-medium">{days[index]}</div>
             <motion.div
-              className={`w-8 h-8 rounded-full mx-auto ${
+              className={`w-8 h-8 rounded-lg mx-auto flex items-center justify-center ${
                 logged 
-                  ? 'bg-gradient-to-br from-green-400 to-green-500 shadow-lg' 
-                  : 'bg-gray-200'
+                  ? 'bg-gradient-to-br from-yellow-400 to-purple-600 shadow-md' 
+                  : 'bg-gray-100 border border-gray-200'
               }`}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.1 + index * 0.1, duration: 0.3 }}
-              whileHover={{ scale: 1.1 }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 + index * 0.1, duration: 0.4 }}
+              whileHover={{ scale: 1.05 }}
             >
               {logged && (
                 <motion.div
@@ -141,7 +109,7 @@ const WeeklyView: React.FC<{ weeklyData: boolean[] }> = ({ weeklyData }) => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 + index * 0.1 }}
                 >
-                  <span className="text-white text-xs">✓</span>
+                  <span className="text-white text-xs font-medium">✓</span>
                 </motion.div>
               )}
             </motion.div>
@@ -149,26 +117,24 @@ const WeeklyView: React.FC<{ weeklyData: boolean[] }> = ({ weeklyData }) => {
         ))}
       </div>
       
-      {loggedDays > 0 && (
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-        >
-          <p className="text-sm text-gray-600">
-            {loggedDays === 7 ? 'Perfect week! 🌟' : 
-             loggedDays >= 5 ? 'Great progress! 💪' : 
-             loggedDays >= 3 ? 'Good start! 👍' : 'Keep going! 💫'}
-          </p>
-        </motion.div>
-      )}
+      <div className="mb-4"></div>
+      
+      <motion.div
+        className="text-center"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.0 }}
+      >
+        <p className="text-sm text-gray-600 font-medium">
+          {getProgressMessage(loggedDays)}
+        </p>
+      </motion.div>
     </div>
   );
 };
 
-// Enhanced Streak Component
-const StreakDisplay: React.FC<{ currentStreak: number }> = ({ currentStreak }) => {
+// Simple Streak Counter Component
+const StreakCounter: React.FC<{ currentStreak: number }> = ({ currentStreak }) => {
   const getStreakMessage = (streak: number) => {
     if (streak === 0) return 'Start your journey';
     if (streak === 1) return 'Great start!';
@@ -205,8 +171,10 @@ const StreakDisplay: React.FC<{ currentStreak: number }> = ({ currentStreak }) =
         >
           {currentStreak}
         </motion.div>
-        <div className="text-sm text-gray-600 mb-3">day streak</div>
+        <div className="text-sm text-gray-600 font-medium">day streak</div>
       </div>
+      
+      <div className="mb-4"></div>
       
       <motion.p
         className="text-sm text-gray-700 font-medium"
@@ -234,28 +202,26 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onReset 
 }) => {
   const emotion = emotionData[selectedEmotion];
-  const loggedDays = weeklyData.filter(Boolean).length;
 
   return (
-    <motion.div
-      className="w-full min-h-screen relative bg-gradient-to-br from-blue-50 via-white to-purple-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Enhanced Animated Background */}
-      <AnimatedParticles />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      {/* Header */}
+      <Header />
+      
+      {/* Luna Mascot */}
+      <LumenMascot currentPage="/dashboard" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
-        {/* Enhanced Header */}
+      <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
+        {/* Beautiful Header - Inspired by Landing Page */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-20 flex flex-col items-center justify-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
           <motion.h1
-            className="text-4xl font-light text-gray-800 mb-3"
+            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6 text-center"
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
@@ -264,7 +230,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </motion.h1>
           
           <motion.p
-            className="text-lg text-gray-600 max-w-2xl mx-auto"
+            className="text-xl leading-relaxed text-gray-600 max-w-2xl mx-auto font-light text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
@@ -273,18 +239,18 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </motion.p>
         </motion.div>
 
-        {/* Enhanced Three-card layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          {/* Enhanced Current Mood Card */}
+        {/* Clean Three-card Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
+          {/* Current Mood Card - Primary Focus */}
           <motion.div
-            className="bg-white rounded-3xl p-8 text-center shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300"
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8 }}
             whileHover={{ y: -5 }}
           >
             <motion.div
-              className="text-7xl mb-6"
+              className="text-8xl mb-6"
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ delay: 1.0, duration: 0.6, type: "spring" }}
@@ -292,14 +258,14 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               {emotion.emoji}
             </motion.div>
             
-            <h3 className="text-2xl font-medium text-gray-900 mb-3">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Current Mood
             </h3>
             
-            <p className="text-lg text-gray-700 mb-4 font-medium">{emotion.label}</p>
+            <p className="text-xl text-gray-700 mb-6 font-semibold">{emotion.label}</p>
             
             <motion.p
-              className="text-sm text-gray-600 mb-6 italic"
+              className="text-gray-600 mb-8 italic font-light"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2, duration: 0.5 }}
@@ -307,72 +273,107 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               "{emotion.encouragingMessage}"
             </motion.p>
             
+            <div className="mb-4"></div>
+            
             <motion.button
               onClick={onReset}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer w-full"
+              style={{
+                background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
+                boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              Track New Feeling
+              {/* Minimal shimmer effect - subtle and elegant */}
+              <div 
+                className="absolute inset-0 rounded-xl opacity-30"
+                style={{
+                  background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
+                  backgroundSize: '200% 200%',
+                  animation: 'shimmer 3s ease-in-out infinite'
+                }}
+              ></div>
+              
+              {/* Clean, minimal button text */}
+              <span className="relative z-10">
+                Track New Feeling
+              </span>
             </motion.button>
           </motion.div>
 
-          {/* Enhanced Weekly View Card */}
+          {/* Weekly Progress Card */}
           <motion.div
-            className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300"
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0, duration: 0.8 }}
             whileHover={{ y: -5 }}
           >
-            <h3 className="text-2xl font-medium text-gray-900 mb-6 text-center">
-              This Week
-            </h3>
-            <WeeklyView weeklyData={weeklyData} />
+            <WeeklyProgress weeklyData={weeklyData} />
           </motion.div>
 
-          {/* Enhanced Streak Card */}
+          {/* Streak Card */}
           <motion.div
-            className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300"
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.8 }}
             whileHover={{ y: -5 }}
           >
-            <h3 className="text-2xl font-medium text-gray-900 mb-6 text-center">
+            <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
               Your Streak
             </h3>
-            <StreakDisplay currentStreak={currentStreak} />
+            <StreakCounter currentStreak={currentStreak} />
           </motion.div>
         </div>
 
-        {/* Enhanced Action buttons */}
+        {/* Beautiful Action Buttons - Inspired by Landing Page */}
         <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.4, duration: 0.8 }}
         >
           <motion.button
-            onClick={() => window.location.href = '/analytics'}
-            className="px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-300 transform hover:scale-105 shadow-lg"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/flow?manual=true'}
+            className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
+            style={{
+              background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
+              boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            📊 View Analytics
+            {/* Minimal shimmer effect - subtle and elegant */}
+            <div 
+              className="absolute inset-0 rounded-xl opacity-30"
+              style={{
+                background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
+                backgroundSize: '200% 200%',
+                animation: 'shimmer 3s ease-in-out infinite'
+              }}
+            ></div>
+            
+            {/* Clean, minimal button text */}
+            <span className="relative z-10">
+              💭 Log Today's Emotion
+            </span>
           </motion.button>
           
           <motion.button
-            onClick={() => window.location.href = '/games'}
-            className="px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl font-medium hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/analytics'}
+            className="px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-xl font-semibold border border-gray-200 hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            🎮 Play Games
+            📊 View Analytics
           </motion.button>
         </motion.div>
       </div>
-    </motion.div>
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 };
 
