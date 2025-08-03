@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 import { useClerkUser } from '../../hooks/useClerkUser';
-import { AnimatedBackground, LumenIcon } from '../ui';
+import { AnimatedBackground } from '../ui';
 
 export const UserProfile: React.FC = () => {
   const { user } = useClerkUser();
@@ -12,7 +12,7 @@ export const UserProfile: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
-  const profileRef = useRef<HTMLDivElement>(null);
+
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

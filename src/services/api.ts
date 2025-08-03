@@ -1,16 +1,26 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import type { 
-  EmotionEntry, 
-  JournalEntry, 
-  UserAnalytics, 
-  AIInsightResponse,
+import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
+import type {
+  EmotionEntry,
+  User,
+  JournalEntry,
   CreateEmotionRequest,
   CreateJournalRequest,
-  User
-} from '../types/index';
+  UserAnalytics,
+  AIInsightResponse,
+  NotificationResponse
+} from '../types';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// Helper function to get auth token
+const getAuthToken = async (): Promise<string> => {
+  const token = localStorage.getItem('lumen_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  return token;
+};
 
 class ApiService {
   private api: AxiosInstance;
@@ -258,3 +268,95 @@ export const apiService = new ApiService();
 
 // Export for backward compatibility
 export default apiService; 
+
+// Notification API functions
+export const getNotifications = async (): Promise<NotificationResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/notifications`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${await getAuthToken()}`
+      }
+    });
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return { success: false, message: 'Failed to fetch notifications' };
+  }
+};
+
+export const createNotification = async (notification: Omit<Notification, '_id' | 'createdAt'>): Promise<NotificationResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/notifications`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${await getAuthToken()}`
+      },
+      body: JSON.stringify(notification)
+    });
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error creating notification:', error);
+    return { success: false, message: 'Failed to create notification' };
+  }
+};
+
+export const markNotificationAsRead = async (notificationId: string): Promise<NotificationResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${await getAuthToken()}`
+      }
+    });
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return { success: false, message: 'Failed to mark notification as read' };
+  }
+};
+
+export const markAllNotificationsAsRead = async (): Promise<NotificationResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/notifications/mark-all-read`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${await getAuthToken()}`
+      }
+    });
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    return { success: false, message: 'Failed to mark all notifications as read' };
+  }
+};
+
+export const deleteNotification = async (notificationId: string): Promise<NotificationResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${await getAuthToken()}`
+      }
+    });
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    return { success: false, message: 'Failed to delete notification' };
+  }
+}; 
