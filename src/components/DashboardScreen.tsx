@@ -93,7 +93,7 @@ const WeeklyProgress: React.FC<{ weeklyData: boolean[] }> = ({ weeklyData }) => 
             <motion.div
               className={`w-8 h-8 rounded-lg mx-auto flex items-center justify-center ${
                 logged 
-                  ? 'bg-gray-900 shadow-md' 
+                  ? 'bg-gradient-to-br from-yellow-400 to-purple-600 shadow-md' 
                   : 'bg-gray-100 border border-gray-200'
               }`}
               initial={{ scale: 0, opacity: 0 }}
@@ -199,20 +199,21 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const emotion = emotionData[selectedEmotion];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
       {/* Luna Mascot */}
       <LumenMascot currentPage="/dashboard" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-8 py-16">
-        {/* Clean Header */}
+      <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
+        {/* Beautiful Header - Inspired by Landing Page */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-20"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
           <motion.h1
-            className="text-4xl font-bold text-gray-900 mb-4"
+            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6"
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
@@ -221,7 +222,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </motion.h1>
           
           <motion.p
-            className="text-xl text-gray-600 max-w-2xl mx-auto font-light"
+            className="text-xl leading-relaxed text-gray-600 max-w-2xl mx-auto font-light"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
@@ -231,7 +232,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         </motion.div>
 
         {/* Clean Three-card Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
           {/* Current Mood Card - Primary Focus */}
           <motion.div
             className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
@@ -266,11 +267,28 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             
             <motion.button
               onClick={onReset}
-              className="w-full py-4 px-6 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer"
+              className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer w-full"
+              style={{
+                background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
+                boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
+              }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              Track New Feeling
+              {/* Minimal shimmer effect - subtle and elegant */}
+              <div 
+                className="absolute inset-0 rounded-xl opacity-30"
+                style={{
+                  background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
+                  backgroundSize: '200% 200%',
+                  animation: 'shimmer 3s ease-in-out infinite'
+                }}
+              ></div>
+              
+              {/* Clean, minimal button text */}
+              <span className="relative z-10">
+                Track New Feeling
+              </span>
             </motion.button>
           </motion.div>
 
@@ -300,7 +318,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </motion.div>
         </div>
 
-        {/* Simple Action Buttons */}
+        {/* Beautiful Action Buttons - Inspired by Landing Page */}
         <motion.div
           className="flex flex-col sm:flex-row gap-6 justify-center items-center"
           initial={{ opacity: 0, y: 30 }}
@@ -309,11 +327,28 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         >
           <motion.button
             onClick={() => window.location.href = '/flow?manual=true'}
-            className="px-8 py-4 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer"
+            className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
+            style={{
+              background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
+              boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
+            }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            💭 Log Today's Emotion
+            {/* Minimal shimmer effect - subtle and elegant */}
+            <div 
+              className="absolute inset-0 rounded-xl opacity-30"
+              style={{
+                background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
+                backgroundSize: '200% 200%',
+                animation: 'shimmer 3s ease-in-out infinite'
+              }}
+            ></div>
+            
+            {/* Clean, minimal button text */}
+            <span className="relative z-10">
+              💭 Log Today's Emotion
+            </span>
           </motion.button>
           
           <motion.button

@@ -51,7 +51,7 @@ const Analytics: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Authentication Required
@@ -69,20 +69,21 @@ const Analytics: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
       {/* Luna Mascot */}
       <LumenMascot currentPage="/analytics" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-8 py-16">
-        {/* Clean Header */}
+      <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
+        {/* Beautiful Header - Inspired by Landing Page */}
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-20"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
           <motion.h1 
-            className="text-4xl font-bold text-gray-900 mb-6"
+            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6"
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -91,7 +92,7 @@ const Analytics: React.FC = () => {
           </motion.h1>
           
           <motion.p 
-            className="text-xl text-gray-600 max-w-2xl mx-auto font-light"
+            className="text-xl leading-relaxed text-gray-600 max-w-3xl mx-auto font-light"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -105,7 +106,7 @@ const Analytics: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-3 mb-12"
+          className="flex flex-wrap justify-center gap-3 mb-16"
         >
           {[
             { key: '7days', label: 'Last 7 Days' },
@@ -118,7 +119,7 @@ const Analytics: React.FC = () => {
               onClick={() => setSelectedTimeRange(range.key as any)}
               className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
                 selectedTimeRange === range.key
-                  ? 'bg-gray-900 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-yellow-400 to-purple-600 text-white shadow-lg'
                   : 'bg-white/80 backdrop-blur-sm text-gray-700 border border-gray-200 hover:bg-white hover:shadow-md'
               }`}
               whileHover={{ scale: 1.02 }}
@@ -129,7 +130,7 @@ const Analytics: React.FC = () => {
           ))}
         </motion.div>
 
-        <div className="space-y-12">
+        <div className="space-y-16">
           {/* Clean Chart Section */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -149,8 +150,8 @@ const Analytics: React.FC = () => {
               >
                 <defs>
                   <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6b7280" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6b7280" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" opacity={0.5} />
@@ -191,14 +192,14 @@ const Analytics: React.FC = () => {
                   strokeWidth={3}
                   name="Mood"
                   dot={{ 
-                    fill: '#6b7280', 
+                    fill: '#fbbf24', 
                     strokeWidth: 2, 
                     r: 5,
                     stroke: '#ffffff'
                   }}
                   activeDot={{ 
                     r: 8, 
-                    stroke: '#6b7280', 
+                    stroke: '#8b5cf6', 
                     strokeWidth: 3,
                     fill: '#ffffff'
                   }}
@@ -286,7 +287,7 @@ const Analytics: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Simple Action Buttons */}
+          {/* Beautiful Action Buttons - Inspired by Landing Page */}
           <motion.div
             className="flex flex-col sm:flex-row gap-6 justify-center items-center"
             initial={{ opacity: 0, y: 30 }}
@@ -295,11 +296,28 @@ const Analytics: React.FC = () => {
           >
             <motion.button
               onClick={() => window.location.href = '/flow?manual=true'}
-              className="px-8 py-4 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer"
+              className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
+              style={{
+                background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
+                boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
+              }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              💭 Log Today's Emotion
+              {/* Minimal shimmer effect - subtle and elegant */}
+              <div 
+                className="absolute inset-0 rounded-xl opacity-30"
+                style={{
+                  background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
+                  backgroundSize: '200% 200%',
+                  animation: 'shimmer 3s ease-in-out infinite'
+                }}
+              ></div>
+              
+              {/* Clean, minimal button text */}
+              <span className="relative z-10">
+                💭 Log Today's Emotion
+              </span>
             </motion.button>
             
             <motion.button
