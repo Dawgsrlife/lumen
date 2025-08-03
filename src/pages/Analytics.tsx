@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useClerkUser } from '../hooks/useClerkUser';
-import { Card, Button } from '../components/ui';
+import { Card, Button, AnimatedBackground } from '../components/ui';
 import {
   LineChart,
   Line,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, LoadingSpinner } from './ui';
+import { Card, Button, LoadingSpinner, AnimatedBackground } from './ui';
 import { useFlow } from '../context/FlowProvider';
 import { LumenMascot } from './ui';
 import { apiService } from '../services/api';
@@ -56,8 +56,9 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <div className="max-w-6xl mx-auto px-8 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative">
+      <AnimatedBackground />
+      <div className="relative z-10 max-w-6xl mx-auto px-8 py-16">
         {/* Header */}
         <div className="mb-8">
           <div className="mb-4"></div>

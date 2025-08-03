@@ -5,6 +5,7 @@ import { useUser } from '@clerk/clerk-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { AnimatedBackground } from '../components/ui';
 import { chatbotService } from '../services/chatbot';
 import type { ChatMessage, ChatContext } from '../services/chatbot';
 
@@ -145,8 +146,9 @@ export default function Chat() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <div className="max-w-6xl mx-auto px-8 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative">
+      <AnimatedBackground />
+      <div className="relative z-10 max-w-6xl mx-auto px-8 py-16">
         {/* Header Section */}
         <div className="mb-8">
           <div className="mb-4"></div>
