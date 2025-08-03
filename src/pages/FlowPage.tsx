@@ -1,25 +1,23 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FlowBackground } from '../components/ui';
-import { FlowRouter, FlowErrorBoundary, FlowLoadingState } from '../components/flow';
+import { FlowRouter, FlowErrorBoundary } from '../components/flow';
 import { useFlowState } from '../hooks/useFlowState';
 import { useClerkUser } from '../hooks/useClerkUser';
 import { apiService } from '../services/api';
-import type { UnityGameData, UnityReward } from '../services/unity';
+import type { EmotionType } from '../types';
 
 const FlowPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useClerkUser();
   const flowState = useFlowState();
   const [isCheckingDailyStatus, setIsCheckingDailyStatus] = useState(true);
-  const [hasLoggedToday, setHasLoggedToday] = useState(false);
 
   // Add initial state logging
   useEffect(() => {
     console.log('FlowPage state:', {
       currentStep: flowState.currentStep,
       selectedEmotion: flowState.selectedEmotion,
-      hasLoggedToday: flowState.hasLoggedToday,
       isLoading: flowState.isLoading,
       user: user?.id
     });
@@ -33,9 +31,29 @@ const FlowPage: React.FC = () => {
         return;
       }
 
-      // Check if this is a manual flow request
+      // Check for URL parameters
       const urlParams = new URLSearchParams(window.location.search);
       const isManualFlow = urlParams.get('manual') === 'true';
+      const gameParam = urlParams.get('game');
+      
+      // Map game names to emotions for direct game access
+      const gameToEmotion: Record<string, string> = {
+        'boxbreathing': 'frustration',
+        'colorbloom': 'sad',
+        'memorylantern': 'grief',
+        'rythmgrow': 'lethargy',
+        'balancingact': 'anger'
+      };
+      
+      // Handle direct game access via URL parameter
+      if (gameParam && gameToEmotion[gameParam]) {
+        console.log(`Direct game access requested: ${gameParam}`);
+        const emotion = gameToEmotion[gameParam] as EmotionType;
+        flowState.actions.selectEmotion(emotion);
+        flowState.actions.setCurrentStep('game');
+        setIsCheckingDailyStatus(false);
+        return;
+      }
       
       if (isManualFlow) {
         console.log('Manual flow requested, starting at welcome step');
@@ -49,8 +67,6 @@ const FlowPage: React.FC = () => {
         setIsCheckingDailyStatus(true);
         const response = await apiService.getTodayEmotion();
         const hasLogged = response.hasLoggedToday;
-        
-        setHasLoggedToday(hasLogged);
         
         // If user has already logged today, redirect to dashboard
         if (hasLogged) {
@@ -108,56 +124,24 @@ const FlowPage: React.FC = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [flowState.currentStep]);
 
-  // Event handlers
-  const handleEmotionSelect = (emotion: any) => {
-    flowState.actions.selectEmotion(emotion);
-  };
 
-  const handleGameComplete = (data: UnityGameData) => {
-    flowState.actions.completeGame(data);
-  };
-
-  const handleRewardEarned = (reward: UnityReward) => {
-    // TODO: Add reward handling to flow state
-  };
-
-  const handleSkipGame = () => {
-    flowState.actions.skipStep();
-  };
-
-  const handleFeedbackResponse = async () => {
-    // Simulate saving feedback
-    await new Promise(resolve => setTimeout(resolve, 100));
-    flowState.actions.setCurrentStep('journaling');
-  };
-
-  const handleSkipFeedback = () => {
-    flowState.actions.setCurrentStep('journaling');
-  };
-
-  const handleJournalingComplete = () => {
-    flowState.actions.completeFlow();
-    navigate('/dashboard');
-  };
-
-  const handleJournalingSkip = () => {
-    flowState.actions.completeFlow();
-    navigate('/dashboard');
-  };
 
   const handleFlowComplete = () => {
     console.log('Flow completed, navigating to dashboard');
     navigate('/dashboard', { replace: true });
   };
 
-  // Show loading while checking daily status
-  if (isCheckingDailyStatus) {
-    return <FlowLoadingState stage="checking-daily-status" />;
-  }
-
   // Early returns for loading and error states
-  if (flowState.isLoading) {
-    return <FlowLoadingState stage="initializing" />;
+  if (isCheckingDailyStatus || flowState.isLoading) {
+    // Remove custom loading screen - just show the main content
+    return (
+      <FlowErrorBoundary>
+        <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+          <FlowBackground theme="none" />
+          <FlowRouter onComplete={handleFlowComplete} />
+        </div>
+      </FlowErrorBoundary>
+    );
   }
 
   if (flowState.error) {
