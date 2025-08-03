@@ -1,12 +1,12 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/clerk-react';
-import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 import { LoadingSpinner } from './components/ui';
 import { AppProvider, useAppContext } from './context/AppContext';
 import { FlowProvider, useFlow } from './context/FlowProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { LoginRedirectHandler } from './components/auth/LoginRedirectHandler';
+import LoginRedirectHandler from './components/auth/LoginRedirectHandler';
 import { Header, Footer } from './components/layout';
 
 // Lazy load pages
@@ -65,13 +65,28 @@ const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }
   );
 };
 
+// Clerk Provider Wrapper
+const ClerkProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const navigate = useNavigate();
+  
+  return (
+    <ClerkProvider
+      publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''}
+      routerPush={(to) => navigate(to)}
+      routerReplace={(to) => navigate(to, { replace: true })}
+    >
+      {children}
+    </ClerkProvider>
+  );
+};
+
 function App() {
   return (
     <ErrorBoundary>
-      <ClerkProvider>
-        <AppProvider>
-          <FlowProvider>
-            <Router>
+      <Router>
+        <ClerkProviderWrapper>
+          <AppProvider>
+            <FlowProvider>
               <Routes>
                 {/* Root redirect based on auth status */}
                 <Route path="/" element={<LoginRedirectHandler />} />
@@ -175,26 +190,6 @@ function App() {
                   } 
                 />
                 <Route 
-                  path="/profile" 
-                  element={
-                    <Suspense fallback={
-                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-                        <div className="text-center">
-                          <LoadingSpinner size="lg" />
-                          <div className="mb-4"></div>
-                          <p className="text-gray-600">Loading profile...</p>
-                        </div>
-                      </div>
-                    }>
-                      <ProtectedRoute>
-                        <ConditionalLayout>
-                          <Profile />
-                        </ConditionalLayout>
-                      </ProtectedRoute>
-                    </Suspense>
-                  } 
-                />
-                <Route 
                   path="/analytics" 
                   element={
                     <Suspense fallback={
@@ -214,14 +209,34 @@ function App() {
                     </Suspense>
                   } 
                 />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading profile...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <Profile />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
                 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
-            </Router>
-          </FlowProvider>
-        </AppProvider>
-      </ClerkProvider>
+            </FlowProvider>
+          </AppProvider>
+        </ClerkProviderWrapper>
+      </Router>
     </ErrorBoundary>
   );
 }

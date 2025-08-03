@@ -329,20 +329,20 @@ const Header: React.FC = () => {
                   className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-200 px-2 py-1 rounded-lg hover:bg-gray-50 cursor-pointer hover:scale-105"
                 >
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    {user?.avatar ? (
+                    {user?.imageUrl ? (
                       <img
-                        src={user.avatar}
+                        src={user.imageUrl}
                         alt="Profile"
                         className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
                       <span className="text-blue-600 font-semibold text-sm">
-                        {user?.firstName?.[0] || user?.email[0].toUpperCase()}
+                        {user?.firstName?.[0] || user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() || 'U'}
                       </span>
                     )}
                   </div>
                   <span className="hidden sm:block font-light">
-                    {user?.firstName || user?.email}
+                    {user?.firstName || user?.primaryEmailAddress?.emailAddress || 'User'}
                   </span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

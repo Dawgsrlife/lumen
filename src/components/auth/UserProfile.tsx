@@ -159,15 +159,15 @@ export const UserProfile: React.FC = () => {
             {/* User Info */}
             <div className="flex items-center space-x-6 mb-8">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[var(--lumen-primary)]/20 to-[var(--lumen-secondary)]/20 flex items-center justify-center border-2 border-white/50 shadow-lg">
-                {user.avatar ? (
+                {user.imageUrl ? (
                   <img 
-                    src={user.avatar} 
+                    src={user.imageUrl} 
                     alt="Profile" 
                     className="w-20 h-20 rounded-full object-cover"
                   />
                 ) : (
                   <span className="text-3xl font-bold text-gray-700">
-                    {user.firstName?.[0] || user.email[0].toUpperCase()}
+                    {user.firstName?.[0] || user.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() || 'U'}
                   </span>
                 )}
               </div>
@@ -175,12 +175,12 @@ export const UserProfile: React.FC = () => {
                 <h2 className="text-2xl font-semibold text-gray-900 mb-2">
                   {user.firstName && user.lastName 
                     ? `${user.firstName} ${user.lastName}`
-                    : user.email
+                    : user.primaryEmailAddress?.emailAddress || 'User'
                   }
                 </h2>
-                <p className="text-gray-600 mb-1">{user.email}</p>
+                <p className="text-gray-600 mb-1">{user.primaryEmailAddress?.emailAddress || 'No email'}</p>
                 <p className="text-sm text-gray-500">
-                  Member since {user.createdAt.toLocaleDateString()}
+                  Member since {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
                 </p>
               </div>
             </div>
