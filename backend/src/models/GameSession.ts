@@ -28,7 +28,7 @@ const gameSessionSchema = new Schema<GameSessionDocument>({
   duration: {
     type: Number,
     required: true,
-    min: 1,
+    min: 0,
     max: 480 // max 8 hours
   },
   score: {
