@@ -33,13 +33,13 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
           <motion.button
             key={emotion}
             onClick={() => onMoodSelect(emotion)}
-            whileHover={{ scale: 1.02, y: -2 }}
+            whileHover={{ scale: 1.03, y: -2 }}
             whileTap={{ scale: 0.98 }}
             className={`
-              relative p-6 rounded-2xl transition-all duration-300 
+              relative p-6 rounded-2xl cursor-pointer
               ${selectedMood === emotion 
                 ? 'shadow-lg ring-4 ring-blue-200 scale-105' 
-                : 'shadow-sm hover:shadow-md hover:scale-102'
+                : 'shadow-sm hover:shadow-md'
               }
             `}
             style={{
@@ -47,12 +47,17 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
               color: '#1f2937',
               border: '1px solid rgba(0, 0, 0, 0.05)'
             }}
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ 
-              duration: 0.4, 
-              delay: 0.1 + index * 0.1,
+              duration: 0.3, 
+              delay: 0.05 + index * 0.05,
               ease: "easeOut"
+            }}
+            whileHover={{ 
+              scale: 1.03, 
+              y: -2,
+              transition: { duration: 0.1, ease: "easeOut" }
             }}
           >
             <div className="text-4xl mb-4">{emotionData[emotion].emoji}</div>

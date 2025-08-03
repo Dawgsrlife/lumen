@@ -31,8 +31,8 @@ const JournalingStep: React.FC<JournalingStepProps> = ({ onComplete, onSkip }) =
 
       console.log('JournalingStep: Saving journal entry (placeholder)', journalData);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Minimal delay for smooth UX
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       setJournalEntry(journalText);
       console.log('JournalingStep: Journal entry saved successfully (placeholder)');

@@ -78,7 +78,7 @@ const emotionToGame: Record<string, { gameId: string; gameName: string; title: s
 const FlowPage: React.FC = () => {
   const navigate = useNavigate();
   const { state, logEmotion, completeGame } = useAppContext();
-  const { state: flowState, nextStep, setEmotion, setGameData: setFlowGameData, skipToJournaling, skipToDashboard, skipToEmotionSelection } = useFlow();
+  const { state: flowState, nextStep, setEmotion, setGameData: setFlowGameData, skipToJournaling, skipToDashboard, skipToEmotionSelection, dispatch } = useFlow();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFeedbackPrompt, setShowFeedbackPrompt] = React.useState(false);
   const [showGameCompletion, setShowGameCompletion] = React.useState(false);
@@ -89,54 +89,15 @@ const FlowPage: React.FC = () => {
   const [hasCheckedDailyStatus, setHasCheckedDailyStatus] = useState(false);
   const [hasLoggedToday, setHasLoggedToday] = useState<boolean | null>(null);
   
-  // Debug logging
-  console.log('FlowPage: Current state', {
-    flowStep: flowState.currentStep,
-    selectedEmotion: flowState.selectedEmotion,
-    appState: {
-      currentView: state.currentView,
-      user: state.user,
-      isLoading: state.isLoading,
-      showHeader: state.showHeader,
-    },
-    showFeedbackPrompt,
-    showGameCompletion,
-    showJournaling,
-    gameData: !!gameData
-  });
 
-  // Simplified daily status check - using placeholder data
+
+    // Set initial state - user hasn't logged today
   useEffect(() => {
-    const checkDailyStatus = async () => {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Use placeholder data - always assume user hasn't logged today for demo
-      console.log('FlowPage: Using placeholder daily status data');
-      setHasLoggedToday(false);
-      setHasCheckedDailyStatus(true);
-    };
-
-    checkDailyStatus();
+    setHasLoggedToday(false);
+    setHasCheckedDailyStatus(true);
   }, []);
 
-  // Auto-transition based on daily status
-  useEffect(() => {
-    if (hasCheckedDailyStatus) {
-      const timer = setTimeout(() => {
-        console.log('FlowPage: Auto-transitioning based on daily status', { hasLoggedToday });
-        if (hasLoggedToday) {
-          console.log('FlowPage: User has logged today, going to dashboard');
-          navigate('/dashboard');
-        } else {
-          console.log('FlowPage: User has not logged today, going to emotion selection');
-          skipToEmotionSelection();
-        }
-      }, 1000); // 1 second delay for flow initialization
 
-      return () => clearTimeout(timer);
-    }
-  }, [hasCheckedDailyStatus, hasLoggedToday, navigate, skipToEmotionSelection]);
   
   // Get game parameter from URL
   const gameParam = searchParams.get('game');
@@ -148,25 +109,20 @@ const FlowPage: React.FC = () => {
         ([_, game]) => game.gameName === gameParam
       )?.[0];
       
-      if (emotion && emotion === flowState.selectedEmotion) {
-        console.log('FlowPage: Direct game access detected', { gameParam, emotion });
-      }
+             if (emotion && emotion === flowState.selectedEmotion) {
+         // Direct game access detected
+       }
     }
   }, [gameParam, flowState.selectedEmotion]);
 
-  const handleEmotionSelect = async (emotion: string) => {
-    console.log('FlowPage: Emotion selected', emotion);
+  const handleEmotionSelect = (emotion: string) => {
     setEmotion(emotion);
     
-    // Simulate API call for logging emotion
-    try {
-      await logEmotion(emotion as any);
-      console.log('FlowPage: Emotion logged successfully');
-    } catch (error) {
-      console.warn('FlowPage: Failed to log emotion, continuing anyway:', error);
-    }
+    // Log emotion instantly without API calls
+    logEmotion(emotion as any);
     
-    nextStep();
+    // Skip game-prompt and go directly to game
+    dispatch({ type: 'SET_CURRENT_STEP', payload: 'game' });
   };
 
   const handlePlayGame = () => {
@@ -221,8 +177,8 @@ const FlowPage: React.FC = () => {
         };
         
         console.log('FlowPage: Saving feedback data (placeholder)', feedbackData);
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Minimal delay for smooth UX
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
     } catch (error) {
       console.warn('FlowPage: Failed to save feedback, continuing anyway:', error);
@@ -294,7 +250,7 @@ const FlowPage: React.FC = () => {
     );
   }
 
-  console.log('FlowPage: Rendering view', flowState.currentStep);
+
 
   return (
     <div className="w-full min-h-screen">
@@ -324,6 +280,8 @@ const FlowPage: React.FC = () => {
             onSkipGame={handleSkipGame}
           />
         )}
+
+
 
         {flowState.currentStep === 'game' && flowState.selectedEmotion && (
           <motion.div
