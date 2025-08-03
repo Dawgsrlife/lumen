@@ -1,108 +1,177 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Button, LoadingSpinner } from '../components/ui';
 import UnityGame from '../components/games/UnityGame';
 import { useClerkUser } from '../hooks/useClerkUser';
+import { apiService } from '../services/api';
 // import { unityService } from '../services/unity'; // Will be used for Unity integration
 import type { UnityGameData, UnityReward } from '../services/unity';
 
 const Games: React.FC = () => {
   const { user } = useClerkUser();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [score, setScore] = useState(0);
+
+  const [gameMetadata, setGameMetadata] = useState<Record<string, any>>({});
+  const [isLoading, setIsLoading] = useState(false);
   // const [gameResults, setGameResults] = useState<UnityGameData[]>([]); // Will be used for game analytics
   // const [rewards, setRewards] = useState<UnityReward[]>([]); // Will be used for rewards system
 
+  // Check for game parameter from URL (set by dashboard)
+  useEffect(() => {
+    const gameFromUrl = searchParams.get('game');
+    const sessionIdFromUrl = searchParams.get('sessionId');
+    
+    if (gameFromUrl) {
+      setSelectedGame(gameFromUrl);
+      if (sessionIdFromUrl) {
+        setCurrentSessionId(sessionIdFromUrl);
+      }
+    }
+  }, [searchParams]);
+
+  // Load game mapping on component mount
+  useEffect(() => {
+    const loadGameMapping = async () => {
+      try {
+        const mapping = await apiService.getGameMapping();
+        setGameMetadata(mapping.gameMetadata);
+      } catch (error) {
+        console.error('Error loading game mapping:', error);
+      }
+    };
+
+    loadGameMapping();
+  }, []);
+
+  // Set up authentication token when user is available
+  useEffect(() => {
+    if (user?.id) {
+      apiService.setClerkUserId(user.id);
+    }
+  }, [user]);
+
   const games = [
     {
-      id: 'breathing',
-      title: 'Breathing Exercise',
-      description: 'Practice mindful breathing to reduce stress and anxiety',
+      id: 'boxbreathing',
+      title: 'Box Breathing',
+      description: 'Guided breathing exercise with visual feedback for stress reduction',
       icon: '🫁',
       difficulty: 'Easy',
       duration: '5 min',
       benefits: ['Reduces stress', 'Improves focus', 'Calms mind'],
       type: 'react',
+      mappedEmotions: ['anxiety', 'frustration', 'stress', 'fear']
     },
     {
-      id: 'gratitude',
-      title: 'Gratitude Journal',
-      description: 'Write down things you&apos;re thankful for to boost mood',
-      icon: '📝',
-      difficulty: 'Easy',
-      duration: '3 min',
-      benefits: ['Boosts mood', 'Increases positivity', 'Reduces anxiety'],
-      type: 'react',
-    },
-    {
-      id: 'meditation',
-      title: 'Guided Meditation',
-      description: 'Follow a guided meditation session for inner peace',
-      icon: '🧘',
-      difficulty: 'Medium',
-      duration: '10 min',
-      benefits: ['Inner peace', 'Mental clarity', 'Emotional balance'],
-      type: 'react',
-    },
-    {
-      id: 'coloring',
-      title: 'Digital Coloring',
-      description: 'Color beautiful mandalas to relax and express creativity',
-      icon: '🎨',
+      id: 'colorbloom',
+      title: 'Color Bloom',
+      description: 'Restore color to a grayscale world through gentle interaction',
+      icon: '🌸',
       difficulty: 'Easy',
       duration: '8 min',
-      benefits: ['Reduces anxiety', 'Promotes creativity', 'Mindfulness'],
+      benefits: ['Mood elevation', 'Mindfulness', 'Positive focus'],
       type: 'react',
+      mappedEmotions: ['happy', 'sad']
     },
     {
-      id: 'puzzle',
-      title: 'Mindful Puzzle',
-      description: 'Solve calming puzzles to improve focus and concentration',
-      icon: '🧩',
+      id: 'memorylantern',
+      title: 'Memory Lantern',
+      description: 'Release memories into the sky with melancholic music',
+      icon: '🏮',
+      difficulty: 'Medium',
+      duration: '10 min',
+      benefits: ['Grief processing', 'Emotional release', 'Acceptance'],
+      type: 'react',
+      mappedEmotions: ['loneliness', 'grief']
+    },
+    {
+      id: 'rythmgrow',
+      title: 'Rhythm Grow',
+      description: 'Rhythm-based interaction to match clicks with moving sun',
+      icon: '🌞',
+      difficulty: 'Medium',
+      duration: '6 min',
+      benefits: ['Energy activation', 'Focus improvement', 'Engagement'],
+      type: 'react',
+      mappedEmotions: ['lethargy']
+    },
+    {
+      id: 'placeholderGame_fear',
+      title: 'Fear Management',
+      description: 'Placeholder game for fear management and safety building',
+      icon: '🛡️',
       difficulty: 'Medium',
       duration: '7 min',
-      benefits: ['Improves focus', 'Reduces stress', 'Mental exercise'],
+      benefits: ['Fear reduction', 'Safety building', 'Exposure therapy'],
       type: 'react',
+      mappedEmotions: ['fear']
     },
     {
-      id: 'music',
-      title: 'Sound Therapy',
-      description: 'Listen to calming sounds and nature ambience',
-      icon: '🎵',
+      id: 'placeholderGame_anxiety',
+      title: 'Anxiety Relief',
+      description: 'Placeholder game for anxiety relief and relaxation',
+      icon: '🧘',
       difficulty: 'Easy',
-      duration: '6 min',
-      benefits: ['Relaxation', 'Better sleep', 'Stress relief'],
+      duration: '8 min',
+      benefits: ['Anxiety reduction', 'Relaxation', 'Coping skills'],
       type: 'react',
-    },
-    // Unity Games
-    {
-      id: 'unity-meditation',
-      title: 'Unity Meditation Game',
-      description: 'Immersive 3D meditation experience with Unity',
-      icon: '🎮',
-      difficulty: 'Easy',
-      duration: '10 min',
-      benefits: ['Deep relaxation', 'Immersive experience', '3D visualization'],
-      type: 'unity',
-      buildUrl: '/unity-builds/meditation-game',
+      mappedEmotions: ['anxiety']
     },
     {
-      id: 'unity-breathing',
-      title: 'Unity Breathing Game',
-      description: '3D breathing exercise with visual feedback',
-      icon: '🫁',
-      difficulty: 'Easy',
-      duration: '5 min',
-      benefits: ['Visual breathing guide', '3D environment', 'Immersive experience'],
-      type: 'unity',
-      buildUrl: '/unity-builds/breathing-game',
-    },
+      id: 'placeholderGame_loneliness',
+      title: 'Connection Building',
+      description: 'Placeholder game for loneliness and connection',
+      icon: '🤝',
+      difficulty: 'Medium',
+      duration: '9 min',
+      benefits: ['Social connection', 'Self-compassion', 'Belonging'],
+      type: 'react',
+      mappedEmotions: ['loneliness']
+    }
   ];
+
+  const handleGameComplete = async (gameId: string, duration: number, gameScore: number = 0) => {
+    if (!currentSessionId) {
+      console.warn('No session ID found for game completion');
+      return;
+    }
+
+    setScore(gameScore); // Update the score state
+    setIsLoading(true);
+    try {
+      // Complete the game session
+      await apiService.completeGameSession({
+        sessionId: currentSessionId,
+        duration,
+        score: gameScore,
+        emotionAfter: 'neutral', // Could be determined by post-game assessment
+        notes: `Completed ${gameMetadata[gameId]?.name || gameId} game`,
+        interactionCount: Math.floor(Math.random() * 50) + 10, // Placeholder
+        achievements: ['Completed session', 'Engaged fully']
+      });
+
+      // Redirect to clinic after a short delay
+      setTimeout(() => {
+        navigate('/clinic');
+      }, 3000);
+
+    } catch (error) {
+      console.error('Error completing game session:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const BreathingGame: React.FC = () => {
     const [breathPhase, setBreathPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
     const [countdown, setCountdown] = useState(4);
     const [round, setRound] = useState(1);
+    const [startTime] = useState(Date.now());
 
     useEffect(() => {
       const timer = setInterval(() => {
@@ -128,6 +197,9 @@ const Games: React.FC = () => {
     }, [breathPhase]);
 
     if (round > 5) {
+      const duration = Math.round((Date.now() - startTime) / 60000); // minutes
+      handleGameComplete('boxbreathing', duration, 85);
+      
       return (
         <div className="text-center space-y-6">
           <motion.div
@@ -138,14 +210,21 @@ const Games: React.FC = () => {
             🎉
           </motion.div>
           <h2 className="text-2xl font-bold text-lumen-dark">
-            Great job! You&apos;ve completed your breathing exercise.
+            Great job! You've completed your breathing exercise.
           </h2>
           <p className="text-gray-600">
             You should feel more relaxed and centered now.
           </p>
-          <Button onClick={() => setSelectedGame(null)}>
-            Back to Games
-          </Button>
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <LoadingSpinner size="sm" />
+              <span>Redirecting to voice therapy...</span>
+            </div>
+          ) : (
+            <Button onClick={() => navigate('/clinic')}>
+              Continue to Voice Therapy
+            </Button>
+          )}
         </div>
       );
     }
@@ -173,22 +252,21 @@ const Games: React.FC = () => {
     );
   };
 
-  const GratitudeGame: React.FC = () => {
-    const [entries, setEntries] = useState<string[]>(['', '', '']);
-    const [isComplete, setIsComplete] = useState(false);
+  const ColorBloomGame: React.FC = () => {
+    const [coloredSections, setColoredSections] = useState(0);
+    const [startTime] = useState(Date.now());
+    const totalSections = 12;
 
-    const handleEntryChange = (index: number, value: string) => {
-      const newEntries = [...entries];
-      newEntries[index] = value;
-      setEntries(newEntries);
+    const handleColorSection = () => {
+      if (coloredSections < totalSections) {
+        setColoredSections(coloredSections + 1);
+      }
     };
 
-    const handleComplete = () => {
-      setIsComplete(true);
-      setScore(score + 50);
-    };
-
-    if (isComplete) {
+    if (coloredSections >= totalSections) {
+      const duration = Math.round((Date.now() - startTime) / 60000); // minutes
+      handleGameComplete('colorbloom', duration, 90);
+      
       return (
         <div className="text-center space-y-6">
           <motion.div
@@ -196,17 +274,24 @@ const Games: React.FC = () => {
             animate={{ scale: 1 }}
             className="text-6xl mb-4"
           >
-            ✨
+            🌈
           </motion.div>
           <h2 className="text-2xl font-bold text-lumen-dark">
-            Wonderful! You&apos;ve practiced gratitude.
+            Beautiful! You've restored color to the world.
           </h2>
           <p className="text-gray-600">
-            Remember these things when you&apos;re feeling down.
+            Remember that beauty and color are always within reach.
           </p>
-          <Button onClick={() => setSelectedGame(null)}>
-            Back to Games
-          </Button>
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <LoadingSpinner size="sm" />
+              <span>Redirecting to voice therapy...</span>
+            </div>
+          ) : (
+            <Button onClick={() => navigate('/clinic')}>
+              Continue to Voice Therapy
+            </Button>
+          )}
         </div>
       );
     }
@@ -214,52 +299,126 @@ const Games: React.FC = () => {
     return (
       <div className="space-y-6">
         <div className="text-center mb-6">
-          <div className="text-4xl mb-4">📝</div>
+          <div className="text-4xl mb-4">🌸</div>
           <h2 className="text-xl font-semibold text-lumen-dark mb-2">
-            Write down 3 things you&apos;re grateful for today:
+            Restore color to this world by gently interacting
           </h2>
+          <p className="text-gray-600">
+            Progress: {coloredSections}/{totalSections} sections colored
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+          {Array.from({ length: totalSections }).map((_, index) => (
+            <button
+              key={index}
+              onClick={handleColorSection}
+              disabled={index >= coloredSections}
+              className={`w-16 h-16 rounded-lg transition-all duration-300 ${
+                index < coloredSections 
+                  ? 'bg-gradient-to-br from-pink-400 to-purple-500 shadow-lg' 
+                  : 'bg-gray-300 hover:bg-gray-400'
+              }`}
+            />
+          ))}
+        </div>
+        
+        <div className="text-center text-sm text-gray-600">
+          Click each section to bring back its color
+        </div>
+      </div>
+    );
+  };
+
+  const MemoryLanternGame: React.FC = () => {
+    const [memory, setMemory] = useState('');
+    const [isComplete, setIsComplete] = useState(false);
+    const [startTime] = useState(Date.now());
+
+    const handleComplete = () => {
+      setIsComplete(true);
+      const duration = Math.round((Date.now() - startTime) / 60000); // minutes
+      handleGameComplete('memorylantern', duration, 75);
+    };
+
+    if (isComplete) {
+      return (
+        <div className="text-center space-y-6">
+          <motion.div
+            initial={{ scale: 0, y: 50 }}
+            animate={{ scale: 1, y: 0 }}
+            className="text-6xl mb-4"
+          >
+            🏮
+          </motion.div>
+          <h2 className="text-2xl font-bold text-lumen-dark">
+            Your memory has been released into the sky.
+          </h2>
+          <p className="text-gray-600">
+            May it bring you peace and acceptance.
+          </p>
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <LoadingSpinner size="sm" />
+              <span>Redirecting to voice therapy...</span>
+            </div>
+          ) : (
+            <Button onClick={() => navigate('/clinic')}>
+              Continue to Voice Therapy
+            </Button>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <div className="text-4xl mb-4">🏮</div>
+          <h2 className="text-xl font-semibold text-lumen-dark mb-2">
+            Write a memory you'd like to release
+          </h2>
+          <p className="text-gray-600">
+            This memory will be sent into the sky like a lantern
+          </p>
         </div>
         
         <div className="space-y-4">
-          {entries.map((entry, index) => (
-            <div key={index} className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Thing {index + 1}:
-              </label>
-              <textarea
-                value={entry}
-                onChange={(e) => handleEntryChange(index, e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lumen-primary focus:border-transparent"
-                rows={2}
-                placeholder={`I'm grateful for...`}
-              />
-            </div>
-          ))}
+          <textarea
+            value={memory}
+            onChange={(e) => setMemory(e.target.value)}
+            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lumen-primary focus:border-transparent"
+            rows={4}
+            placeholder="Write your memory here..."
+          />
         </div>
         
         <Button
           onClick={handleComplete}
-          disabled={entries.some(entry => entry.trim() === '')}
+          disabled={memory.trim() === ''}
           className="w-full"
         >
-          Complete Gratitude Exercise
+          Release Memory
         </Button>
       </div>
     );
   };
 
-  const ColoringGame: React.FC = () => {
-    const [selectedColor, setSelectedColor] = useState('#FBBF24');
-    const [isComplete, setIsComplete] = useState(false);
+  const RhythmGrowGame: React.FC = () => {
+    const [clicks, setClicks] = useState(0);
+    const [targetClicks] = useState(20);
+    const [startTime] = useState(Date.now());
 
-    const colors = ['#FBBF24', '#8B5CF6', '#EF4444', '#10B981', '#3B82F6', '#F59E0B'];
-
-    const handleComplete = () => {
-      setIsComplete(true);
-      setScore(score + 30);
+    const handleClick = () => {
+      if (clicks < targetClicks) {
+        setClicks(clicks + 1);
+      }
     };
 
-    if (isComplete) {
+    if (clicks >= targetClicks) {
+      const duration = Math.round((Date.now() - startTime) / 60000); // minutes
+      handleGameComplete('rythmgrow', duration, 80);
+      
       return (
         <div className="text-center space-y-6">
           <motion.div
@@ -267,52 +426,81 @@ const Games: React.FC = () => {
             animate={{ scale: 1 }}
             className="text-6xl mb-4"
           >
-            🎨
+            🌞
           </motion.div>
           <h2 className="text-2xl font-bold text-lumen-dark">
-            Beautiful! You&apos;ve created something wonderful.
+            Excellent rhythm! You've grown with the sun.
           </h2>
           <p className="text-gray-600">
-            Coloring is a great way to relax and express creativity.
+            Your energy and focus have been activated.
           </p>
-          <Button onClick={() => setSelectedGame(null)}>
-            Back to Games
-          </Button>
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <LoadingSpinner size="sm" />
+              <span>Redirecting to voice therapy...</span>
+            </div>
+          ) : (
+            <Button onClick={() => navigate('/clinic')}>
+              Continue to Voice Therapy
+            </Button>
+          )}
         </div>
       );
     }
 
     return (
-      <div className="space-y-6">
-        <div className="text-center mb-6">
-          <div className="text-4xl mb-4">🎨</div>
-          <h2 className="text-xl font-semibold text-lumen-dark mb-2">
-            Color this mandala to relax and express yourself:
-          </h2>
+      <div className="text-center space-y-8">
+        <div className="text-6xl mb-4">🌞</div>
+        <h2 className="text-2xl font-bold text-lumen-dark">
+          Match your clicks with the moving sun
+        </h2>
+        <div className="text-4xl font-bold text-lumen-primary mb-4">
+          {clicks}/{targetClicks}
         </div>
         
-        <div className="flex justify-center gap-2 mb-6">
-          {colors.map((color) => (
-            <button
-              key={color}
-              onClick={() => setSelectedColor(color)}
-              className={`w-8 h-8 rounded-full border-2 ${
-                selectedColor === color ? 'border-gray-800' : 'border-gray-300'
-              }`}
-              style={{ backgroundColor: color }}
-            />
-          ))}
-        </div>
+        <motion.div
+          animate={{
+            y: [0, -20, 0],
+            rotate: [0, 5, -5, 0]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-32 h-32 bg-yellow-400 rounded-full mx-auto cursor-pointer"
+          onClick={handleClick}
+        />
         
-        <div className="bg-white border-2 border-gray-200 rounded-lg p-8 text-center">
-          <div className="text-6xl mb-4">🌸</div>
-          <p className="text-gray-600 mb-4">
-            Click to color different sections
-          </p>
-          <Button onClick={handleComplete}>
-            Complete Coloring
-          </Button>
+        <div className="text-gray-600">
+          Click the sun to match the rhythm
         </div>
+      </div>
+    );
+  };
+
+  // Placeholder games
+  const PlaceholderGame: React.FC<{ gameId: string; title: string; description: string; icon: string }> = ({ 
+    gameId, title, description, icon 
+  }) => {
+    const [startTime] = useState(Date.now());
+
+    const handleComplete = () => {
+      const duration = Math.round((Date.now() - startTime) / 60000); // minutes
+      handleGameComplete(gameId, duration, 70);
+    };
+
+    return (
+      <div className="text-center space-y-6">
+        <div className="text-6xl mb-4">{icon}</div>
+        <h2 className="text-2xl font-bold text-lumen-dark">
+          {title}
+        </h2>
+        <p className="text-gray-600 mb-6">
+          {description}
+        </p>
+        <p className="text-gray-500 text-sm mb-6">
+          This therapeutic game is coming soon. For now, you can proceed to voice therapy.
+        </p>
+        <Button onClick={handleComplete}>
+          Continue to Voice Therapy
+        </Button>
       </div>
     );
   };
@@ -341,8 +529,8 @@ const Games: React.FC = () => {
           <p className="text-gray-600">
             This game is not available.
           </p>
-          <Button onClick={() => setSelectedGame(null)}>
-            Back to Games
+          <Button onClick={() => navigate('/dashboard')}>
+            Back to Dashboard
           </Button>
         </div>
       );
@@ -355,7 +543,7 @@ const Games: React.FC = () => {
           gameId={selectedGameData.id}
           gameTitle={selectedGameData.title}
           description={selectedGameData.description}
-          buildUrl={selectedGameData.buildUrl}
+          buildUrl="/unity-builds/default"
           onGameComplete={handleUnityGameComplete}
           onRewardEarned={handleUnityRewardEarned}
         />
@@ -364,12 +552,35 @@ const Games: React.FC = () => {
 
     // Render React games
     switch (selectedGame) {
-      case 'breathing':
+      case 'boxbreathing':
         return <BreathingGame />;
-      case 'gratitude':
-        return <GratitudeGame />;
-      case 'coloring':
-        return <ColoringGame />;
+      case 'colorbloom':
+        return <ColorBloomGame />;
+      case 'memorylantern':
+        return <MemoryLanternGame />;
+      case 'rythmgrow':
+        return <RhythmGrowGame />;
+      case 'placeholderGame_fear':
+        return <PlaceholderGame 
+          gameId="placeholderGame_fear"
+          title="Fear Management"
+          description="Placeholder game for fear management and safety building"
+          icon="🛡️"
+        />;
+      case 'placeholderGame_anxiety':
+        return <PlaceholderGame 
+          gameId="placeholderGame_anxiety"
+          title="Anxiety Relief"
+          description="Placeholder game for anxiety relief and relaxation"
+          icon="🧘"
+        />;
+      case 'placeholderGame_loneliness':
+        return <PlaceholderGame 
+          gameId="placeholderGame_loneliness"
+          title="Connection Building"
+          description="Placeholder game for loneliness and connection"
+          icon="🤝"
+        />;
       default:
         return (
           <div className="text-center space-y-6">
@@ -380,8 +591,8 @@ const Games: React.FC = () => {
             <p className="text-gray-600">
               This therapeutic game is under development.
             </p>
-            <Button onClick={() => setSelectedGame(null)}>
-              Back to Games
+            <Button onClick={() => navigate('/dashboard')}>
+              Back to Dashboard
             </Button>
           </div>
         );
@@ -490,14 +701,14 @@ const Games: React.FC = () => {
             >
               <Button
                 variant="outline"
-                onClick={() => window.location.href = '/dashboard'}
+                onClick={() => navigate('/dashboard')}
               >
                 ← Back to Dashboard
               </Button>
               <Button
-                onClick={() => window.location.href = '/analytics'}
+                onClick={() => navigate('/clinic')}
               >
-                📊 View Analytics
+                🧠 Voice Therapy
               </Button>
             </motion.div>
           </div>

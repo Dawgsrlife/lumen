@@ -11,7 +11,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import { connectDatabase } from './config/database.js';
+import { connectDatabase, getDatabaseStatus } from './config/database.js';
 import emotionsRouter from './routes/emotions.js';
 import journalRouter from './routes/journal.js';
 import analyticsRouter from './routes/analytics.js';
@@ -20,6 +20,9 @@ import usersRouter from './routes/users.js';
 import notificationsRouter from './routes/notifications.js';
 import gamesRouter from './routes/games.js';
 import voiceChatRouter, { setupVoiceChatWebSocket } from './routes/voiceChat.js';
+
+// Import models to ensure they're registered
+import './models/VoiceSession.js';
 
 // Load environment variables
 dotenv.config();
@@ -73,11 +76,34 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
+  const dbStatus = getDatabaseStatus();
   res.json({
     success: true,
     message: 'Lumen API is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    database: {
+      connected: dbStatus.connected,
+      mode: dbStatus.mode
+    },
+    hackathonMode: process.env.HACKATHON_MODE === 'true' || !process.env.MONGODB_URI
+  });
+});
+
+// API health check endpoint
+app.get('/api/health', (req, res) => {
+  const dbStatus = getDatabaseStatus();
+  res.json({
+    success: true,
+    data: {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      database: {
+        connected: dbStatus.connected,
+        mode: dbStatus.mode
+      },
+      hackathonMode: process.env.HACKATHON_MODE === 'true' || !process.env.MONGODB_URI
+    }
   });
 });
 
@@ -128,6 +154,7 @@ const startServer = async () => {
     const server = app.listen(PORT, () => {
       console.log(`🚀 Lumen API server running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log(`🔍 API Health: http://localhost:${PORT}/api/health`);
       console.log(`🧪 Test interface: http://localhost:${PORT}/test-frontend/`);
       console.log(`🎙️ Voice chat WebSocket: ws://localhost:${PORT}/ws/voice-chat`);
       console.log(`🔗 Environment: ${process.env.NODE_ENV || 'development'}`);

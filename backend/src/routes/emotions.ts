@@ -1,10 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { authenticateToken, requireAuth } from '../middleware/auth.js';
+import { authenticateToken, requireAuth, hackathonAuth } from '../middleware/auth.js';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
 import { JournalEntryModel } from '../models/JournalEntry.js';
 import { UserModel } from '../models/User.js';
+import mockDataService from '../services/mockData.js';
 import type { CreateEmotionRequest, EmotionEntry, ApiResponse } from '../types/index.js';
+
+const HACKATHON_MODE = process.env.HACKATHON_MODE === 'true' || !process.env.MONGODB_URI;
 
 const router = Router();
 
@@ -34,7 +37,7 @@ const validateEmotionEntry = [
  * Create a new emotion entry
  */
 router.post('/', 
-  authenticateToken, 
+  HACKATHON_MODE ? hackathonAuth : authenticateToken, 
   requireAuth,
   validateEmotionEntry,
   async (req: Request, res: Response) => {
@@ -42,29 +45,51 @@ router.post('/',
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
-          success: false,
           error: 'Validation failed',
+          code: 'VALIDATION_ERROR',
           details: errors.array()
         });
       }
 
       const { emotion, intensity, context, surveyResponses }: CreateEmotionRequest = req.body;
       const clerkId = req.clerkId!;
+      const associateJournal = req.query.associateJournal === 'true';
+
+      if (HACKATHON_MODE) {
+        // Use mock data service for hackathon mode
+        const emotionEntry = await mockDataService.createEmotionEntry(clerkId, {
+          emotion,
+          intensity: intensity || 5,
+          context,
+          surveyResponses
+        });
+
+        res.status(201).json({
+          success: true,
+          data: { emotionEntry },
+          message: 'Emotion logged successfully (hackathon mode)'
+        });
+        return;
+      }
 
       // Find user
       const user = await UserModel.findOne({ clerkId });
       if (!user) {
         return res.status(404).json({
-          success: false,
-          error: 'User not found'
+          error: 'User not found',
+          code: 'USER_NOT_FOUND',
+          details: {}
         });
       }
 
-      // Get the most recent journal entry to associate with
-      const latestJournalEntry = await JournalEntryModel.findOne({ clerkId })
-        .sort({ createdAt: -1 })
-        .limit(1)
-        .lean();
+      // Get the most recent journal entry to associate with (if requested)
+      let latestJournalEntry = null;
+      if (associateJournal) {
+        latestJournalEntry = await JournalEntryModel.findOne({ clerkId })
+          .sort({ createdAt: -1 })
+          .limit(1)
+          .lean();
+      }
 
       // Create emotion entry with auto-assigned intensity if not provided
       const emotionEntry = new EmotionEntryModel({
@@ -78,8 +103,8 @@ router.post('/',
 
       await emotionEntry.save();
 
-      // If there's a recent journal entry, associate it with this emotion
-      if (latestJournalEntry) {
+      // If there's a recent journal entry and association was requested, associate it with this emotion
+      if (latestJournalEntry && associateJournal) {
         await JournalEntryModel.findByIdAndUpdate(
           latestJournalEntry._id,
           { emotionEntryId: emotionEntry.id }
@@ -88,15 +113,16 @@ router.post('/',
 
       res.status(201).json({
         success: true,
-        data: emotionEntry,
+        data: { emotionEntry },
         message: 'Emotion logged successfully'
       });
 
     } catch (error) {
       console.error('Error creating emotion entry:', error);
       res.status(500).json({
-        success: false,
-        error: 'Failed to create emotion entry'
+        error: 'Failed to create emotion entry',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }
@@ -107,7 +133,7 @@ router.post('/',
  * Get user's emotion entries with optional filtering
  */
 router.get('/', 
-  authenticateToken, 
+  HACKATHON_MODE ? hackathonAuth : authenticateToken, 
   requireAuth,
   async (req: Request, res: Response) => {
     try {
@@ -118,8 +144,47 @@ router.get('/',
         emotion, 
         startDate, 
         endDate,
-        sort = 'createdAt' 
+        sort = 'createdAt',
+        days = 30
       } = req.query;
+
+      if (HACKATHON_MODE) {
+        // Use mock data service for hackathon mode
+        const emotions = await mockDataService.getEmotionEntries(clerkId, parseInt(days as string));
+        
+        // Simple filtering for hackathon mode
+        let filteredEmotions = emotions;
+        if (emotion) {
+          filteredEmotions = emotions.filter((e: EmotionEntry) => e.emotion === emotion);
+        }
+        
+        // Simple pagination for hackathon mode
+        const pageNum = parseInt(page as string);
+        const limitNum = parseInt(limit as string);
+        const skip = (pageNum - 1) * limitNum;
+        const total = filteredEmotions.length;
+        const totalPages = Math.ceil(total / limitNum);
+        
+        const paginatedEmotions = filteredEmotions
+          .sort((a: EmotionEntry, b: EmotionEntry) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(skip, skip + limitNum);
+
+        res.json({
+          success: true,
+          data: {
+            emotions: paginatedEmotions,
+            pagination: {
+              page: pageNum,
+              limit: limitNum,
+              total,
+              totalPages,
+              hasNext: pageNum < totalPages,
+              hasPrev: pageNum > 1
+            }
+          }
+        });
+        return;
+      }
 
       const pageNum = parseInt(page as string);
       const limitNum = parseInt(limit as string);
@@ -172,8 +237,9 @@ router.get('/',
     } catch (error) {
       console.error('Error fetching emotion entries:', error);
       res.status(500).json({
-        success: false,
-        error: 'Failed to fetch emotion entries'
+        error: 'Failed to fetch emotion entries',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }
@@ -184,7 +250,7 @@ router.get('/',
  * Get emotion entries grouped by day
  */
 router.get('/daily', 
-  authenticateToken, 
+  HACKATHON_MODE ? hackathonAuth : authenticateToken, 
   requireAuth,
   async (req: Request, res: Response) => {
     try {
@@ -225,8 +291,9 @@ router.get('/daily',
     } catch (error) {
       console.error('Error fetching daily emotions:', error);
       res.status(500).json({
-        success: false,
-        error: 'Failed to fetch daily emotions'
+        error: 'Failed to fetch daily emotions',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }
@@ -237,7 +304,7 @@ router.get('/daily',
  * Get a specific emotion entry
  */
 router.get('/:id', 
-  authenticateToken, 
+  HACKATHON_MODE ? hackathonAuth : authenticateToken, 
   requireAuth,
   async (req: Request, res: Response) => {
     try {
@@ -251,8 +318,9 @@ router.get('/:id',
 
       if (!emotion) {
         return res.status(404).json({
-          success: false,
-          error: 'Emotion entry not found'
+          error: 'Emotion entry not found',
+          code: 'NOT_FOUND',
+          details: {}
         });
       }
 
@@ -264,8 +332,9 @@ router.get('/:id',
     } catch (error) {
       console.error('Error fetching emotion entry:', error);
       res.status(500).json({
-        success: false,
-        error: 'Failed to fetch emotion entry'
+        error: 'Failed to fetch emotion entry',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }
@@ -276,7 +345,7 @@ router.get('/:id',
  * Update an emotion entry
  */
 router.put('/:id', 
-  authenticateToken, 
+  HACKATHON_MODE ? hackathonAuth : authenticateToken, 
   requireAuth,
   validateEmotionEntry,
   async (req: Request, res: Response) => {
@@ -284,8 +353,8 @@ router.put('/:id',
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
-          success: false,
           error: 'Validation failed',
+          code: 'VALIDATION_ERROR',
           details: errors.array()
         });
       }
@@ -302,8 +371,9 @@ router.put('/:id',
 
       if (!emotion) {
         return res.status(404).json({
-          success: false,
-          error: 'Emotion entry not found'
+          error: 'Emotion entry not found',
+          code: 'NOT_FOUND',
+          details: {}
         });
       }
 
@@ -316,8 +386,9 @@ router.put('/:id',
     } catch (error) {
       console.error('Error updating emotion entry:', error);
       res.status(500).json({
-        success: false,
-        error: 'Failed to update emotion entry'
+        error: 'Failed to update emotion entry',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }
@@ -328,7 +399,7 @@ router.put('/:id',
  * Delete an emotion entry
  */
 router.delete('/:id', 
-  authenticateToken, 
+  HACKATHON_MODE ? hackathonAuth : authenticateToken, 
   requireAuth,
   async (req: Request, res: Response) => {
     try {
@@ -342,8 +413,9 @@ router.delete('/:id',
 
       if (!emotion) {
         return res.status(404).json({
-          success: false,
-          error: 'Emotion entry not found'
+          error: 'Emotion entry not found',
+          code: 'NOT_FOUND',
+          details: {}
         });
       }
 
@@ -355,8 +427,9 @@ router.delete('/:id',
     } catch (error) {
       console.error('Error deleting emotion entry:', error);
       res.status(500).json({
-        success: false,
-        error: 'Failed to delete emotion entry'
+        error: 'Failed to delete emotion entry',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }

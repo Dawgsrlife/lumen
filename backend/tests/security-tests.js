@@ -4,11 +4,11 @@
  * Run with: node tests/security-tests.js
  */
 
-const http = require('http');
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
 
 const API_BASE = 'http://localhost:5001';
 const TEST_CLERK_ID = 'test_security_user_123';
@@ -860,11 +860,11 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Run tests
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     runAllTests().catch(error => {
         colorLog(`❌ Test suite failed: ${error.message}`, 'red');
         process.exit(1);
     });
 }
 
-module.exports = { runAllTests, tests, generateSecurityPayloads };
+export { runAllTests, tests, generateSecurityPayloads };

@@ -4,9 +4,9 @@
  * Run with: node tests/integration-tests.js
  */
 
-const { makeRequest } = require('./api-tests.js');
-const fs = require('fs');
-const path = require('path');
+import { makeRequest } from './api-tests.js';
+import fs from 'fs';
+import path from 'path';
 
 const API_BASE = 'http://localhost:5001';
 const TEST_CLERK_ID = 'integration_test_user';
@@ -448,7 +448,7 @@ async function cleanupTestData() {
 }
 
 // Run tests if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     console.log('🚀 Starting Integration Test Suite\n');
     console.log('   Make sure the backend server is running on port 5001\n');
     
@@ -457,4 +457,4 @@ if (require.main === module) {
         .catch(console.error);
 }
 
-module.exports = { test, assert, assertEqual, runTests };
+export { test, assert, assertEqual, runTests };

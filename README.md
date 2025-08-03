@@ -1,139 +1,201 @@
-# Lumen - Mental Health Web App
+# Lumen - AI-Powered Mental Health Platform
 
-A minimalist mental health web app designed to support users through emotion tracking, AI-powered feedback, and engaging gamified experiences.
-
-## 🚀 Features
-
-- **Emotion Tracking**: Daily mood and emotional state logging
-- **AI-Powered Feedback**: Personalized advice using Google Gemini AI
-- **Gamified Experience**: Mini-games based on emotional states
-- **Progress Tracking**: User engagement history and statistics
-- **Minimalist Design**: Clean, calming interface with smooth animations
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React 19 + TypeScript + Vite
-- **Styling**: Tailwind CSS v4
-- **Animations**: Framer Motion + GSAP
-- **Authentication**: Clerk
-- **Database**: MongoDB + Mongoose
-- **AI**: Google Gemini API
-- **Charts**: Recharts
-- **Forms**: React Hook Form + Zod
-
-## 🎨 Design System
-
-**Color Palette:**
-- Primary (Yellow): `#FBBF24` - representing light/lumen
-- Secondary (Purple): `#8B5CF6` - for highlights and accents
-- Dark Mode: `#1F2937`
-- Light Mode: `#F9FAFB`
-
-## 📋 Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-- Git
+A comprehensive mental health application that combines emotion tracking, AI-powered insights, therapeutic games, and voice chat therapy.
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
+### Prerequisites
+- Node.js 20 or higher
+- MongoDB database
+- Google Gemini AI API key
+- Clerk authentication keys
+
+### 1. Clone and Setup
 ```bash
-git clone https://github.com/Dawgsrlife/lumen.git
+git clone <repository-url>
 cd lumen
+cp env.example .env
 ```
 
-### 2. Install Dependencies
+### 2. Configure Environment
+Edit `.env` file with your credentials:
+```env
+# Required: MongoDB Connection
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/lumen
+
+# Required: Google AI API Key
+GOOGLE_AI_API_KEY=your-google-ai-api-key
+
+# Required: Clerk Authentication
+CLERK_SECRET_KEY=sk_test_your-clerk-secret-key
+CLERK_PUBLISHABLE_KEY=pk_test_your-clerk-publishable-key
+
+# Optional: Customize server settings
+PORT=3000
+NODE_ENV=development
+```
+
+### 3. Install Dependencies
 ```bash
 npm install
+cd backend && npm install && cd ..
 ```
 
-### 3. Environment Setup
-Create a `.env` file in the root directory:
-```env
-VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
-VITE_MONGODB_URI=your_mongodb_connection_string_here
-VITE_APP_NAME=Lumen
-VITE_APP_VERSION=1.0.0
-```
-
-### 4. Get API Keys
-- **Clerk**: [Dashboard](https://dashboard.clerk.com/) for authentication
-- **Google Gemini**: [AI Studio](https://aistudio.google.com/) for AI features
-- **MongoDB**: [Atlas](https://cloud.mongodb.com/) for database
-
-### 5. Start Development Server
+### 4. Start Development Server
 ```bash
+# Option 1: Use the startup script
+./start-unified.sh
+
+# Option 2: Manual start
 npm run dev
 ```
 
-Visit `http://localhost:5173` to see the app.
+## 🏗️ Architecture
+
+### Unified Development Server
+Lumen uses a unified development setup where:
+- **Frontend**: React + Vite (port 5173)
+- **Backend**: Express + TypeScript (port 3000)
+- **Proxy**: Unified server proxies frontend requests to Vite dev server
+- **API**: All API routes served from the unified server
+
+### Key Features
+- **Emotion Tracking**: Log and analyze emotional states
+- **AI Insights**: Gemini-powered analysis and recommendations
+- **Therapeutic Games**: Evidence-based interventions
+- **Voice Chat**: AI-powered therapeutic conversations
+- **Journaling**: Secure personal reflection space
+- **Analytics**: Comprehensive mental health insights
 
 ## 📁 Project Structure
 
 ```
 lumen/
-├── src/
-│   ├── components/     # Reusable UI components
-│   ├── pages/         # Page components
-│   ├── hooks/         # Custom React hooks
-│   ├── utils/         # Utility functions
-│   ├── types/         # TypeScript type definitions
-│   ├── styles/        # Global styles and themes
-│   └── assets/        # Static assets
-├── public/            # Public assets
-└── package.json       # Dependencies and scripts
+├── src/                    # Frontend React application
+│   ├── components/        # React components
+│   ├── pages/            # Page components
+│   ├── services/         # API services
+│   └── types/            # TypeScript definitions
+├── backend/              # Backend API server
+│   ├── src/
+│   │   ├── routes/       # API route handlers
+│   │   ├── services/     # Business logic
+│   │   ├── models/       # Database models
+│   │   └── middleware/   # Express middleware
+│   └── tests/            # Backend tests
+├── server.js             # Unified development server
+├── vite.config.ts        # Vite configuration
+└── package.json          # Root dependencies
 ```
 
-## 🎮 Mini-Games
+## 🔧 Development
 
-Each emotion triggers a specific therapeutic mini-game:
+### Available Scripts
+```bash
+npm run dev              # Start unified development server
+npm run dev:vite         # Start Vite dev server only
+npm run dev:server       # Start backend server only
+npm run build            # Build for production
+npm run start            # Start production server
+npm run lint             # Run ESLint
+```
 
-- 😢 **Sadness** → Color Bloom: Nurture flowers to restore color
-- 😡 **Anger** → Smash Shift: Controlled destruction with breathing
-- 🧍 **Loneliness** → Echo Garden: Plant seeds with shared messages
-- 😰 **Anxiety** → Breath Beacon: Guide orb with breath patterns
-- 😤 **Frustration** → Reset Runes: Low-stakes puzzle solving
-- 😵 **Stress** → Sound Stream: Interactive ambient relaxation
-- 🛌 **Lethargy** → Light Up: Gentle movement prompts
-- 😱 **Fear** → Shadow Steps: Movement with calm heart rate
-- 💔 **Grief** → Memory Lanterns: Guided reflection and release
+### Development Workflow
+1. **Unified Server**: Handles API routes and proxies frontend requests
+2. **Vite Dev Server**: Provides hot reload for frontend development
+3. **Database**: MongoDB for data persistence
+4. **AI Integration**: Google Gemini for intelligent insights
 
-## 🤝 Team Roles
+### API Endpoints
+- `GET /health` - Server health check
+- `POST /api/emotions` - Create emotion entry
+- `GET /api/emotions` - Get user emotions
+- `POST /api/journal` - Create journal entry
+- `GET /api/analytics` - Get user analytics
+- `POST /api/games` - Start game session
+- `POST /api/voice-chat/start` - Start voice chat session
 
-- **Alex**: Frontend & UI/UX Design (Lead)
-- **Nathan**: Game Development (Mini-games)
-- **Zikora**: Frontend & UI/UX Design (Support)
-- **Vishnu**: Backend Integration & API Support
+## 🧪 Testing
 
-## 📝 Available Scripts
+### Run All Tests
+```bash
+npm run test
+```
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+### Individual Test Suites
+```bash
+# Backend tests
+cd backend && npm run test
 
-## 🔧 Development Guidelines
+# Frontend tests (when implemented)
+npm run test:frontend
+```
 
-1. **Component Structure**: Use functional components with TypeScript
-2. **Styling**: Prefer Tailwind classes, custom CSS for complex animations
-3. **State Management**: Use React hooks and context where needed
-4. **Animations**: Combine Framer Motion for UI, GSAP for complex sequences
-5. **Accessibility**: Follow WCAG guidelines for inclusive design
+## 🚀 Production Deployment
 
-## 📊 Healthcare Focus
+### Build and Start
+```bash
+npm run build
+npm run start
+```
 
-This app addresses mental health through:
-- **Clinical Relevance**: Evidence-based therapeutic techniques
-- **Healthcare Outcomes**: Measurable impact on user well-being
-- **Evidence-Based**: Research-backed intervention methods
-- **Ethics & Responsibility**: Patient autonomy and cultural inclusivity
+### Environment Variables
+Ensure all required environment variables are set for production:
+- `NODE_ENV=production`
+- `MONGODB_URI`
+- `GOOGLE_AI_API_KEY`
+- `CLERK_SECRET_KEY`
+- `JWT_SECRET`
+
+## 🔒 Security Features
+
+- **Authentication**: Clerk-based user management
+- **Rate Limiting**: API request throttling
+- **CORS**: Cross-origin resource sharing protection
+- **Helmet**: Security headers
+- **Input Validation**: Request sanitization
+- **Database Security**: MongoDB connection security
+
+## 🎯 Key Technologies
+
+### Frontend
+- **React 19**: Modern React with hooks
+- **TypeScript**: Type-safe development
+- **Vite**: Fast build tool and dev server
+- **Tailwind CSS**: Utility-first styling
+- **Framer Motion**: Smooth animations
+
+### Backend
+- **Node.js**: JavaScript runtime
+- **Express**: Web framework
+- **TypeScript**: Type-safe backend
+- **MongoDB**: NoSQL database
+- **Mongoose**: MongoDB ODM
+
+### AI & External Services
+- **Google Gemini**: AI-powered insights
+- **Clerk**: Authentication and user management
+- **WebSocket**: Real-time voice chat
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For support and questions:
+- Check the documentation
+- Review existing issues
+- Create a new issue with detailed information
 
 ---
 
-**Built with ❤️ for mental health awareness and support.**
+**Lumen** - Illuminating mental health through AI-powered care.

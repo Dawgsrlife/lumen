@@ -18,9 +18,10 @@ const emotionData: Record<EmotionType, { emoji: string; color: string; label: st
 interface EmotionSelectorProps {
   selectedMood: EmotionType | null;
   onMoodSelect: (emotion: EmotionType) => void;
+  disabled?: boolean;
 }
 
-const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodSelect }) => {
+const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodSelect, disabled = false }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -34,15 +35,17 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
         {(Object.keys(emotionData) as EmotionType[]).map((emotion) => (
           <motion.button
             key={emotion}
-            onClick={() => onMoodSelect(emotion)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={() => !disabled && onMoodSelect(emotion)}
+            whileHover={disabled ? {} : { scale: 1.05 }}
+            whileTap={disabled ? {} : { scale: 0.95 }}
+            disabled={disabled}
             className={`
               relative p-6 sm:p-8 lg:p-10 rounded-3xl transition-all duration-300 
               ${selectedMood === emotion 
                 ? 'shadow-lg ring-4 ring-blue-200 scale-105' 
                 : 'shadow-md hover:shadow-xl hover:scale-102'
               }
+              ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
             `}
             style={{
               backgroundColor: emotionData[emotion].color,

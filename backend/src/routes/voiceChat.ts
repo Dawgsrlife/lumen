@@ -1,15 +1,17 @@
 /**
- * Voice Chat Routes and WebSocket Handler
- * Handles real-time voice therapy sessions using Gemini Live API
+ * Voice Chat Routes and WebSocket Handler - Hackathon Version
+ * Simplified implementation for hackathon demo
  */
 
 import { Router, Request, Response } from 'express';
 import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
-import { authenticateToken, requireAuth } from '../middleware/auth.js';
-import { voiceChatService } from '../services/voiceChat.js';
+import { authenticateToken, requireAuth, hackathonAuth } from '../middleware/auth.js';
+import { enhancedVoiceChatService } from '../services/enhancedVoiceChat.js';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
-import type { VoiceChatSession } from '../services/voiceChat.js';
+
+
+const HACKATHON_MODE = process.env.HACKATHON_MODE === 'true' || !process.env.MONGODB_URI;
 
 const router = Router();
 
@@ -18,7 +20,6 @@ const activeConnections = new Map<string, {
   ws: WebSocket;
   sessionId: string;
   clerkId: string;
-  liveSession?: any;
 }>();
 
 /**
@@ -26,7 +27,7 @@ const activeConnections = new Map<string, {
  * Initialize a new voice chat session
  */
 router.post('/start',
-  authenticateToken,
+  HACKATHON_MODE ? hackathonAuth : authenticateToken,
   requireAuth,
   async (req: Request, res: Response) => {
     try {
@@ -35,15 +36,17 @@ router.post('/start',
 
       if (!emotion || typeof intensity !== 'number') {
         return res.status(400).json({
-          success: false,
-          message: 'Emotion and intensity are required'
+          error: 'Emotion and intensity are required',
+          code: 'VALIDATION_ERROR',
+          details: { required: ['emotion', 'intensity'] }
         });
       }
 
-      if (!voiceChatService.isAvailable()) {
+      if (!enhancedVoiceChatService.isAvailable()) {
         return res.status(503).json({
-          success: false,
-          message: 'Voice chat service unavailable. Please check API configuration.'
+          error: 'Voice chat service unavailable',
+          code: 'SERVICE_UNAVAILABLE',
+          details: {}
         });
       }
 
@@ -51,7 +54,7 @@ router.post('/start',
       const sessionId = uuidv4();
 
       // Initialize session with therapeutic context
-      const session = await voiceChatService.initializeSession(
+      const session = await enhancedVoiceChatService.initializeSession(
         sessionId,
         clerkId,
         emotion,
@@ -76,9 +79,9 @@ router.post('/start',
     } catch (error) {
       console.error('Voice chat start error:', error);
       res.status(500).json({
-        success: false,
-        message: 'Failed to start voice chat session',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Failed to start voice chat session',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }
@@ -89,108 +92,241 @@ router.post('/start',
  * Get session status and information
  */
 router.get('/session/:sessionId',
-  authenticateToken,
+  HACKATHON_MODE ? hackathonAuth : authenticateToken,
   requireAuth,
   async (req: Request, res: Response) => {
     try {
       const { sessionId } = req.params;
       const clerkId = req.clerkId!;
 
-      const session = voiceChatService.getSession(sessionId);
+      const session = await enhancedVoiceChatService.getSession(sessionId);
       if (!session || session.clerkId !== clerkId) {
         return res.status(404).json({
-          success: false,
-          message: 'Session not found'
+          error: 'Session not found',
+          code: 'NOT_FOUND',
+          details: {}
         });
       }
-
-      const connection = activeConnections.get(sessionId);
-      const isActive = connection && connection.ws.readyState === WebSocket.OPEN;
 
       res.json({
         success: true,
         data: {
-          sessionId: session.id,
-          status: isActive ? 'active' : 'inactive',
+          sessionId: session.sessionId,
           emotion: session.emotion,
           intensity: session.intensity,
+          isActive: session.status === 'active',
+          startTime: session.startTime,
           therapeuticContext: session.therapeuticContext,
-          conversationLength: session.conversationLog.length,
-          duration: session.conversationLog.length > 0 ? 
-            Math.round((new Date().getTime() - session.conversationLog[0].timestamp.getTime()) / 60000) : 0
+          conversationLog: session.conversationLog
         }
       });
 
     } catch (error) {
-      console.error('Session status error:', error);
+      console.error('Voice chat session error:', error);
       res.status(500).json({
-        success: false,
-        message: 'Failed to get session status',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Failed to get session information',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }
 );
 
 /**
- * POST /api/voice-chat/end/:sessionId
- * End a voice chat session and save conversation
+ * POST /api/voice-chat/message
+ * Send a text message to the voice chat session
  */
-router.post('/end/:sessionId',
-  authenticateToken,
+router.post('/message',
+  HACKATHON_MODE ? hackathonAuth : authenticateToken,
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const { sessionId } = req.params;
       const clerkId = req.clerkId!;
+      const { sessionId, message } = req.body;
 
-      const session = voiceChatService.getSession(sessionId);
-      if (!session || session.clerkId !== clerkId) {
-        return res.status(404).json({
-          success: false,
-          message: 'Session not found'
+      if (!sessionId || !message) {
+        return res.status(400).json({
+          error: 'Session ID and message are required',
+          code: 'VALIDATION_ERROR',
+          details: { required: ['sessionId', 'message'] }
         });
       }
+
+      const session = await enhancedVoiceChatService.getSession(sessionId);
+      if (!session || session.clerkId !== clerkId) {
+        return res.status(404).json({
+          error: 'Session not found',
+          code: 'NOT_FOUND',
+          details: {}
+        });
+      }
+
+      // Process message and get response
+      const response = await enhancedVoiceChatService.processUserMessage(sessionId, message);
+
+      res.json({
+        success: true,
+        data: {
+          sessionId,
+          response,
+          timestamp: new Date()
+        }
+      });
+
+    } catch (error) {
+      console.error('Voice chat message error:', error);
+      res.status(500).json({
+        error: 'Failed to process message',
+        code: 'INTERNAL_ERROR',
+        details: {}
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/voice-chat/audio
+ * Send audio data to the voice chat session
+ */
+router.post('/audio',
+  HACKATHON_MODE ? hackathonAuth : authenticateToken,
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const clerkId = req.clerkId!;
+      const { sessionId, audioData, mimeType } = req.body;
+
+      if (!sessionId || !audioData) {
+        return res.status(400).json({
+          error: 'Session ID and audio data are required',
+          code: 'VALIDATION_ERROR',
+          details: { required: ['sessionId', 'audioData'] }
+        });
+      }
+
+      const session = await enhancedVoiceChatService.getSession(sessionId);
+      if (!session || session.clerkId !== clerkId) {
+        return res.status(404).json({
+          error: 'Session not found',
+          code: 'NOT_FOUND',
+          details: {}
+        });
+      }
+
+      // Process audio and get response
+      const response = await enhancedVoiceChatService.processAudioInput(sessionId, audioData);
+
+      res.json({
+        success: true,
+        data: {
+          sessionId,
+          response,
+          timestamp: new Date()
+        }
+      });
+
+    } catch (error) {
+      console.error('Voice chat audio error:', error);
+      res.status(500).json({
+        error: 'Failed to process audio',
+        code: 'INTERNAL_ERROR',
+        details: {}
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/voice-chat/end
+ * End a voice chat session
+ */
+router.post('/end',
+  HACKATHON_MODE ? hackathonAuth : authenticateToken,
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const clerkId = req.clerkId!;
+      const { sessionId } = req.body;
+
+      if (!sessionId) {
+        return res.status(400).json({
+          error: 'Session ID is required',
+          code: 'VALIDATION_ERROR',
+          details: { required: ['sessionId'] }
+        });
+      }
+
+      const session = await enhancedVoiceChatService.getSession(sessionId);
+      if (!session || session.clerkId !== clerkId) {
+        return res.status(404).json({
+          error: 'Session not found',
+          code: 'NOT_FOUND',
+          details: {}
+        });
+      }
+
+      // End session and save to journal
+      const journalEntryId = await enhancedVoiceChatService.endSession(sessionId);
 
       // Close WebSocket connection if active
       const connection = activeConnections.get(sessionId);
       if (connection) {
-        if (connection.liveSession) {
-          connection.liveSession.close();
-        }
-        if (connection.ws.readyState === WebSocket.OPEN) {
-          connection.ws.close();
-        }
+        connection.ws.close();
         activeConnections.delete(sessionId);
       }
-
-      // End session and save as journal entry
-      const journalEntryId = await voiceChatService.endSession(sessionId);
 
       res.json({
         success: true,
         data: {
           sessionId,
           journalEntryId,
-          message: 'Session ended and conversation saved',
-          conversationLength: session.conversationLog.length,
-          duration: Math.round((new Date().getTime() - session.conversationLog[0]?.timestamp.getTime()) / 60000)
+          message: 'Session ended successfully'
         }
       });
 
     } catch (error) {
-      console.error('End session error:', error);
+      console.error('Voice chat end error:', error);
       res.status(500).json({
-        success: false,
-        message: 'Failed to end session',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Failed to end session',
+        code: 'INTERNAL_ERROR',
+        details: {}
       });
     }
   }
 );
 
 /**
- * WebSocket handler for voice chat
+ * GET /api/voice-chat/status
+ * Get voice chat service status
+ */
+router.get('/status',
+  HACKATHON_MODE ? hackathonAuth : authenticateToken,
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      res.json({
+        success: true,
+        data: {
+          available: enhancedVoiceChatService.isAvailable(),
+          activeSessions: await enhancedVoiceChatService.getActiveSessionsCount(),
+          supportedFormats: ['audio/pcm;rate=16000', 'text/plain'],
+          features: ['real-time chat', 'audio processing', 'therapeutic responses', 'session logging']
+        }
+      });
+
+    } catch (error) {
+      console.error('Voice chat status error:', error);
+      res.status(500).json({
+        error: 'Failed to get service status',
+        code: 'INTERNAL_ERROR',
+        details: {}
+      });
+    }
+  }
+);
+
+/**
+ * WebSocket handler for real-time voice chat
  */
 export function setupVoiceChatWebSocket(server: any) {
   const wss = new WebSocketServer({ 
@@ -198,157 +334,89 @@ export function setupVoiceChatWebSocket(server: any) {
     path: '/ws/voice-chat'
   });
 
-  wss.on('connection', async (ws: WebSocket, req: any) => {
-    try {
-      // Extract session ID from URL path
-      const urlParts = req.url.split('/');
-      const sessionId = urlParts[urlParts.length - 1];
+  wss.on('connection', async (ws: WebSocket, request: any) => {
+    console.log('🎙️ Voice chat WebSocket connection established');
 
-      if (!sessionId) {
-        ws.close(1008, 'Session ID required');
-        return;
-      }
+    // Extract session ID from URL
+    const url = new URL(request.url, 'http://localhost');
+    const sessionId = url.pathname.split('/').pop();
 
-      const session = voiceChatService.getSession(sessionId);
-      if (!session) {
-        ws.close(1008, 'Session not found');
-        return;
-      }
-
-      console.log(`Voice chat WebSocket connected for session ${sessionId}`);
-
-      // Create Gemini Live API session
-      const liveSession = await voiceChatService.createLiveSession(sessionId);
-
-      // Store connection
-      activeConnections.set(sessionId, {
-        ws,
-        sessionId,
-        clerkId: session.clerkId,
-        liveSession
-      });
-
-      // Send welcome message
-      ws.send(JSON.stringify({
-        type: 'connected',
-        sessionId,
-        therapeuticContext: session.therapeuticContext,
-        message: 'Voice therapy session ready. Start speaking when ready.'
-      }));
-
-      // Handle incoming messages from client
-      ws.on('message', async (data: Buffer) => {
-        try {
-          const message = JSON.parse(data.toString());
-
-          switch (message.type) {
-            case 'audio':
-              // Forward audio to Gemini Live API
-              if (liveSession && message.audioData) {
-                liveSession.sendRealtimeInput({
-                  audio: {
-                    data: message.audioData,
-                    mimeType: message.mimeType || "audio/pcm;rate=16000"
-                  }
-                });
-
-                // Log user audio input
-                await voiceChatService.sendUserAudio(sessionId, message.audioData, message.mimeType);
-              }
-              break;
-
-            case 'text':
-              // Handle text input if needed
-              if (liveSession && message.text) {
-                liveSession.sendRealtimeInput({
-                  text: message.text
-                });
-              }
-              break;
-
-            case 'ping':
-              // Respond to keepalive
-              ws.send(JSON.stringify({ type: 'pong' }));
-              break;
-
-            default:
-              console.warn(`Unknown message type: ${message.type}`);
-          }
-
-        } catch (error) {
-          console.error('WebSocket message error:', error);
-          ws.send(JSON.stringify({
-            type: 'error',
-            message: 'Failed to process message'
-          }));
-        }
-      });
-
-      // Handle Live API responses
-      liveSession.callbacks.onmessage = (liveMessage: any) => {
-        try {
-          // Forward response to client
-          ws.send(JSON.stringify({
-            type: 'response',
-            text: liveMessage.text,
-            audioData: liveMessage.audio?.data,
-            turnComplete: liveMessage.serverContent?.turnComplete
-          }));
-        } catch (error) {
-          console.error('Live API response error:', error);
-        }
-      };
-
-      // Handle WebSocket close
-      ws.on('close', () => {
-        console.log(`Voice chat WebSocket disconnected for session ${sessionId}`);
-        
-        // Clean up
-        if (liveSession) {
-          liveSession.close();
-        }
-        activeConnections.delete(sessionId);
-      });
-
-      // Handle WebSocket errors
-      ws.on('error', (error) => {
-        console.error(`Voice chat WebSocket error for session ${sessionId}:`, error);
-        
-        // Clean up
-        if (liveSession) {
-          liveSession.close();
-        }
-        activeConnections.delete(sessionId);
-      });
-
-    } catch (error) {
-      console.error('WebSocket connection error:', error);
-      ws.close(1011, 'Internal server error');
+    if (!sessionId) {
+      ws.close(1008, 'Session ID required');
+      return;
     }
+
+    // Get session
+    const session = await enhancedVoiceChatService.getSession(sessionId);
+    if (!session) {
+      ws.close(1008, 'Session not found');
+      return;
+    }
+
+    // Store connection
+    activeConnections.set(sessionId, {
+      ws,
+      sessionId,
+      clerkId: session.clerkId
+    });
+
+    // Send welcome message
+    ws.send(JSON.stringify({
+      type: 'connected',
+      sessionId,
+      message: 'Voice therapy session connected'
+    }));
+
+    ws.on('message', async (data: Buffer) => {
+      try {
+        const message = JSON.parse(data.toString());
+
+        switch (message.type) {
+          case 'text':
+            const response = await enhancedVoiceChatService.processUserMessage(sessionId, message.text);
+            ws.send(JSON.stringify({
+              type: 'response',
+              text: response,
+              timestamp: new Date()
+            }));
+            break;
+
+          case 'audio':
+            const audioResponse = await enhancedVoiceChatService.processAudioInput(sessionId, message.audioData);
+            ws.send(JSON.stringify({
+              type: 'response',
+              text: audioResponse,
+              timestamp: new Date()
+            }));
+            break;
+
+          default:
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: 'Unknown message type'
+            }));
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: 'Failed to process message'
+        }));
+      }
+    });
+
+    ws.on('close', () => {
+      console.log(`🎙️ Voice chat WebSocket connection closed for session ${sessionId}`);
+      activeConnections.delete(sessionId);
+    });
+
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      activeConnections.delete(sessionId);
+    });
   });
 
-  console.log('Voice chat WebSocket server initialized');
+  console.log('🎙️ Voice chat WebSocket server initialized');
 }
-
-/**
- * GET /api/voice-chat/status
- * Check if voice chat service is available
- */
-router.get('/status', (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    data: {
-      available: voiceChatService.isAvailable(),
-      activeSessions: activeConnections.size,
-      supportedFormats: ['audio/pcm;rate=16000', 'audio/wav'],
-      features: [
-        'Real-time voice therapy',
-        'Evidence-based CBT/DBT techniques',
-        'Contextual therapeutic responses',
-        'Automatic conversation logging'
-      ]
-    }
-  });
-});
 
 export default router;

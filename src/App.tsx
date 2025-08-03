@@ -21,6 +21,7 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Games = lazy(() => import('./pages/Games'));
+const Clinic = lazy(() => import('./pages/Clinic'));
 
 function App() {
   return (
@@ -134,6 +135,22 @@ function App() {
                       <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
                         <ProtectedRoute>
                           <Games />
+                        </ProtectedRoute>
+                      </Suspense>
+                    </main>
+                    <Footer />
+                  </div>
+                } 
+              />
+              <Route 
+                path="/clinic" 
+                element={
+                  <div className="min-h-screen flex flex-col">
+                    <Header />
+                    <main className="flex-1">
+                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                        <ProtectedRoute>
+                          <Clinic />
                         </ProtectedRoute>
                       </Suspense>
                     </main>

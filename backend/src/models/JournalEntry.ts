@@ -1,43 +1,68 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import type { JournalEntry, EmotionType } from '../types/index.js';
+import type { JournalEntry } from '../types/index.js';
 
 export interface JournalEntryDocument extends Omit<JournalEntry, 'id'>, Document {}
 
 const journalEntrySchema = new Schema<JournalEntryDocument>({
   userId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   clerkId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
-  emotionEntryId: {
+  title: {
     type: String,
-    ref: 'EmotionEntry',
-    index: true
+    required: true,
+    trim: true,
+    maxlength: 200
   },
   content: {
     type: String,
     required: true,
     trim: true,
-    maxlength: 10000 // 10k character limit
+    minlength: 10
+  },
+  emotionEntryId: {
+    type: String,
+    ref: 'EmotionEntry'
   },
   mood: {
-    type: String,
-    enum: ['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'],
-    required: true
+    type: Number,
+    min: 1,
+    max: 10
   },
   tags: [{
     type: String,
-    trim: true,
-    lowercase: true
+    trim: true
   }],
   isPrivate: {
     type: Boolean,
     default: true
+  },
+  source: {
+    type: String,
+    enum: ['manual', 'voice_chat', 'ai_generated'],
+    default: 'manual'
+  },
+  metadata: {
+    sessionId: String,
+    duration: Number, // in minutes
+    emotionIntensity: Number,
+    therapeuticTechniques: [String],
+    conversationLog: [{
+      timestamp: Date,
+      role: String, // 'user' or 'assistant'
+      content: String,
+      audioData: String
+    }],
+    sentiment: {
+      type: String,
+      enum: ['positive', 'negative', 'neutral']
+    },
+    keyThemes: [String],
+    insights: [String]
   }
 }, {
   timestamps: true,
@@ -53,13 +78,8 @@ const journalEntrySchema = new Schema<JournalEntryDocument>({
 
 // Indexes for efficient queries
 journalEntrySchema.index({ clerkId: 1, createdAt: -1 });
-journalEntrySchema.index({ clerkId: 1, mood: 1 });
+journalEntrySchema.index({ clerkId: 1, source: 1 });
 journalEntrySchema.index({ clerkId: 1, tags: 1 });
-journalEntrySchema.index({ clerkId: 1, 'createdAt': 1 }, { 
-  partialFilterExpression: { 
-    createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } 
-  } 
-});
 
 // Virtual for date (YYYY-MM-DD format)
 journalEntrySchema.virtual('date').get(function() {
@@ -68,8 +88,5 @@ journalEntrySchema.virtual('date').get(function() {
 
 // Ensure virtuals are included in JSON output
 journalEntrySchema.set('toJSON', { virtuals: true });
-
-// Text index for content search
-journalEntrySchema.index({ content: 'text' });
 
 export const JournalEntryModel = mongoose.model<JournalEntryDocument>('JournalEntry', journalEntrySchema); 

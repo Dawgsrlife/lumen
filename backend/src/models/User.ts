@@ -28,8 +28,7 @@ const userSchema = new Schema<UserDocument>({
   clerkId: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   email: {
     type: String,
@@ -69,13 +68,13 @@ const userSchema = new Schema<UserDocument>({
   }
 });
 
-// Indexes for better query performance
-userSchema.index({ email: 1 });
+// Only add non-unique indexes since unique fields auto-create indexes
 userSchema.index({ createdAt: -1 });
 
-// Update lastLoginAt on save
+// Update lastLoginAt on explicit set only (not on every save)
 userSchema.pre('save', function(next) {
-  if (this.isModified('lastLoginAt')) {
+  // Only update lastLoginAt if it was explicitly modified
+  if (this.isModified('lastLoginAt') && this.lastLoginAt !== this.get('lastLoginAt')) {
     this.lastLoginAt = new Date();
   }
   next();

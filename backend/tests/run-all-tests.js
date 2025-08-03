@@ -4,9 +4,13 @@
  * Run with: node tests/run-all-tests.js
  */
 
-const { execSync, spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+import { execSync, spawn } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ANSI color codes for console output
 const colors = {
@@ -63,14 +67,14 @@ async function checkPrerequisites() {
     
     // Check if Node.js modules are available
     try {
-        require('../src/services/ai.js');
+        await import('../src/services/ai.js');
         checks.push({ name: 'AI Service Module', status: 'OK' });
     } catch (error) {
         checks.push({ name: 'AI Service Module', status: 'MISSING', error: error.message });
     }
     
     try {
-        require('../src/models/EmotionEntry.js');
+        await import('../src/models/EmotionEntry.js');
         checks.push({ name: 'Database Models', status: 'OK' });
     } catch (error) {
         checks.push({ name: 'Database Models', status: 'MISSING', error: error.message });
@@ -86,8 +90,8 @@ async function checkPrerequisites() {
     
     // Check if server is running
     try {
-        const http = require('http');
-        const testReq = http.request({
+        const http = await import('http');
+        const testReq = http.default.request({
             hostname: 'localhost',
             port: 5001,
             path: '/health',
@@ -313,11 +317,11 @@ process.on('uncaughtException', (error) => {
 });
 
 // Run the test suite
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main().catch((error) => {
         colorLog(`\n❌ Test runner error: ${error.message}`, 'red');
         process.exit(1);
     });
 }
 
-module.exports = { runTestFile, checkPrerequisites, printTestSummary };
+export { runTestFile, checkPrerequisites, printTestSummary };

@@ -67,11 +67,28 @@ export interface JournalEntry {
   id?: string;
   userId: string;
   clerkId: string;
-  emotionEntryId?: string; // Optional link to emotion entry
+  title: string;
   content: string;
-  mood: EmotionType;
+  emotionEntryId?: string; // Optional link to emotion entry
+  mood?: number; // 1-10 scale
   tags: string[];
   isPrivate: boolean;
+  source?: 'manual' | 'voice_chat' | 'ai_generated';
+  metadata?: {
+    sessionId?: string;
+    duration?: number;
+    emotionIntensity?: number;
+    therapeuticTechniques?: string[];
+    conversationLog?: Array<{
+      timestamp: Date;
+      role: string;
+      content: string;
+      audioData?: string;
+    }>;
+    sentiment?: 'positive' | 'negative' | 'neutral';
+    keyThemes?: string[];
+    insights?: string[];
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -92,15 +109,49 @@ export interface GameSession {
   id?: string;
   userId: string;
   clerkId: string;
-  gameType: 'mindfulness' | 'breathing' | 'meditation' | 'gratitude' | 'mood_tracker';
+  gameType: 'boxbreathing' | 'colorbloom' | 'memorylantern' | 'rythmgrow' | 'placeholderGame_fear' | 'placeholderGame_anxiety' | 'placeholderGame_loneliness';
+  mappedEmotion: EmotionType;
   duration: number; // in minutes
   score?: number; // optional score 0-100
   notes?: string;
   emotionBefore: EmotionType;
   emotionAfter?: EmotionType;
   completionStatus: 'completed' | 'incomplete' | 'abandoned';
+  metadata?: {
+    sessionStartTime?: Date;
+    sessionEndTime?: Date;
+    interactionCount?: number;
+    achievements?: string[];
+    therapeuticTechniques?: string[];
+  };
   createdAt: Date;
   updatedAt: Date;
+}
+
+// Voice Chat Types
+export interface VoiceChatSession {
+  id: string;
+  clerkId: string;
+  emotion: string;
+  intensity: number;
+  recentGame?: GameSession;
+  conversationLog: Array<{
+    timestamp: Date;
+    role: 'user' | 'assistant';
+    content: string;
+    audioData?: string;
+  }>;
+  therapeuticContext: {
+    primaryConcern: string;
+    recommendedTechniques: string[];
+    sessionGoals: string[];
+    userHistory: {
+      recentEmotions: EmotionEntry[];
+      recentGames: GameSession[];
+      recentJournals: JournalEntry[];
+      moodTrends: any;
+    };
+  };
 }
 
 // Analytics Types
@@ -149,21 +200,25 @@ export interface CreateEmotionRequest {
 }
 
 export interface CreateJournalRequest {
+  title: string;
   content: string;
-  mood: EmotionType;
+  emotionEntryId?: string;
+  mood?: number;
   tags?: string[];
   isPrivate?: boolean;
-  emotionEntryId?: string;
 }
 
 export interface CreateGameSessionRequest {
-  gameType: 'mindfulness' | 'breathing' | 'meditation' | 'gratitude' | 'mood_tracker';
+  gameType: 'boxbreathing' | 'colorbloom' | 'memorylantern' | 'rythmgrow' | 'placeholderGame_fear' | 'placeholderGame_anxiety' | 'placeholderGame_loneliness';
+  mappedEmotion: EmotionType;
   duration: number;
   score?: number;
   notes?: string;
-  emotionBefore?: EmotionType;
+  emotionBefore: EmotionType;
   emotionAfter?: EmotionType;
   completionStatus?: 'completed' | 'incomplete' | 'abandoned';
+  interactionCount?: number;
+  achievements?: string[];
 }
 
 // AI Types

@@ -4,15 +4,90 @@ import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { GameSessionModel } from '../models/GameSession.js';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
 import { UserModel } from '../models/User.js';
-import type { CreateGameSessionRequest, GameSession } from '../types/index.js';
+import type { ApiResponse } from '../types/index.js';
 
 const router = Router();
+
+// Emotion to game mapping
+const EMOTION_TO_GAME: Record<string, string> = {
+  happy: 'colorbloom',
+  sad: 'colorbloom', 
+  loneliness: 'memorylantern',
+  anxiety: 'boxbreathing',
+  frustration: 'boxbreathing',
+  stress: 'boxbreathing',
+  lethargy: 'rythmgrow',
+  fear: 'placeholderGame_fear',
+  grief: 'memorylantern'
+};
+
+// Game metadata
+const GAME_METADATA: Record<string, {
+  name: string;
+  description: string;
+  therapeuticGoal: string;
+  techniques: string[];
+  duration: number;
+}> = {
+  boxbreathing: {
+    name: 'Box Breathing',
+    description: 'Guided breathing exercise with visual feedback',
+    therapeuticGoal: 'Stress reduction, anxiety management, emotional regulation',
+    techniques: ['Diaphragmatic breathing', 'Mindfulness', 'Grounding'],
+    duration: 5
+  },
+  colorbloom: {
+    name: 'Color Bloom',
+    description: 'Restore color to a grayscale world through gentle interaction',
+    therapeuticGoal: 'Mood elevation, mindfulness, positive focus',
+    techniques: ['Mindfulness', 'Positive psychology', 'Sensory engagement'],
+    duration: 8
+  },
+  memorylantern: {
+    name: 'Memory Lantern',
+    description: 'Release memories into the sky with melancholic music',
+    therapeuticGoal: 'Grief processing, emotional release, acceptance',
+    techniques: ['Narrative therapy', 'Acceptance and commitment therapy', 'Emotional processing'],
+    duration: 10
+  },
+  rythmgrow: {
+    name: 'Rhythm Grow',
+    description: 'Rhythm-based interaction to match clicks with moving sun',
+    therapeuticGoal: 'Energy activation, focus improvement, engagement',
+    techniques: ['Behavioral activation', 'Attention training', 'Rhythm therapy'],
+    duration: 6
+  },
+  placeholderGame_fear: {
+    name: 'Fear Management',
+    description: 'Placeholder game for fear management',
+    therapeuticGoal: 'Fear reduction, safety building, exposure therapy',
+    techniques: ['Exposure therapy', 'Safety planning', 'Grounding'],
+    duration: 7
+  },
+  placeholderGame_anxiety: {
+    name: 'Anxiety Relief',
+    description: 'Placeholder game for anxiety relief',
+    therapeuticGoal: 'Anxiety reduction, relaxation, coping skills',
+    techniques: ['Progressive relaxation', 'Cognitive restructuring', 'Mindfulness'],
+    duration: 8
+  },
+  placeholderGame_loneliness: {
+    name: 'Connection Building',
+    description: 'Placeholder game for loneliness and connection',
+    therapeuticGoal: 'Social connection, self-compassion, belonging',
+    techniques: ['Interpersonal effectiveness', 'Self-compassion', 'Social skills'],
+    duration: 9
+  }
+};
 
 // Validation middleware
 const validateGameSession = [
   body('gameType')
-    .isIn(['mindfulness', 'breathing', 'meditation', 'gratitude', 'mood_tracker'])
+    .isIn(Object.keys(GAME_METADATA))
     .withMessage('Invalid game type'),
+  body('mappedEmotion')
+    .isIn(['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'])
+    .withMessage('Invalid emotion type'),
   body('duration')
     .isInt({ min: 1, max: 480 })
     .withMessage('Duration must be between 1 and 480 minutes'),
@@ -20,20 +95,6 @@ const validateGameSession = [
     .optional()
     .isInt({ min: 0, max: 100 })
     .withMessage('Score must be between 0 and 100'),
-  body('notes')
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ max: 1000 })
-    .withMessage('Notes must be less than 1000 characters'),
-  body('emotionBefore')
-    .optional()
-    .isIn(['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'])
-    .withMessage('Invalid emotion type'),
-  body('emotionAfter')
-    .optional()
-    .isIn(['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'])
-    .withMessage('Invalid emotion type'),
   body('completionStatus')
     .optional()
     .isIn(['completed', 'incomplete', 'abandoned'])
@@ -41,11 +102,83 @@ const validateGameSession = [
 ];
 
 /**
- * POST /api/games
- * Create a new game session
+ * POST /api/games/start
+ * Start a new game session based on emotion
  */
-router.post('/', 
-  authenticateToken, 
+router.post('/start',
+  authenticateToken,
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const clerkId = req.clerkId!;
+      const { emotion } = req.body;
+
+      if (!emotion || !EMOTION_TO_GAME[emotion]) {
+        return res.status(400).json({
+          success: false,
+          error: 'Valid emotion is required'
+        });
+      }
+
+      // Find user
+      const user = await UserModel.findOne({ clerkId });
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found'
+        });
+      }
+
+      const gameType = EMOTION_TO_GAME[emotion];
+      const gameInfo = GAME_METADATA[gameType];
+
+      // Create game session
+      const gameSession = new GameSessionModel({
+        userId: user.id,
+        clerkId,
+        gameType,
+        mappedEmotion: emotion,
+        emotionBefore: emotion,
+        duration: 0, // Will be updated when completed
+        completionStatus: 'incomplete',
+        metadata: {
+          sessionStartTime: new Date(),
+          interactionCount: 0,
+          achievements: [],
+          therapeuticTechniques: gameInfo.techniques
+        }
+      });
+
+      await gameSession.save();
+
+      res.status(201).json({
+        success: true,
+        data: {
+          sessionId: gameSession.id,
+          gameType,
+          gameInfo,
+          emotion,
+          sessionStartTime: gameSession.metadata.sessionStartTime
+        },
+        message: 'Game session started successfully'
+      });
+
+    } catch (error) {
+      console.error('Error starting game session:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to start game session'
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/games/complete
+ * Complete a game session
+ */
+router.post('/complete',
+  authenticateToken,
   requireAuth,
   validateGameSession,
   async (req: Request, res: Response) => {
@@ -59,77 +192,75 @@ router.post('/',
         });
       }
 
-      const { gameType, duration, score, notes, emotionBefore, emotionAfter, completionStatus }: CreateGameSessionRequest = req.body;
       const clerkId = req.clerkId!;
+      const { 
+        sessionId, 
+        duration, 
+        score, 
+        emotionAfter, 
+        notes,
+        interactionCount = 0,
+        achievements = []
+      } = req.body;
 
-      // Find user
-      const user = await UserModel.findOne({ clerkId });
-      if (!user) {
+      // Find and update game session
+      const gameSession = await GameSessionModel.findOne({
+        _id: sessionId,
+        clerkId
+      });
+
+      if (!gameSession) {
         return res.status(404).json({
           success: false,
-          error: 'User not found'
+          error: 'Game session not found'
         });
       }
 
-      // Get the most recent emotion entry for emotionBefore if not provided
-      let beforeEmotion = emotionBefore;
-      if (!beforeEmotion) {
-        const latestEmotion = await EmotionEntryModel.findOne({ clerkId })
-          .sort({ createdAt: -1 })
-          .limit(1)
-          .lean();
-        beforeEmotion = latestEmotion?.emotion || 'happy';
-      }
-
-      // Create game session
-      const gameSession = new GameSessionModel({
-        userId: user.id,
-        clerkId,
-        gameType,
-        duration,
-        score,
-        notes,
-        emotionBefore: beforeEmotion,
-        emotionAfter,
-        completionStatus: completionStatus || 'completed'
-      });
+      // Update session with completion data
+      gameSession.duration = duration;
+      gameSession.score = score;
+      gameSession.emotionAfter = emotionAfter;
+      gameSession.notes = notes;
+      gameSession.completionStatus = 'completed';
+      gameSession.metadata.sessionEndTime = new Date();
+      gameSession.metadata.interactionCount = interactionCount;
+      gameSession.metadata.achievements = achievements;
 
       await gameSession.save();
 
-      res.status(201).json({
+      res.json({
         success: true,
         data: gameSession,
-        message: 'Game session created successfully'
+        message: 'Game session completed successfully'
       });
 
     } catch (error) {
-      console.error('Error creating game session:', error);
+      console.error('Error completing game session:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to create game session'
+        error: 'Failed to complete game session'
       });
     }
   }
 );
 
 /**
- * GET /api/games
- * Get user's game sessions with optional filtering
+ * GET /api/games/sessions
+ * Get user's game sessions
  */
-router.get('/', 
-  authenticateToken, 
+router.get('/sessions',
+  authenticateToken,
   requireAuth,
   async (req: Request, res: Response) => {
     try {
       const clerkId = req.clerkId!;
       const { 
         page = 1, 
-        limit = 50, 
+        limit = 20, 
         gameType, 
+        emotion,
         startDate, 
-        endDate,
-        sort = 'createdAt',
-        days
+        endDate 
       } = req.query;
 
       const pageNum = parseInt(page as string);
@@ -143,11 +274,11 @@ router.get('/',
         query.gameType = gameType;
       }
       
-      if (days) {
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - parseInt(days as string));
-        query.createdAt = { $gte: startDate };
-      } else if (startDate || endDate) {
+      if (emotion) {
+        query.mappedEmotion = emotion;
+      }
+      
+      if (startDate || endDate) {
         query.createdAt = {};
         if (startDate) {
           query.createdAt.$gte = new Date(startDate as string);
@@ -160,7 +291,7 @@ router.get('/',
       // Execute query
       const [sessions, total] = await Promise.all([
         GameSessionModel.find(query)
-          .sort({ [sort as string]: -1 })
+          .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limitNum)
           .lean(),
@@ -195,141 +326,37 @@ router.get('/',
 );
 
 /**
- * GET /api/games/:id
- * Get a specific game session
+ * GET /api/games/mapping
+ * Get emotion to game mapping
  */
-router.get('/:id', 
-  authenticateToken, 
+router.get('/mapping',
+  authenticateToken,
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const clerkId = req.clerkId!;
-
-      const session = await GameSessionModel.findOne({
-        _id: id,
-        clerkId
-      }).lean();
-
-      if (!session) {
-        return res.status(404).json({
-          success: false,
-          error: 'Game session not found'
-        });
-      }
-
       res.json({
         success: true,
-        data: session
+        data: {
+          emotionToGame: EMOTION_TO_GAME,
+          gameMetadata: GAME_METADATA
+        }
       });
-
     } catch (error) {
-      console.error('Error fetching game session:', error);
+      console.error('Error fetching game mapping:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to fetch game session'
+        error: 'Failed to fetch game mapping'
       });
     }
   }
 );
 
 /**
- * PUT /api/games/:id
- * Update a game session
+ * GET /api/games/analytics
+ * Get game analytics for user
  */
-router.put('/:id', 
-  authenticateToken, 
-  requireAuth,
-  validateGameSession,
-  async (req: Request, res: Response) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          error: 'Validation failed',
-          details: errors.array()
-        });
-      }
-
-      const { id } = req.params;
-      const clerkId = req.clerkId!;
-      const updateData = req.body;
-
-      const session = await GameSessionModel.findOneAndUpdate(
-        { _id: id, clerkId },
-        { ...updateData, updatedAt: new Date() },
-        { new: true, runValidators: true }
-      );
-
-      if (!session) {
-        return res.status(404).json({
-          success: false,
-          error: 'Game session not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        data: session,
-        message: 'Game session updated successfully'
-      });
-
-    } catch (error) {
-      console.error('Error updating game session:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to update game session'
-      });
-    }
-  }
-);
-
-/**
- * DELETE /api/games/:id
- * Delete a game session
- */
-router.delete('/:id', 
-  authenticateToken, 
-  requireAuth,
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const clerkId = req.clerkId!;
-
-      const session = await GameSessionModel.findOneAndDelete({
-        _id: id,
-        clerkId
-      });
-
-      if (!session) {
-        return res.status(404).json({
-          success: false,
-          error: 'Game session not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        message: 'Game session deleted successfully'
-      });
-
-    } catch (error) {
-      console.error('Error deleting game session:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to delete game session'
-      });
-    }
-  }
-);
-
-/**
- * GET /api/games/stats
- * Get game session statistics
- */
-router.get('/stats', 
-  authenticateToken, 
+router.get('/analytics',
+  authenticateToken,
   requireAuth,
   async (req: Request, res: Response) => {
     try {
@@ -340,65 +367,72 @@ router.get('/stats',
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - daysNum);
 
+      // Get game sessions in date range
       const sessions = await GameSessionModel.find({
         clerkId,
         createdAt: { $gte: startDate }
       }).lean();
 
-      // Calculate statistics
+      // Calculate analytics
       const totalSessions = sessions.length;
-      const totalDuration = sessions.reduce((sum, s) => sum + s.duration, 0);
-      const averageDuration = totalSessions > 0 ? Math.round(totalDuration / totalSessions) : 0;
-      const averageScore = sessions.length > 0 
-        ? Math.round(sessions.reduce((sum, s) => sum + (s.score || 0), 0) / sessions.length)
-        : 0;
+      const completedSessions = sessions.filter(s => s.completionStatus === 'completed').length;
+      const totalDuration = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+      const averageScore = sessions.length > 0 ? 
+        sessions.reduce((sum, s) => sum + (s.score || 0), 0) / sessions.length : 0;
 
-      // Group by game type
-      const gameTypeStats: Record<string, {
-        count: number;
-        totalDuration: number;
-        averageScore: number;
-      }> = {};
-
-      sessions.forEach(session => {
-        const type = session.gameType;
-        if (!gameTypeStats[type]) {
-          gameTypeStats[type] = {
-            count: 0,
-            totalDuration: 0,
-            averageScore: 0
-          };
+      // Game type distribution
+      const gameTypeStats = sessions.reduce((acc, session) => {
+        const gameType = session.gameType;
+        if (!acc[gameType]) {
+          acc[gameType] = { count: 0, totalDuration: 0, averageScore: 0 };
         }
-        gameTypeStats[type].count++;
-        gameTypeStats[type].totalDuration += session.duration;
-        gameTypeStats[type].averageScore += session.score || 0;
+        acc[gameType].count++;
+        acc[gameType].totalDuration += session.duration || 0;
+        acc[gameType].averageScore += session.score || 0;
+        return acc;
+      }, {} as Record<string, { count: number; totalDuration: number; averageScore: number }>);
+
+      // Calculate averages
+      Object.keys(gameTypeStats).forEach(gameType => {
+        const stats = gameTypeStats[gameType];
+        stats.averageScore = stats.count > 0 ? stats.averageScore / stats.count : 0;
       });
 
-      // Calculate averages for each game type
-      Object.values(gameTypeStats).forEach(stats => {
-        stats.averageScore = Math.round(stats.averageScore / stats.count);
-      });
+      // Emotion distribution
+      const emotionStats = sessions.reduce((acc, session) => {
+        const emotion = session.mappedEmotion;
+        if (!acc[emotion]) {
+          acc[emotion] = { count: 0, totalDuration: 0 };
+        }
+        acc[emotion].count++;
+        acc[emotion].totalDuration += session.duration || 0;
+        return acc;
+      }, {} as Record<string, { count: number; totalDuration: number }>);
 
       res.json({
         success: true,
         data: {
-          totalSessions,
-          totalDuration,
-          averageDuration,
-          averageScore,
+          overview: {
+            totalSessions,
+            completedSessions,
+            completionRate: totalSessions > 0 ? (completedSessions / totalSessions) * 100 : 0,
+            totalDuration,
+            averageScore: Math.round(averageScore * 100) / 100
+          },
           gameTypeStats,
+          emotionStats,
           dateRange: {
-            start: startDate.toISOString().split('T')[0],
-            end: new Date().toISOString().split('T')[0]
+            start: startDate.toISOString(),
+            end: new Date().toISOString()
           }
         }
       });
 
     } catch (error) {
-      console.error('Error fetching game stats:', error);
+      console.error('Error fetching game analytics:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to fetch game stats'
+        error: 'Failed to fetch game analytics'
       });
     }
   }

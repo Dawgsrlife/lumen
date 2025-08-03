@@ -4,10 +4,10 @@
  * Run with: node tests/clerk-service-tests.js
  */
 
-const http = require('http');
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
 
 const API_BASE = 'http://localhost:5001';
 
@@ -752,11 +752,11 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Run tests
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     runAllTests().catch(error => {
         colorLog(`❌ Test suite failed: ${error.message}`, 'red');
         process.exit(1);
     });
 }
 
-module.exports = { runAllTests, tests };
+export { runAllTests, tests };

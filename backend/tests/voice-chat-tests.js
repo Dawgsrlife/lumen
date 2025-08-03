@@ -4,10 +4,10 @@
  * Run with: node tests/voice-chat-tests.js
  */
 
-const WebSocket = require('ws');
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
+import WebSocket from 'ws';
+import fs from 'fs';
+import path from 'path';
+import http from 'http';
 
 const API_BASE = 'http://localhost:5001';
 const WS_BASE = 'ws://localhost:5001';
@@ -482,11 +482,11 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Run tests
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     runAllTests().catch(error => {
         colorLog(`❌ Test suite failed: ${error.message}`, 'red');
         process.exit(1);
     });
 }
 
-module.exports = { runAllTests, tests };
+export { runAllTests, tests };

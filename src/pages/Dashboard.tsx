@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { LoadingSpinner } from '../components/ui';
 import { EmotionSelector } from '../components/emotion';
 import { useClerkUser } from '../hooks/useClerkUser';
+import { apiService } from '../services/api';
 import type { EmotionType } from '../types';
 
 // Premium emotion data with glassmorphism design
@@ -80,11 +82,14 @@ const emotionData: Record<EmotionType, {
 
 const Dashboard: React.FC = () => {
   const { user } = useClerkUser();
+  const navigate = useNavigate();
   const [selectedMood, setSelectedMood] = useState<EmotionType | null>(null);
   const [timeOfDay, setTimeOfDay] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
-
-
+  const [isSaving, setIsSaving] = useState(false);
+  const [showGameRedirect, setShowGameRedirect] = useState(false);
+  const [gameMapping, setGameMapping] = useState<Record<string, string>>({});
+  const [gameMetadata, setGameMetadata] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -93,10 +98,65 @@ const Dashboard: React.FC = () => {
     else setTimeOfDay('evening');
   }, []);
 
-  const handleMoodSelect = (emotion: EmotionType) => {
+  // Set up authentication token when user is available
+  useEffect(() => {
+    if (user?.id) {
+      apiService.setClerkUserId(user.id);
+    }
+  }, [user]);
+
+  // Load game mapping on component mount
+  useEffect(() => {
+    const loadGameMapping = async () => {
+      try {
+        const mapping = await apiService.getGameMapping();
+        setGameMapping(mapping.emotionToGame);
+        setGameMetadata(mapping.gameMetadata);
+      } catch (error) {
+        console.error('Error loading game mapping:', error);
+      }
+    };
+
+    loadGameMapping();
+  }, []);
+
+  const handleMoodSelect = async (emotion: EmotionType) => {
+    if (!user) return;
+
     setSelectedMood(emotion);
-    setShowConfirmation(true);
-    setTimeout(() => setShowConfirmation(false), 2000);
+    setIsSaving(true);
+
+    try {
+      // Save emotion to backend
+      await apiService.createEmotionEntry({
+        emotion,
+        intensity: 5, // Default intensity, could be made configurable
+        context: `Mood logged from dashboard on ${new Date().toLocaleDateString()}`
+      });
+
+      // Start game session
+      const gameSession = await apiService.startGameSession(emotion);
+      
+      setShowConfirmation(true);
+      setTimeout(() => {
+        setShowConfirmation(false);
+        setShowGameRedirect(true);
+      }, 2000);
+
+      // Auto-redirect to game after 4 seconds
+      setTimeout(() => {
+        const gameName = gameMapping[emotion] || 'colorbloom';
+        navigate(`/games?game=${gameName}&sessionId=${gameSession.sessionId}`);
+      }, 4000);
+
+    } catch (error) {
+      console.error('Error saving emotion or starting game session:', error);
+      // Still show confirmation even if save fails
+      setShowConfirmation(true);
+      setTimeout(() => setShowConfirmation(false), 2000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getGreeting = () => {
@@ -179,6 +239,36 @@ const Dashboard: React.FC = () => {
           )}
         </AnimatePresence>
 
+        {/* Game Redirect Notification */}
+        <AnimatePresence>
+          {showGameRedirect && selectedMood && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -50 }}
+              className="fixed top-32 left-1/2 transform -translate-x-1/2 z-50"
+            >
+              <div 
+                className="px-8 py-4 rounded-2xl border shadow-lg"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(0, 0, 0, 0.1)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <div className="flex items-center gap-3 text-gray-900">
+                  <span className="text-2xl">🎮</span>
+                  <span className="font-medium">
+                    Redirecting to {gameMetadata[gameMapping[selectedMood]]?.name || 'therapeutic game'}...
+                  </span>
+                  <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Single Column Center Layout */}
         <div className="flex flex-col items-center space-y-12 mt-8">
           {/* Primary: Emotion Selection */}
@@ -190,7 +280,8 @@ const Dashboard: React.FC = () => {
           >
             <EmotionSelector 
               selectedMood={selectedMood} 
-              onMoodSelect={handleMoodSelect} 
+              onMoodSelect={handleMoodSelect}
+              disabled={isSaving}
             />
           </motion.div>
           
@@ -267,7 +358,7 @@ const Dashboard: React.FC = () => {
                 <div className="space-y-2">
                   <button 
                     className="w-full text-left p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-                    onClick={() => window.location.href = '/analytics'}
+                    onClick={() => navigate('/analytics')}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-lg">📊</span>
@@ -276,11 +367,11 @@ const Dashboard: React.FC = () => {
                   </button>
                   <button 
                     className="w-full text-left p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-                    onClick={() => window.location.href = '/games'}
+                    onClick={() => navigate('/clinic')}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg">🎮</span>
-                      <span className="font-medium text-gray-700">Games</span>
+                      <span className="text-lg">🧠</span>
+                      <span className="font-medium text-gray-700">Voice Therapy</span>
                     </div>
                   </button>
                 </div>

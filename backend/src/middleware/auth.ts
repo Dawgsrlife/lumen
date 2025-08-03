@@ -14,10 +14,62 @@ declare global {
 }
 
 const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
+const HACKATHON_MODE = process.env.HACKATHON_MODE === 'true' || !process.env.MONGODB_URI;
 
 if (!CLERK_SECRET_KEY) {
   console.warn('CLERK_SECRET_KEY not set - authentication will be disabled');
 }
+
+// Hackathon authentication middleware
+export const hackathonAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+    if (!token) {
+      res.status(401).json({
+        error: 'Authentication required',
+        code: 'AUTH_REQUIRED',
+        details: {}
+      });
+      return;
+    }
+
+    // Simple validation: token must be 1-50 characters
+    if (token.length < 1 || token.length > 50) {
+      res.status(401).json({
+        error: 'Invalid token format',
+        code: 'INVALID_TOKEN',
+        details: {}
+      });
+      return;
+    }
+
+    // Create consistent mock user for hackathon
+    const mockUser: AuthUser = {
+      clerkId: token,
+      email: 'demo@lumen.com',
+      firstName: 'Demo',
+      lastName: 'User',
+      avatar: 'https://via.placeholder.com/150'
+    };
+    
+    req.user = mockUser;
+    req.clerkId = token;
+    next();
+  } catch (error) {
+    console.error('Hackathon auth error:', error);
+    res.status(401).json({
+      error: 'Authentication failed',
+      code: 'AUTH_FAILED',
+      details: {}
+    });
+  }
+};
 
 export const authenticateToken = async (
   req: Request,
@@ -30,19 +82,76 @@ export const authenticateToken = async (
 
     if (!token) {
       res.status(401).json({
-        success: false,
-        error: 'Access token required'
+        error: 'Authentication required',
+        code: 'AUTH_REQUIRED',
+        details: {}
       });
       return;
     }
 
-    // Verify token with Clerk
+    // Hackathon mode: use simplified authentication
+    if (HACKATHON_MODE) {
+      console.log('🔧 Hackathon mode: using simplified authentication');
+      
+      // Simple validation: token must be 1-50 characters
+      if (token.length < 1 || token.length > 50) {
+        res.status(401).json({
+          error: 'Invalid token format',
+          code: 'INVALID_TOKEN',
+          details: {}
+        });
+        return;
+      }
+
+      // Create consistent mock user for hackathon
+      const mockUser: AuthUser = {
+        clerkId: token,
+        email: 'demo@lumen.com',
+        firstName: 'Demo',
+        lastName: 'User',
+        avatar: 'https://via.placeholder.com/150'
+      };
+      
+      req.user = mockUser;
+      req.clerkId = token;
+      next();
+      return;
+    }
+
+    // For hackathon: if token looks like a user ID (not a JWT), use it directly
+    if (token.length < 50 && !token.includes('.')) {
+      // This is likely a user ID, not a JWT token
+      const user = await UserModel.findOne({ clerkId: token });
+      
+      if (!user) {
+        res.status(401).json({
+          error: 'User not found',
+          code: 'USER_NOT_FOUND',
+          details: {}
+        });
+        return;
+      }
+
+      req.user = {
+        clerkId: user.clerkId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: user.avatar
+      };
+      req.clerkId = user.clerkId;
+      next();
+      return;
+    }
+
+    // Normal Clerk token verification
     const authUser = await clerkService.verifyToken(token);
     
     if (!authUser) {
       res.status(401).json({
-        success: false,
-        error: 'Invalid token'
+        error: 'Invalid token',
+        code: 'INVALID_TOKEN',
+        details: {}
       });
       return;
     }
@@ -84,9 +193,28 @@ export const authenticateToken = async (
     next();
   } catch (error) {
     console.error('Authentication error:', error);
+    
+    // In hackathon mode, continue with mock user
+    if (HACKATHON_MODE) {
+      console.log('🔧 Hackathon mode: continuing with mock user after auth error');
+      const mockUser: AuthUser = {
+        clerkId: 'hackathon_user',
+        email: 'demo@lumen.com',
+        firstName: 'Demo',
+        lastName: 'User',
+        avatar: 'https://via.placeholder.com/150'
+      };
+      
+      req.user = mockUser;
+      req.clerkId = 'hackathon_user';
+      next();
+      return;
+    }
+    
     res.status(401).json({
-      success: false,
-      error: 'Invalid token'
+      error: 'Invalid token',
+      code: 'INVALID_TOKEN',
+      details: {}
     });
   }
 };
@@ -98,8 +226,9 @@ export const requireAuth = (
 ): void => {
   if (!req.user) {
     res.status(401).json({
-      success: false,
-      error: 'Authentication required'
+      error: 'Authentication required',
+      code: 'AUTH_REQUIRED',
+      details: {}
     });
     return;
   }
@@ -117,6 +246,24 @@ export const optionalAuth = async (
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token) {
+      // Hackathon mode: create mock user
+      if (HACKATHON_MODE) {
+        if (token.length >= 1 && token.length <= 50) {
+          const mockUser: AuthUser = {
+            clerkId: token,
+            email: 'demo@lumen.com',
+            firstName: 'Demo',
+            lastName: 'User',
+            avatar: 'https://via.placeholder.com/150'
+          };
+          
+          req.user = mockUser;
+          req.clerkId = token;
+        }
+        next();
+        return;
+      }
+
       const authUser = await clerkService.verifyToken(token);
       
       if (authUser) {

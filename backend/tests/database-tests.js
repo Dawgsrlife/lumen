@@ -4,29 +4,44 @@
  * Run with: node tests/database-tests.js
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 // Import models - adjust paths based on build output
 let EmotionEntryModel, JournalEntryModel, GameSessionModel, UserModel;
 
-try {
-    // Try compiled JS first
-    ({ EmotionEntryModel } = require('../dist/models/EmotionEntry.js'));
-    ({ JournalEntryModel } = require('../dist/models/JournalEntry.js'));
-    ({ GameSessionModel } = require('../dist/models/GameSession.js'));
-    ({ UserModel } = require('../dist/models/User.js'));
-    console.log('✅ Loaded compiled JavaScript models');
-} catch (error) {
-    console.log('⚠️  Failed to load compiled models, attempting TypeScript fallback...');
-    console.log('Error:', error.message);
-    
-    // Fallback to TypeScript with ts-node
-    require('ts-node/register');
-    ({ EmotionEntryModel } = require('../src/models/EmotionEntry.ts'));
-    ({ JournalEntryModel } = require('../src/models/JournalEntry.ts'));
-    ({ GameSessionModel } = require('../src/models/GameSession.ts'));
-    ({ UserModel } = require('../src/models/User.ts'));
-    console.log('✅ Loaded TypeScript models with ts-node');
+async function loadModels() {
+    try {
+        // Try compiled JS first
+        const emotionEntryModule = await import('../dist/models/EmotionEntry.js');
+        const journalEntryModule = await import('../dist/models/JournalEntry.js');
+        const gameSessionModule = await import('../dist/models/GameSession.js');
+        const userModule = await import('../dist/models/User.js');
+        
+        EmotionEntryModel = emotionEntryModule.EmotionEntryModel;
+        JournalEntryModel = journalEntryModule.JournalEntryModel;
+        GameSessionModel = gameSessionModule.GameSessionModel;
+        UserModel = userModule.UserModel;
+        console.log('✅ Loaded compiled JavaScript models');
+    } catch (error) {
+        console.log('⚠️  Failed to load compiled models, attempting TypeScript fallback...');
+        console.log('Error:', error.message);
+        
+        // Fallback to TypeScript with ts-node
+        const tsNode = await import('ts-node/register');
+        const emotionEntryModule = await import('../src/models/EmotionEntry.ts');
+        const journalEntryModule = await import('../src/models/JournalEntry.ts');
+        const gameSessionModule = await import('../src/models/GameSession.ts');
+        const userModule = await import('../src/models/User.ts');
+        
+        EmotionEntryModel = emotionEntryModule.EmotionEntryModel;
+        JournalEntryModel = journalEntryModule.JournalEntryModel;
+        GameSessionModel = gameSessionModule.GameSessionModel;
+        UserModel = userModule.UserModel;
+        console.log('✅ Loaded TypeScript models with ts-node');
+    }
 }
+
+// Initialize models
+loadModels();
 
 // Test result tracking
 let tests = [];
@@ -552,11 +567,12 @@ test('Model instance methods should work', async () => {
 });
 
 // Run tests if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     // Load environment variables
-    require('dotenv').config();
+    const dotenv = await import('dotenv');
+    dotenv.config();
     
     runTests().catch(console.error);
 }
 
-module.exports = { test, assert, assertEqual, runTests };
+export { test, assert, assertEqual, runTests };

@@ -4,10 +4,10 @@
  * Run with: node tests/performance-tests.js
  */
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const { performance } = require('perf_hooks');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { performance } from 'perf_hooks';
 
 const API_BASE = 'http://localhost:5001';
 const TEST_CLERK_ID = 'test_perf_user_123';
@@ -770,11 +770,11 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Run tests
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     runAllTests().catch(error => {
         colorLog(`❌ Test suite failed: ${error.message}`, 'red');
         process.exit(1);
     });
 }
 
-module.exports = { runAllTests, tests, PerformanceTracker };
+export { runAllTests, tests, PerformanceTracker };

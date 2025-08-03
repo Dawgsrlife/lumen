@@ -241,6 +241,7 @@ const Header: React.FC = () => {
     { label: 'Dashboard', href: '/dashboard', protected: true },
     { label: 'Analytics', href: '/analytics', protected: true },
     { label: 'Games', href: '/games', protected: true },
+    { label: 'Clinic', href: '/clinic', protected: true },
   ];
 
   return (

@@ -7,16 +7,24 @@
 // Import AI service - adjust paths based on build output
 let aiService;
 
-try {
-    // Try compiled JS first
-    ({ aiService } = require('../dist/services/ai.js'));
-} catch (error) {
-    // Fallback to TypeScript with ts-node
-    require('ts-node/register');
-    ({ aiService } = require('../src/services/ai.ts'));
+async function loadAIService() {
+    try {
+        // Try compiled JS first
+        const aiModule = await import('../dist/services/ai.js');
+        aiService = aiModule.aiService;
+    } catch (error) {
+        // Fallback to TypeScript with ts-node
+        const tsNode = await import('ts-node/register');
+        const aiModule = await import('../src/services/ai.ts');
+        aiService = aiModule.aiService;
+    }
 }
-const fs = require('fs');
-const path = require('path');
+
+// Initialize AI service
+loadAIService();
+
+import fs from 'fs';
+import path from 'path';
 
 // Test result tracking
 let tests = [];
@@ -465,11 +473,12 @@ test('Should validate API key format', async () => {
 });
 
 // Run tests if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     // Load environment variables
-    require('dotenv').config();
+    const dotenv = await import('dotenv');
+    dotenv.config();
     
     runTests().catch(console.error);
 }
 
-module.exports = { test, assert, assertEqual, assertContains, runTests };
+export { test, assert, assertEqual, assertContains, runTests };
