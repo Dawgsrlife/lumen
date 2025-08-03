@@ -6,24 +6,29 @@ export interface GameSessionDocument extends Omit<GameSession, 'id'>, Document {
 const gameSessionSchema = new Schema<GameSessionDocument>({
   userId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   clerkId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   gameType: {
     type: String,
-    enum: ['mindfulness', 'breathing', 'meditation', 'gratitude', 'mood_tracker'],
-    required: true,
-    index: true
+    enum: [
+      'boxbreathing', 'colorbloom', 'memorylantern', 'rythmgrow',
+      'placeholderGame_fear', 'placeholderGame_anxiety', 'placeholderGame_loneliness'
+    ],
+    required: true
+  },
+  mappedEmotion: {
+    type: String,
+    enum: ['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'],
+    required: true
   },
   duration: {
     type: Number,
     required: true,
-    min: 1,
+    min: 0,
     max: 480 // max 8 hours
   },
   score: {
@@ -39,7 +44,7 @@ const gameSessionSchema = new Schema<GameSessionDocument>({
   emotionBefore: {
     type: String,
     enum: ['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'],
-    default: 'happy'
+    required: true
   },
   emotionAfter: {
     type: String,
@@ -49,6 +54,13 @@ const gameSessionSchema = new Schema<GameSessionDocument>({
     type: String,
     enum: ['completed', 'incomplete', 'abandoned'],
     default: 'completed'
+  },
+  metadata: {
+    sessionStartTime: Date,
+    sessionEndTime: Date,
+    interactionCount: Number,
+    achievements: [String],
+    therapeuticTechniques: [String]
   }
 }, {
   timestamps: true,
@@ -65,25 +77,14 @@ const gameSessionSchema = new Schema<GameSessionDocument>({
 // Indexes for efficient queries
 gameSessionSchema.index({ clerkId: 1, createdAt: -1 });
 gameSessionSchema.index({ clerkId: 1, gameType: 1 });
-gameSessionSchema.index({ clerkId: 1, 'createdAt': 1 }, { 
-  partialFilterExpression: { 
-    createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } 
-  } 
-});
+gameSessionSchema.index({ clerkId: 1, mappedEmotion: 1 });
 
 // Virtual for date (YYYY-MM-DD format)
 gameSessionSchema.virtual('date').get(function() {
   return (this as any).createdAt.toISOString().split('T')[0];
 });
 
-// Virtual for duration in minutes (already in minutes)
-gameSessionSchema.virtual('durationMinutes').get(function() {
-  return this.duration;
-});
-
 // Ensure virtuals are included in JSON output
 gameSessionSchema.set('toJSON', { virtuals: true });
-
-// No pre-save hooks needed for simplified structure
 
 export const GameSessionModel = mongoose.model<GameSessionDocument>('GameSession', gameSessionSchema); 

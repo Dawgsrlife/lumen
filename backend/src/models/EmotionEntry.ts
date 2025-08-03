@@ -54,13 +54,11 @@ const aiFeedbackSchema = new Schema<AIFeedback>({
 const emotionEntrySchema = new Schema<EmotionEntryDocument>({
   userId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   clerkId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   emotion: {
     type: String,
@@ -94,11 +92,6 @@ const emotionEntrySchema = new Schema<EmotionEntryDocument>({
 // Compound indexes for efficient queries
 emotionEntrySchema.index({ clerkId: 1, createdAt: -1 });
 emotionEntrySchema.index({ clerkId: 1, emotion: 1 });
-emotionEntrySchema.index({ clerkId: 1, 'createdAt': 1 }, { 
-  partialFilterExpression: { 
-    createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } 
-  } 
-});
 
 // Virtual for date (YYYY-MM-DD format)
 emotionEntrySchema.virtual('date').get(function() {

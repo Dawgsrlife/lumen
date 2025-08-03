@@ -2,7 +2,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface INotification extends Document {
   userId: string;
-  type: 'emotion_log' | 'analytics_check' | 'meditation_session';
+  clerkId: string;
+  type: 'emotion_log' | 'analytics_check' | 'meditation_session' | 'general';
   title: string;
   message: string;
   isRead: boolean;
@@ -13,13 +14,17 @@ export interface INotification extends Document {
 const notificationSchema = new Schema<INotification>({
   userId: {
     type: String,
+    required: true
+  },
+  clerkId: {
+    type: String,
     required: true,
-    index: true
+    ref: 'User'
   },
   type: {
     type: String,
     required: true,
-    enum: ['emotion_log', 'analytics_check', 'meditation_session']
+    enum: ['emotion_log', 'analytics_check', 'meditation_session', 'general']
   },
   title: {
     type: String,
@@ -38,11 +43,19 @@ const notificationSchema = new Schema<INotification>({
     required: false
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: {
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    }
+  }
 });
 
-// Index for efficient queries
-notificationSchema.index({ userId: 1, createdAt: -1 });
-notificationSchema.index({ userId: 1, isRead: 1 });
+// Indexes for efficient queries
+notificationSchema.index({ clerkId: 1, createdAt: -1 });
+notificationSchema.index({ clerkId: 1, isRead: 1 });
 
 export default mongoose.model<INotification>('Notification', notificationSchema); 

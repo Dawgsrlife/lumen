@@ -4,9 +4,13 @@
  * Run with: node tests/run-all-tests.js
  */
 
-const { execSync, spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+import { execSync, spawn } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ANSI color codes for console output
 const colors = {
@@ -63,14 +67,14 @@ async function checkPrerequisites() {
     
     // Check if Node.js modules are available
     try {
-        require('../src/services/ai.js');
+        await import('../src/services/ai.js');
         checks.push({ name: 'AI Service Module', status: 'OK' });
     } catch (error) {
         checks.push({ name: 'AI Service Module', status: 'MISSING', error: error.message });
     }
     
     try {
-        require('../src/models/EmotionEntry.js');
+        await import('../src/models/EmotionEntry.js');
         checks.push({ name: 'Database Models', status: 'OK' });
     } catch (error) {
         checks.push({ name: 'Database Models', status: 'MISSING', error: error.message });
@@ -86,8 +90,8 @@ async function checkPrerequisites() {
     
     // Check if server is running
     try {
-        const http = require('http');
-        const testReq = http.request({
+        const http = await import('http');
+        const testReq = http.default.request({
             hostname: 'localhost',
             port: 5001,
             path: '/health',
@@ -242,6 +246,34 @@ async function main() {
             description: 'REST API Endpoints'
         },
         {
+            file: path.join(__dirname, 'voice-chat-tests.js'),
+            description: 'Voice Chat & WebSocket'
+        },
+        {
+            file: path.join(__dirname, 'clinical-analytics-tests.js'),
+            description: 'Clinical Analytics & Assessments'
+        },
+        {
+            file: path.join(__dirname, 'games-tests.js'),
+            description: 'Games & Therapeutic Activities'
+        },
+        {
+            file: path.join(__dirname, 'clerk-service-tests.js'),
+            description: 'Clerk Authentication Service'
+        },
+        {
+            file: path.join(__dirname, 'error-edge-case-tests.js'),
+            description: 'Error Handling & Edge Cases'
+        },
+        {
+            file: path.join(__dirname, 'performance-tests.js'),
+            description: 'Performance & Load Testing'
+        },
+        {
+            file: path.join(__dirname, 'security-tests.js'),
+            description: 'Security & Vulnerability Testing'
+        },
+        {
             file: path.join(__dirname, 'integration-tests.js'),
             description: 'Integration & Workflows'
         }
@@ -285,11 +317,11 @@ process.on('uncaughtException', (error) => {
 });
 
 // Run the test suite
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main().catch((error) => {
         colorLog(`\n❌ Test runner error: ${error.message}`, 'red');
         process.exit(1);
     });
 }
 
-module.exports = { runTestFile, checkPrerequisites, printTestSummary };
+export { runTestFile, checkPrerequisites, printTestSummary };

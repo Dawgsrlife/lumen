@@ -21,6 +21,8 @@ const FlowPage = lazy(() => import('./pages/FlowPage'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Analytics = lazy(() => import('./pages/Analytics'));
+const Games = lazy(() => import('./pages/Games'));
+const Clinic = lazy(() => import('./pages/Clinic'));
 const Chat = lazy(() => import('./pages/Chat'));
 
 // Enhanced Conditional Layout Component
@@ -203,6 +205,50 @@ function App() {
                       <ProtectedRoute>
                         <ConditionalLayout>
                           <Analytics />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+              />
+              <Route 
+                path="/games" 
+                element={
+                  <div className="min-h-screen flex flex-col">
+                    <Header />
+                    <main className="flex-1">
+                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                        <ProtectedRoute>
+                          <Games />
+                        </ProtectedRoute>
+                      </Suspense>
+                    </main>
+                    <Footer />
+                  </div>
+                } 
+              />
+              <Route 
+                path="/clinic" 
+                element={
+                  <div className="min-h-screen flex flex-col">
+                    <Header />
+                    <main className="flex-1">
+                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                        <ProtectedRoute>
+                          <Clinic />
+                        </ProtectedRoute>
+                      </Suspense>
+                    </main>
+                    <Footer />
+                  </div>
+                } 
+              />
+              
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        </AppProvider>
+      </ClerkProvider>
                         </ConditionalLayout>
                       </ProtectedRoute>
                     </Suspense>

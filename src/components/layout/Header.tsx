@@ -240,7 +240,8 @@ const Header: React.FC = () => {
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', protected: true },
     { label: 'Analytics', href: '/analytics', protected: true },
-    { label: 'Chat', href: '/chat', protected: true },
+    { label: 'Games', href: '/games', protected: true },
+    { label: 'Clinic', href: '/clinic', protected: true },
   ];
 
   return (

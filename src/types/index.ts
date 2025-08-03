@@ -73,13 +73,23 @@ export interface Game {
 export interface GameSession {
   id: string;
   userId: string;
-  gameId: string;
-  score: number;
+  gameType: 'boxbreathing' | 'colorbloom' | 'memorylantern' | 'rythmgrow' | 'placeholderGame_fear' | 'placeholderGame_anxiety' | 'placeholderGame_loneliness';
+  mappedEmotion: EmotionType;
   duration: number; // actual time played
-  completed: boolean;
-  achievements: string[];
-  startedAt: Date;
-  completedAt?: Date;
+  score?: number;
+  notes?: string;
+  emotionBefore: EmotionType;
+  emotionAfter?: EmotionType;
+  completionStatus: 'completed' | 'incomplete' | 'abandoned';
+  metadata?: {
+    sessionStartTime?: Date;
+    sessionEndTime?: Date;
+    interactionCount?: number;
+    achievements?: string[];
+    therapeuticTechniques?: string[];
+  };
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Achievement {
@@ -223,12 +233,28 @@ export interface NotificationResponse {
 export interface JournalEntry {
   id: string;
   userId: string;
-  emotionEntryId?: string;
   title: string;
   content: string;
+  emotionEntryId?: string;
   mood?: number; // 1-10 scale
   tags: string[];
   isPrivate: boolean;
+  source?: 'manual' | 'voice_chat' | 'ai_generated';
+  metadata?: {
+    sessionId?: string;
+    duration?: number;
+    emotionIntensity?: number;
+    therapeuticTechniques?: string[];
+    conversationLog?: Array<{
+      timestamp: Date;
+      role: string;
+      content: string;
+      audioData?: string;
+    }>;
+    sentiment?: 'positive' | 'negative' | 'neutral';
+    keyThemes?: string[];
+    insights?: string[];
+  };
   createdAt: Date;
   updatedAt: Date;
 }

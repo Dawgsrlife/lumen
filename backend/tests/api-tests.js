@@ -5,10 +5,10 @@
  * Tests all endpoints and core functionality without external frameworks
  */
 
-const http = require('http');
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
 
 const API_BASE = 'http://localhost:5001';
 const TEST_CLERK_ID = 'test_user_123';
@@ -380,8 +380,8 @@ test('Auto-linking recent emotion and journal should work', async () => {
 });
 
 // Run all tests
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     runTests().catch(console.error);
 }
 
-module.exports = { makeRequest, test, assert, assertEqual, assertContains, runTests };
+export { makeRequest, test, assert, assertEqual, assertContains, runTests };

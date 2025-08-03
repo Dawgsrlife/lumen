@@ -1,7 +1,15 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import type { User, UserPreferences } from '../types/index.js';
 
-export interface UserDocument extends Omit<User, 'id'>, Document {}
+export interface UserDocument extends Omit<User, 'id'>, Document {
+  hasLoggedToday(): boolean;
+  updateWeeklyData(dayIndex: number, logged: boolean): Promise<this>;
+  updateStreak(newStreak: number): Promise<this>;
+  resetWeeklyData(): Promise<this>;
+  getCurrentWeekData(): boolean[];
+  isNewWeek(lastDate: Date, currentDate: Date): boolean;
+  getWeekNumber(date: Date): number;
+}
 
 const userPreferencesSchema = new Schema<UserPreferences>({
   theme: {
@@ -28,8 +36,7 @@ const userSchema = new Schema<UserDocument>({
   clerkId: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   email: {
     type: String,
@@ -130,15 +137,15 @@ const userSchema = new Schema<UserDocument>({
   }
 });
 
-// Indexes for better query performance
-userSchema.index({ email: 1 });
+// Only add non-unique indexes since unique fields auto-create indexes
 userSchema.index({ createdAt: -1 });
 userSchema.index({ clerkId: 1, lastEmotionDate: -1 });
 userSchema.index({ clerkId: 1, currentStreak: -1 });
 
-// Update lastLoginAt on save
+// Update lastLoginAt on explicit set only (not on every save)
 userSchema.pre('save', function(next) {
-  if (this.isModified('lastLoginAt')) {
+  // Only update lastLoginAt if it was explicitly modified
+  if (this.isModified('lastLoginAt') && this.lastLoginAt !== this.get('lastLoginAt')) {
     this.lastLoginAt = new Date();
   }
   next();

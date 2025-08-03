@@ -3,7 +3,7 @@
  * Tests without complex module imports
  */
 
-const { makeRequest } = require('./api-tests.js');
+import { makeRequest } from './api-tests.js';
 
 const API_BASE = 'http://localhost:5001';
 
@@ -172,8 +172,8 @@ async function main() {
     process.exit(success ? 0 : 1);
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main().catch(console.error);
 }
 
-module.exports = { runSimpleTests, checkServerHealth };
+export { runSimpleTests, checkServerHealth };

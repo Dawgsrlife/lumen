@@ -33,14 +33,20 @@ const upload = multer({
 
 // Validation middleware
 const validateJournalEntry = [
+  body('title')
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 200 })
+    .withMessage('Title must be between 1 and 200 characters'),
   body('content')
     .isString()
     .trim()
     .isLength({ min: 1, max: 10000 })
     .withMessage('Content must be between 1 and 10000 characters'),
   body('mood')
-    .isIn(['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'])
-    .withMessage('Invalid mood type'),
+    .optional()
+    .isInt({ min: 1, max: 10 })
+    .withMessage('Mood must be between 1 and 10'),
   body('tags')
     .optional()
     .isArray()
@@ -64,8 +70,9 @@ router.post('/audio',
   requireAuth,
   upload.single('audio'),
   body('mood')
-    .isIn(['happy', 'sad', 'loneliness', 'anxiety', 'frustration', 'stress', 'lethargy', 'fear', 'grief'])
-    .withMessage('Mood must be one of the specified emotion types'),
+    .optional()
+    .isInt({ min: 1, max: 10 })
+    .withMessage('Mood must be between 1 and 10'),
   body('tags')
     .optional()
     .isArray()
@@ -97,7 +104,7 @@ router.post('/audio',
       }
 
       const clerkId = req.clerkId!;
-      const { mood, tags = [], isPrivate = false, emotionEntryId } = req.body;
+      const { mood = 5, tags = [], isPrivate = false, emotionEntryId } = req.body;
 
       // Convert audio file to base64 for Gemini API
       const audioBase64 = req.file.buffer.toString('base64');
@@ -132,11 +139,13 @@ router.post('/audio',
       // Create journal entry with transcribed content
       const journalEntry = new JournalEntryModel({
         clerkId,
+        title: `Audio Journal - ${new Date().toLocaleDateString()}`,
         content,
-        mood,
+        mood: 5, // Default mood for audio entries
         tags,
         isPrivate,
         emotionEntryId: associatedEmotionEntryId,
+        source: 'voice_chat',
         metadata: {
           source: 'audio',
           audioAnalysis
@@ -216,7 +225,7 @@ router.post('/',
         });
       }
 
-      const { content, mood, tags = [], isPrivate = true, emotionEntryId }: CreateJournalRequest = req.body;
+      const { title, content, mood, tags = [], isPrivate = true, emotionEntryId }: CreateJournalRequest = req.body;
       const clerkId = req.clerkId!;
 
       // Find user
@@ -244,6 +253,7 @@ router.post('/',
       const journalEntry = new JournalEntryModel({
         userId: user.id,
         clerkId,
+        title,
         content,
         mood,
         tags,

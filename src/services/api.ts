@@ -12,11 +12,13 @@ import type {
   NotificationResponse
 } from '../types/index';
 
-// API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// API Configuration - backend server runs on port 5001
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 // Helper function to get auth token
 const getAuthToken = async (): Promise<string> => {
+  // For hackathon: we'll use a simple approach
+  // In production, this should get the actual Clerk token
   const token = localStorage.getItem('lumen_token');
   if (!token) {
     throw new Error('No authentication token found');
@@ -103,6 +105,11 @@ class ApiService {
   clearToken() {
     this.token = null;
     localStorage.removeItem('lumen_token');
+  }
+
+  // Set token from Clerk user ID (for hackathon)
+  setClerkUserId(userId: string) {
+    this.setToken(userId);
   }
 
   // Authentication
@@ -403,26 +410,94 @@ class ApiService {
     return response.data;
   }
 
-  // Post-Game Feedback
-  async createFeedback(feedbackData: CreateFeedbackRequest): Promise<PostGameFeedback> {
-    const response: AxiosResponse = await this.api.post('/api/feedback', feedbackData);
-    return response.data.data;
-  }
-
-  async getFeedback(gameId?: string, emotion?: string): Promise<PostGameFeedback[]> {
-    const response: AxiosResponse = await this.api.get('/api/feedback', {
-      params: { gameId, emotion }
+  // Voice Chat
+  async startVoiceChatSession(emotion: string, intensity: number): Promise<{
+    sessionId: string;
+    therapeuticContext: any;
+    wsUrl: string;
+  }> {
+    const response: AxiosResponse = await this.api.post('/api/voice-chat/start', {
+      emotion,
+      intensity
     });
     return response.data.data;
   }
 
-  async getFeedbackStats(): Promise<{
-    totalResponses: number;
-    positiveResponses: number;
-    responsesByGame: Record<string, { positive: number; total: number }>;
-    responsesByEmotion: Record<string, { positive: number; total: number }>;
+  async endVoiceChatSession(sessionId: string): Promise<{
+    sessionId: string;
+    journalEntryId: string;
+    message: string;
   }> {
-    const response: AxiosResponse = await this.api.get('/api/feedback/stats');
+    const response: AxiosResponse = await this.api.post(`/api/voice-chat/end/${sessionId}`);
+    return response.data.data;
+  }
+
+  async getVoiceChatStatus(): Promise<{
+    available: boolean;
+    activeSessions: number;
+    supportedFormats: string[];
+    features: string[];
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/voice-chat/status');
+    return response.data.data;
+  }
+
+  // Game Sessions
+  async startGameSession(emotion: string): Promise<{
+    sessionId: string;
+    gameType: string;
+    gameInfo: any;
+    emotion: string;
+    sessionStartTime: Date;
+  }> {
+    const response: AxiosResponse = await this.api.post('/api/games/start', {
+      emotion
+    });
+    return response.data.data;
+  }
+
+  async completeGameSession(sessionData: {
+    sessionId: string;
+    duration: number;
+    score?: number;
+    emotionAfter?: string;
+    notes?: string;
+    interactionCount?: number;
+    achievements?: string[];
+  }): Promise<any> {
+    const response: AxiosResponse = await this.api.post('/api/games/complete', sessionData);
+    return response.data.data;
+  }
+
+  async getGameSessions(params?: {
+    page?: number;
+    limit?: number;
+    gameType?: string;
+    emotion?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<{ sessions: any[]; pagination: any }> {
+    const response: AxiosResponse = await this.api.get('/api/games/sessions', { params });
+    return response.data.data;
+  }
+
+  async getGameMapping(): Promise<{
+    emotionToGame: Record<string, string>;
+    gameMetadata: Record<string, any>;
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/games/mapping');
+    return response.data.data;
+  }
+
+  async getGameAnalytics(days: number = 30): Promise<{
+    overview: any;
+    gameTypeStats: any;
+    emotionStats: any;
+    dateRange: { start: string; end: string };
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/games/analytics', {
+      params: { days }
+    });
     return response.data.data;
   }
 }
