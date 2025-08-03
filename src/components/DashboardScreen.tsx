@@ -47,13 +47,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     navigate('/flow?manual=true');
   };
 
-  const getMoodColor = (mood: number) => {
-    if (mood >= 7) return 'bg-green-500';
-    if (mood >= 5) return 'bg-yellow-500';
-    if (mood >= 3) return 'bg-orange-500';
-    return 'bg-red-500';
-  };
-
   const getMoodLabel = (mood: number) => {
     if (mood >= 8) return 'Excellent';
     if (mood >= 6) return 'Good';
@@ -84,39 +77,37 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           <div className="mb-4"></div>
         </div>
 
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Current Mood Card */}
-          <Card className="p-8">
-            <div className="text-center">
-              <div className="text-6xl mb-4">{mockData.currentMood.emotion}</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                {mockData.currentMood.label}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {mockData.currentMood.description}
-              </p>
-              <div className="mb-4"></div>
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <div className={`w-3 h-3 rounded-full ${getMoodColor(mockData.currentMood.intensity)}`}></div>
-                <span className="text-sm text-gray-600">
-                  Intensity: {mockData.currentMood.intensity}/10
-                </span>
-              </div>
+        {/* Key Metrics - Strategic Color Placement #1 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-purple-600 bg-clip-text text-transparent mb-2">
+              {mockData.currentMood.intensity}
             </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              Current Mood
+            </h3>
+            <div className="text-4xl mb-3">{mockData.currentMood.emotion}</div>
+            <p className="text-sm text-gray-600 mb-3">
+              {mockData.currentMood.label} • {getMoodLabel(mockData.currentMood.intensity)}
+            </p>
+            <p className="text-xs text-gray-500">
+              {mockData.currentMood.description}
+            </p>
           </Card>
 
-          {/* Weekly Progress Card */}
-          <Card className="p-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
-              This Week's Progress
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-purple-600 bg-clip-text text-transparent mb-2">
+              {mockData.averageMood.toFixed(1)}
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              Weekly Average
             </h3>
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 mb-3">
               {mockData.weeklyProgress.map((day, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-xs text-gray-500 mb-2">{day.day}</div>
-                  <div className={`w-8 h-8 rounded-lg mx-auto mb-1 ${
-                    day.logged ? getMoodColor(day.mood) : 'bg-gray-200'
+                  <div className="text-xs text-gray-500 mb-1">{day.day}</div>
+                  <div className={`w-6 h-6 rounded mx-auto mb-1 ${
+                    day.logged ? 'bg-gray-300' : 'bg-gray-100'
                   }`}></div>
                   <div className="text-xs text-gray-600">
                     {day.logged ? day.mood : '-'}
@@ -124,42 +115,37 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 </div>
               ))}
             </div>
-            <div className="mb-4"></div>
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Average: {mockData.averageMood.toFixed(1)}/10
-              </p>
-            </div>
+            <p className="text-xs text-gray-500">
+              {mockData.weeklyProgress.filter(d => d.logged).length}/7 days logged
+            </p>
           </Card>
 
-          {/* Streak Counter Card */}
-          <Card className="p-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-purple-600 bg-clip-text text-transparent mb-2">
-                {mockData.streak}
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Day Streak
-              </h3>
-              <p className="text-gray-600 mb-4">
-                You've been consistent for {mockData.streak} days!
-              </p>
-              <div className="mb-4"></div>
-              <div className="text-sm text-gray-500">
-                Total entries: {mockData.totalEntries}
-              </div>
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-purple-600 bg-clip-text text-transparent mb-2">
+              {mockData.streak}
             </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              Day Streak
+            </h3>
+            <p className="text-sm text-gray-600 mb-3">
+              You've been consistent for {mockData.streak} days!
+            </p>
+            <p className="text-xs text-gray-500">
+              Total entries: {mockData.totalEntries}
+            </p>
           </Card>
         </div>
 
-        {/* Action Button */}
+        {/* Action Button - Strategic Color Placement #2 */}
         <div className="mt-12 text-center">
+          <div className="mb-4"></div>
           <Button
             onClick={handleLogEmotion}
             className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-xl font-semibold hover:from-yellow-500 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
           >
             Log Today's Emotion
           </Button>
+          <div className="mb-4"></div>
         </div>
 
         {/* Mascot - only show if user has completed flow */}
