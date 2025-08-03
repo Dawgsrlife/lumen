@@ -266,6 +266,7 @@ const Analytics: React.FC = () => {
             <h3 className="text-xl font-bold text-gray-900 mb-6">
               Top Emotions
             </h3>
+            <div className="mb-4"></div>
             <div className="space-y-4">
               {stats.topEmotions.map((emotion, index) => (
                 <div key={index} className="flex items-center justify-between">
@@ -285,6 +286,7 @@ const Analytics: React.FC = () => {
             <h3 className="text-xl font-bold text-gray-900 mb-6">
               Personal Insights
             </h3>
+            <div className="mb-4"></div>
             <div className="space-y-4">
               {stats.insights.map((insight, index) => (
                 <div key={index} className="flex items-start space-x-3">

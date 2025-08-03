@@ -76,6 +76,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Here's your gentle overview for today
             </h1>
+            <div className="mb-4"></div>
             <p className="text-xl text-gray-600">
               Keep up the great work on your mental wellness journey
             </p>

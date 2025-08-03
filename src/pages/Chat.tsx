@@ -170,8 +170,12 @@ export default function Chat() {
           <Card className="h-[600px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100 relative">
             {/* Messages Area */}
             <div 
-              className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4"
+              className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4 chat-scrollbar"
               onScroll={handleScroll}
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#e5e7eb #f9fafb'
+              }}
             >
               <div className="mb-4"></div>
               
