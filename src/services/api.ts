@@ -1,8 +1,14 @@
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
-import type { 
-  EmotionEntry, 
-  User
-} from '../types/index';
+import type {
+  EmotionEntry,
+  User,
+  JournalEntry,
+  CreateEmotionRequest,
+  CreateJournalRequest,
+  UserAnalytics,
+  AIInsightResponse,
+  NotificationResponse
+} from '../types';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';

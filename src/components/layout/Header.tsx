@@ -20,7 +20,7 @@ const Header: React.FC = () => {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
-  
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -37,7 +37,7 @@ const Header: React.FC = () => {
       // Check if the click is on the profile button (which is outside the dropdown)
       const target = event.target as Element;
       const isProfileButton = target.closest('[data-profile-button]');
-      
+
       if (menuRef.current && !menuRef.current.contains(event.target as Node) && !isProfileButton) {
         setIsMenuOpen(false);
       }
@@ -86,7 +86,7 @@ const Header: React.FC = () => {
   // Fetch notifications
   const fetchNotifications = async () => {
     if (!isAuthenticated) return;
-    
+
     try {
       const response = await getNotifications();
       if (response.success && response.notifications) {
@@ -171,17 +171,17 @@ const Header: React.FC = () => {
           actionUrl: '/analytics'
         }
       ]);
-
+    }
   };
 
-    // Handle notification click
+  // Handle notification click
   const handleNotificationClick = async (notification: Notification) => {
     // Mark as read
     if (!notification.isRead) {
       try {
         await markNotificationAsRead(notification._id!);
-        setNotifications(prev => 
-          prev.map(n => 
+        setNotifications(prev =>
+          prev.map(n =>
             n._id === notification._id ? { ...n, isRead: true } : n
           )
         );
@@ -215,13 +215,11 @@ const Header: React.FC = () => {
     setIsNotificationsModalOpen(false);
   };
 
-
-
   // Mark all notifications as read
   const handleMarkAllAsRead = async () => {
     try {
       await markAllNotificationsAsRead();
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(n => ({ ...n, isRead: true }))
       );
     } catch (error) {
@@ -263,11 +261,10 @@ const Header: React.FC = () => {
                   <Link
                     key={item.href}
                     to={item.href}
-                    className={`text-sm font-medium transition-colors duration-200 px-4 py-2 rounded-lg whitespace-nowrap ${
-                      isActive(item.href)
+                    className={`text-sm font-medium transition-colors duration-200 px-4 py-2 rounded-lg whitespace-nowrap ${isActive(item.href)
                         ? 'text-blue-600 bg-blue-50'
                         : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {item.label}
                   </Link>
@@ -337,9 +334,9 @@ const Header: React.FC = () => {
                 >
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                     {user?.avatar ? (
-                      <img 
-                        src={user.avatar} 
-                        alt="Profile" 
+                      <img
+                        src={user.avatar}
+                        alt="Profile"
                         className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
@@ -356,43 +353,43 @@ const Header: React.FC = () => {
                   </svg>
                 </button>
 
-                                                    {/* Profile Dropdown */}
-                  <AnimatePresence>
-                    {isMenuOpen && (
-                      <motion.div
-                        ref={menuRef}
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.2, ease: "backOut" }}
-                        className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-[60] transform origin-top-right"
+                {/* Profile Dropdown */}
+                <AnimatePresence>
+                  {isMenuOpen && (
+                    <motion.div
+                      ref={menuRef}
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2, ease: "backOut" }}
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-[60] transform origin-top-right"
+                    >
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
                       >
-                        <Link
-                          to="/profile"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          Profile
-                        </Link>
-                        <Link
-                          to="/dashboard"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          Dashboard
-                        </Link>
-                        <div className="border-t border-gray-100 my-1"></div>
-                        <button
-                          onClick={handleSignOut}
-                          disabled={isSigningOut}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                          {isSigningOut ? 'Signing out...' : 'Sign out'}
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                        Profile
+                      </Link>
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <div className="border-t border-gray-100 my-1"></div>
+                      <button
+                        onClick={handleSignOut}
+                        disabled={isSigningOut}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {isSigningOut ? 'Signing out...' : 'Sign out'}
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             ) : (
               <div className="flex items-center space-x-3">
                 <Link to="/sign-in">
@@ -418,4 +415,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header; 
+export default Header;

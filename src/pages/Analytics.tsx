@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
-import { LoadingSpinner, AnimatedBackground } from '../components/ui';
+import { AnimatedBackground } from '../components/ui';
 import { useClerkUser } from '../hooks/useClerkUser';
 import {
   LineChart,
