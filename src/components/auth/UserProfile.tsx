@@ -169,33 +169,9 @@ export const UserProfile: React.FC = () => {
                     <span className="text-gray-600">Theme</span>
                     <span className="text-gray-900 font-medium">Light</span>
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50/50">
-                      <span className="text-gray-600">Notifications</span>
-                      <span className="text-gray-900 font-medium">Enabled</span>
-                    </div>
-                    <div className="ml-4 space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Daily mood check-ins</span>
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Wellness reminders</span>
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Weekly insights</span>
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Game recommendations</span>
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Streak celebrations</span>
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      </div>
-                    </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50/50">
+                    <span className="text-gray-600">Notifications</span>
+                    <span className="text-gray-900 font-medium">Enabled</span>
                   </div>
                 </div>
               </div>
