@@ -17,13 +17,24 @@ export default function Chat() {
   const [recentEmotions, setRecentEmotions] = useState([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    const isBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
+    setIsAtBottom(isBottom);
+  };
+
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // Only auto-scroll if user is already at the bottom
+    if (isAtBottom) {
+      scrollToBottom();
+    }
+  }, [messages, isAtBottom]);
 
   useEffect(() => {
     // Initialize with welcome message
@@ -131,9 +142,12 @@ export default function Chat() {
 
         {/* Chat Container */}
         <div className="max-w-4xl mx-auto">
-          <Card className="h-[600px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
+          <Card className="h-[600px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100 relative">
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4">
+            <div 
+              className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4"
+              onScroll={handleScroll}
+            >
               <div className="mb-4"></div>
               
               <AnimatePresence>
@@ -209,6 +223,21 @@ export default function Chat() {
               )}
 
               <div ref={messagesEndRef} />
+              
+              {/* Scroll to bottom button */}
+              {!isAtBottom && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={scrollToBottom}
+                  className="absolute bottom-20 right-6 w-10 h-10 bg-gray-900 text-white rounded-full shadow-lg hover:bg-gray-800 transition-all duration-200 cursor-pointer flex items-center justify-center"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                </motion.button>
+              )}
             </div>
 
             {/* Input Area */}
