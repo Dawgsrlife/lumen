@@ -92,13 +92,15 @@ export interface GameSession {
   id?: string;
   userId: string;
   clerkId: string;
-  gameId: string;
-  score: number;
-  duration: number; // actual time played
-  completed: boolean;
-  achievements: string[];
-  startedAt: Date;
-  completedAt?: Date;
+  gameType: 'mindfulness' | 'breathing' | 'meditation' | 'gratitude' | 'mood_tracker';
+  duration: number; // in minutes
+  score?: number; // optional score 0-100
+  notes?: string;
+  emotionBefore: EmotionType;
+  emotionAfter?: EmotionType;
+  completionStatus: 'completed' | 'incomplete' | 'abandoned';
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Analytics Types
@@ -141,7 +143,7 @@ export interface PaginatedResponse<T> {
 // Request Types
 export interface CreateEmotionRequest {
   emotion: EmotionType;
-  intensity: number;
+  intensity?: number; // Optional, defaults to 5
   context?: string;
   surveyResponses?: SurveyResponse[];
 }
@@ -155,11 +157,13 @@ export interface CreateJournalRequest {
 }
 
 export interface CreateGameSessionRequest {
-  gameId: string;
-  score: number;
+  gameType: 'mindfulness' | 'breathing' | 'meditation' | 'gratitude' | 'mood_tracker';
   duration: number;
-  completed: boolean;
-  achievements?: string[];
+  score?: number;
+  notes?: string;
+  emotionBefore?: EmotionType;
+  emotionAfter?: EmotionType;
+  completionStatus?: 'completed' | 'incomplete' | 'abandoned';
 }
 
 // AI Types
@@ -176,6 +180,10 @@ export interface AIInsightResponse {
   resources: string[];
   moodTrend: string;
   patterns: string[];
+  clinicalAssessment: string;
+  evidenceBasedInterventions: string[];
+  healthcareOutcomes: string;
+  riskFactors: string;
 }
 
 // Authentication Types

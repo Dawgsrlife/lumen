@@ -69,7 +69,7 @@ const emotionEntrySchema = new Schema<EmotionEntryDocument>({
   },
   intensity: {
     type: Number,
-    required: true,
+    default: 5,
     min: 1,
     max: 10
   },
