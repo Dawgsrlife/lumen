@@ -13,35 +13,6 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-// Animated background particles
-const AnimatedBackground: React.FC = () => {
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-gray-200 rounded-full opacity-30"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 8 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
 const Analytics: React.FC = () => {
   const { user } = useClerkUser();
   const [selectedPeriod, setSelectedPeriod] = useState('week');

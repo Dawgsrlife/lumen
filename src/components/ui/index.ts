@@ -9,7 +9,7 @@ export { default as LumenIcon } from './LumenIcon';
 export { default as EmotionSelector } from './EmotionSelector';
 export { default as MinigameCard } from './MinigameCard';
 export { default as LumenIntro } from './LumenIntro';
-export { default as AnimatedBackground } from './AnimatedBackground';
+export { AnimatedBackground } from './AnimatedBackground';
 export { default as LumenMascot } from './LumenMascot';
 export { MoodContributionGraph } from './MoodContributionGraph';
 export { default as NotificationsModal } from './NotificationsModal';

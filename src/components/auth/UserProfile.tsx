@@ -1,36 +1,15 @@
 import { useClerk } from '@clerk/clerk-react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 import { useClerkUser } from '../../hooks/useClerkUser';
-import { Card } from '../ui';
+import { Card, AnimatedBackground } from '../ui';
 
 export const UserProfile: React.FC = () => {
   const { user } = useClerkUser();
   const { signOut } = useClerk();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.set(contentRef.current, {
-        opacity: 0,
-        y: 30
-      });
-
-      gsap.to(contentRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out"
-      });
-    });
-
-    return () => ctx.revert();
-  }, []);
 
   const handleSignOut = async () => {
     console.log('🔄 Starting sign out process...');
@@ -61,8 +40,9 @@ export const UserProfile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <div className="max-w-6xl mx-auto px-8 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative">
+      <AnimatedBackground />
+      <div className="relative z-10 max-w-6xl mx-auto px-8 py-16">
         {/* Header */}
         <div className="mb-8">
           <div className="mb-4"></div>
@@ -74,6 +54,7 @@ export const UserProfile: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Your Profile
             </h1>
+            <div className="mb-4"></div>
             <p className="text-xl text-gray-600">
               Manage your account and preferences
             </p>
@@ -106,6 +87,7 @@ export const UserProfile: React.FC = () => {
                     : user.primaryEmailAddress?.emailAddress || 'User'
                   }
                 </h2>
+                <div className="mb-4"></div>
                 <p className="text-gray-600 mb-1">{user.primaryEmailAddress?.emailAddress || 'No email'}</p>
                 <p className="text-sm text-gray-500">
                   Member since {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
@@ -118,15 +100,18 @@ export const UserProfile: React.FC = () => {
               {/* Account Settings */}
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-6">Account Settings</h3>
+                <div className="mb-4"></div>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50">
                     <span className="text-gray-600">Privacy Level</span>
                     <span className="text-gray-900 font-medium capitalize">Private</span>
                   </div>
+                  <div className="mb-4"></div>
                   <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50">
                     <span className="text-gray-600">Theme</span>
                     <span className="text-gray-900 font-medium">Light</span>
                   </div>
+                  <div className="mb-4"></div>
                   <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50">
                     <span className="text-gray-600">Notifications</span>
                     <span className="text-gray-900 font-medium">Enabled</span>
@@ -137,6 +122,7 @@ export const UserProfile: React.FC = () => {
               {/* Quick Actions - Strategic Color Placement */}
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                <div className="mb-4"></div>
                 <div className="space-y-4">
                    <motion.button 
                      onClick={() => navigate('/dashboard')}
@@ -146,6 +132,7 @@ export const UserProfile: React.FC = () => {
                    >
                      Go to Dashboard
                    </motion.button>
+                   <div className="mb-4"></div>
                    <motion.button 
                      onClick={() => navigate('/analytics')}
                      className="w-full bg-gradient-to-r from-yellow-400 to-purple-600 text-white py-3 px-4 rounded-xl hover:from-yellow-500 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer font-semibold"
@@ -154,6 +141,7 @@ export const UserProfile: React.FC = () => {
                    >
                      View Analytics
                    </motion.button>
+                   <div className="mb-4"></div>
                    <motion.button 
                      onClick={handleSignOut}
                      disabled={isLoading}

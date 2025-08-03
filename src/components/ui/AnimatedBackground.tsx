@@ -32,6 +32,13 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ classNam
         animation: 'bounce',
         opacity: 0.5
       };
+    } else if (location.pathname === '/profile') {
+      return {
+        particles: 18,
+        colors: ['#f3f4f6', '#e5e7eb'],
+        animation: 'pulse',
+        opacity: 0.25
+      };
     } else {
       return {
         particles: 10,
@@ -69,7 +76,7 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ classNam
       case 'pulse':
         return {
           scale: [1, 1.1, 1],
-          opacity: [0.3, 0.6, 0.3]
+          opacity: [0.25, 0.5, 0.25]
         };
       default:
         return {
@@ -178,6 +185,33 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ classNam
                 }}
                 transition={{
                   duration: 5 + Math.random() * 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: Math.random() * 2
+                }}
+              />
+            ))}
+          </>
+        )}
+
+        {/* Subtle dots for Profile */}
+        {location.pathname === '/profile' && (
+          <>
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={`dot-${i}`}
+                className="absolute w-1 h-1 bg-gray-300 rounded-full"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  opacity: 0.15
+                }}
+                animate={{
+                  scale: [1, 1.5, 1],
+                  opacity: [0.15, 0.3, 0.15]
+                }}
+                transition={{
+                  duration: 4 + Math.random() * 2,
                   repeat: Infinity,
                   ease: "easeInOut",
                   delay: Math.random() * 2
