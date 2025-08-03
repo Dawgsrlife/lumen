@@ -170,7 +170,7 @@ const FlowPage: React.FC = () => {
             <p className="text-gray-600 mb-4">{flowState.error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300 cursor-pointer"
             >
               Try Again
             </button>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User } from 'lucide-react';
+import { useUser } from '@clerk/clerk-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -8,6 +9,7 @@ import { chatbotService } from '../services/chatbot';
 import type { ChatMessage, ChatContext } from '../services/chatbot';
 
 export default function Chat() {
+  const { user } = useUser();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -152,7 +154,15 @@ export default function Chat() {
                           : 'bg-gradient-to-r from-yellow-400 to-purple-600 text-white'
                       }`}>
                         {message.role === 'user' ? (
-                          <User className="h-4 w-4" />
+                          user?.imageUrl ? (
+                            <img 
+                              src={user.imageUrl} 
+                              alt="Profile" 
+                              className="w-4 h-4 rounded-full object-cover"
+                            />
+                          ) : (
+                            <User className="h-4 w-4" />
+                          )
                         ) : (
                           <Bot className="h-4 w-4" />
                         )}
@@ -211,7 +221,7 @@ export default function Chat() {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleInputKeyDown}
                   placeholder="Share what's on your mind..."
-                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 bg-gray-50/50 transition-all"
+                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 bg-gray-50/50 transition-all cursor-pointer"
                   disabled={isLoading}
                 />
                 <button

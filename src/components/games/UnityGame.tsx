@@ -209,7 +209,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
                 <p className="text-sm mb-4 text-red-100">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-6 py-2 bg-white text-red-900 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                  className="px-6 py-2 bg-white text-red-900 rounded-lg font-medium hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   Retry
                 </button>
@@ -222,7 +222,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
             <div className="absolute top-4 right-4 flex gap-2">
               <button
                 onClick={handleFullscreen}
-                className="px-3 py-2 bg-black/60 text-white text-sm rounded-lg hover:bg-black/80 transition-colors backdrop-blur-sm"
+                className="px-3 py-2 bg-black/60 text-white text-sm rounded-lg hover:bg-black/80 transition-colors backdrop-blur-sm cursor-pointer"
               >
                 ⛶ Fullscreen
               </button>
@@ -267,7 +267,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
                     });
                   }
                 }}
-                className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors duration-200 opacity-60 hover:opacity-100"
+                className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors duration-200 opacity-60 hover:opacity-100 cursor-pointer"
               >
                 Skip for now
               </button>

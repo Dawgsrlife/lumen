@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useClerkUser } from '../hooks/useClerkUser';
+import { Card, Button } from '../components/ui';
 import {
   LineChart,
+  Line,
   Area,
+  AreaChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -14,18 +17,74 @@ import {
 
 const Analytics: React.FC = () => {
   const { user } = useClerkUser();
-  const [selectedTimeRange, setSelectedTimeRange] = useState<'7days' | 'month' | '3months' | 'alltime'>('7days');
+  const [selectedPeriod, setSelectedPeriod] = useState('week');
 
-  // Simplified mock data for charts
-  const moodData = [
-    { date: 'Mon', mood: 4 },
-    { date: 'Tue', mood: 3 },
-    { date: 'Wed', mood: 5 },
-    { date: 'Thu', mood: 2 },
-    { date: 'Fri', mood: 4 },
-    { date: 'Sat', mood: 5 },
-    { date: 'Sun', mood: 4 },
-  ];
+  // Mock data for analytics
+  const mockData = {
+    weekly: [
+      { day: 'Mon', mood: 6, entries: 2, activities: 3 },
+      { day: 'Tue', mood: 4, entries: 1, activities: 2 },
+      { day: 'Wed', mood: 8, entries: 3, activities: 4 },
+      { day: 'Thu', mood: 5, entries: 2, activities: 1 },
+      { day: 'Fri', mood: 7, entries: 2, activities: 3 },
+      { day: 'Sat', mood: 9, entries: 4, activities: 5 },
+      { day: 'Sun', mood: 7, entries: 2, activities: 2 }
+    ],
+    monthly: [
+      { week: 'Week 1', mood: 6.5, entries: 12, activities: 15 },
+      { week: 'Week 2', mood: 7.2, entries: 14, activities: 18 },
+      { week: 'Week 3', mood: 6.8, entries: 11, activities: 12 },
+      { week: 'Week 4', mood: 8.1, entries: 16, activities: 20 }
+    ],
+    yearly: [
+      { month: 'Jan', mood: 6.2, entries: 45, activities: 52 },
+      { month: 'Feb', mood: 6.8, entries: 48, activities: 55 },
+      { month: 'Mar', mood: 7.1, entries: 52, activities: 58 },
+      { month: 'Apr', mood: 6.9, entries: 49, activities: 54 },
+      { month: 'May', mood: 7.5, entries: 55, activities: 62 },
+      { month: 'Jun', mood: 7.8, entries: 58, activities: 65 }
+    ]
+  };
+
+  const stats = {
+    totalEntries: 156,
+    averageMood: 6.8,
+    currentStreak: 23,
+    totalActivities: 89,
+    topEmotions: ['Happy', 'Calm', 'Excited', 'Grateful', 'Peaceful'],
+    insights: [
+      'You tend to feel happier on weekends',
+      'Your mood improves after exercise',
+      'You\'ve been consistently logging for 3+ weeks',
+      'Your stress levels decrease after meditation'
+    ]
+  };
+
+  const getData = () => {
+    switch (selectedPeriod) {
+      case 'week':
+        return mockData.weekly;
+      case 'month':
+        return mockData.monthly;
+      case 'year':
+        return mockData.yearly;
+      default:
+        return mockData.weekly;
+    }
+  };
+
+  const getXAxisKey = () => {
+    switch (selectedPeriod) {
+      case 'week':
+        return 'day';
+      case 'month':
+        return 'week';
+      case 'year':
+        return 'month';
+      default:
+        return 'day';
+    }
+  };
 
   if (!user) {
     return (
@@ -49,229 +108,175 @@ const Analytics: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
-        {/* Beautiful Header - Inspired by Landing Page */}
-        <motion.div 
-          className="text-center mb-20 flex flex-col items-center justify-center"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-        >
-          <motion.h1 
-            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6 text-center"
-            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+        {/* Header */}
+        <div className="mb-8">
+          <div className="mb-4"></div>
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-center"
           >
-            Your Beautiful Journey
-          </motion.h1>
-          
-          <motion.p 
-            className="text-xl leading-relaxed text-gray-600 max-w-3xl mx-auto font-light text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            A gentle look at your emotional patterns and growth over time
-          </motion.p>
-        </motion.div>
-
-        {/* Simple Time Range Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-3 mb-16"
-        >
-          {[
-            { key: '7days', label: 'Last 7 Days' },
-            { key: 'month', label: 'Last Month' },
-            { key: '3months', label: 'Last 3 Months' },
-            { key: 'alltime', label: 'All Time' }
-          ].map((range) => (
-            <motion.button
-              key={range.key}
-              onClick={() => setSelectedTimeRange(range.key as any)}
-              className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-                selectedTimeRange === range.key
-                  ? 'bg-gradient-to-r from-yellow-400 to-purple-600 text-white shadow-lg'
-                  : 'bg-white/80 backdrop-blur-sm text-gray-700 border border-gray-200 hover:bg-white hover:shadow-md'
-              }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {range.label}
-            </motion.button>
-          ))}
-        </motion.div>
-
-        {/* Simple Chart Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 mb-16"
-        >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Mood Journey</h2>
-            <p className="text-gray-600 text-lg">A gentle look at your emotional patterns over time</p>
-          </div>
-          
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart 
-              data={moodData} 
-              margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
-            >
-              <defs>
-                <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" opacity={0.5} />
-              <XAxis 
-                dataKey="date" 
-                stroke="#94a3b8" 
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: '#64748b', fontSize: 12 }}
-              />
-              <YAxis 
-                stroke="#94a3b8" 
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: '#64748b', fontSize: 12 }}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                  fontSize: '13px',
-                  padding: '12px 16px',
-                  backdropFilter: 'blur(10px)'
-                }}
-                formatter={(value) => {
-                  return [`${value}/5 😊`, 'Mood'];
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="mood"
-                stroke="url(#moodGradient)"
-                fill="url(#moodGradient)"
-                strokeWidth={3}
-                name="Mood"
-                dot={{ 
-                  fill: '#fbbf24', 
-                  strokeWidth: 2, 
-                  r: 5,
-                  stroke: '#ffffff'
-                }}
-                activeDot={{ 
-                  r: 8, 
-                  stroke: '#8b5cf6', 
-                  strokeWidth: 3,
-                  fill: '#ffffff'
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </motion.div>
-
-        {/* Simple Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {/* Average Mood Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
-          >
-            <div className="text-5xl mb-4">📊</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Average Mood</h3>
-            <div className="text-4xl font-bold text-gray-900 mb-2">
-              4.2
-            </div>
-            <p className="text-gray-600">Out of 5 stars</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Your Beautiful Journey Over Time
+            </h1>
+            <p className="text-xl text-gray-600">
+              Insights and patterns from your mental wellness journey
+            </p>
           </motion.div>
-
-          {/* Check-ins Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
-          >
-            <div className="text-5xl mb-4">📝</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Total Check-ins</h3>
-            <div className="text-4xl font-bold text-gray-900 mb-2">
-              28
-            </div>
-            <p className="text-gray-600">This month</p>
-          </motion.div>
-
-          {/* Streak Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
-          >
-            <div className="text-5xl mb-4">🔥</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Current Streak</h3>
-            <div className="text-4xl font-bold text-gray-900 mb-2">
-              7
-            </div>
-            <p className="text-gray-600">Days in a row</p>
-          </motion.div>
+          <div className="mb-4"></div>
         </div>
 
-        {/* Beautiful Action Buttons - Inspired by Landing Page */}
-        <motion.div
-          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-        >
-          <motion.button
-            onClick={() => window.location.href = '/flow?manual=true'}
-            className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
-            style={{
-              background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
-              boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
-            }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {/* Minimal shimmer effect - subtle and elegant */}
-            <div 
-              className="absolute inset-0 rounded-xl opacity-30"
-              style={{
-                background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
-                backgroundSize: '200% 200%',
-                animation: 'shimmer 3s ease-in-out infinite'
-              }}
-            ></div>
-            
-            {/* Clean, minimal button text */}
-            <span className="relative z-10">
-              💭 Log Today's Emotion
-            </span>
-          </motion.button>
-          
-          <motion.button
+        {/* Period Selector */}
+        <div className="mb-8">
+          <div className="flex justify-center space-x-4">
+            {[
+              { key: 'week', label: 'Week' },
+              { key: 'month', label: 'Month' },
+              { key: 'year', label: 'Year' }
+            ].map((period) => (
+              <button
+                key={period.key}
+                onClick={() => setSelectedPeriod(period.key)}
+                className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
+                  selectedPeriod === period.key
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {period.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Chart */}
+        <div className="mb-16">
+          <Card className="p-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+              Your Mood Journey
+            </h3>
+            <p className="text-gray-600 text-center mb-8">
+              A gentle look at your emotional patterns over time
+            </p>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={getData()}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey={getXAxisKey()} 
+                    stroke="#666" 
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#666" 
+                    fontSize={12}
+                    domain={[0, 10]}
+                    tickCount={6}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="mood"
+                    stroke="url(#moodGradient)"
+                    fill="url(#moodGradient)"
+                    strokeWidth={3}
+                    fillOpacity={0.3}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Gradient definitions */}
+            <svg width="0" height="0">
+              <defs>
+                <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#fbbf24" />
+                  <stop offset="100%" stopColor="#8b5cf6" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </Card>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {stats.totalEntries}
+            </div>
+            <div className="text-sm text-gray-600">Total Entries</div>
+          </Card>
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {stats.averageMood}
+            </div>
+            <div className="text-sm text-gray-600">Average Mood</div>
+          </Card>
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {stats.currentStreak}
+            </div>
+            <div className="text-sm text-gray-600">Day Streak</div>
+          </Card>
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {stats.totalActivities}
+            </div>
+            <div className="text-sm text-gray-600">Activities</div>
+          </Card>
+        </div>
+
+        {/* Insights Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card className="p-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
+              Top Emotions
+            </h3>
+            <div className="space-y-4">
+              {stats.topEmotions.map((emotion, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-gray-700">{emotion}</span>
+                  <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-yellow-400 to-purple-600 rounded-full"
+                      style={{ width: `${85 - index * 10}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="p-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
+              Personal Insights
+            </h3>
+            <div className="space-y-4">
+              {stats.insights.map((insight, index) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-gray-700 text-sm">{insight}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Action Button */}
+        <div className="mt-12 text-center">
+          <Button
             onClick={() => window.location.href = '/dashboard'}
-            className="px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-xl font-semibold border border-gray-200 hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-xl font-semibold hover:from-yellow-500 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
           >
-            🏠 Back to Dashboard
-          </motion.button>
-        </motion.div>
+            Back to Dashboard
+          </Button>
+        </div>
       </div>
     </div>
   );
