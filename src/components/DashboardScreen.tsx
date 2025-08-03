@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionType } from '../types';
+import { LumenMascot } from './ui';
 
 // Emotion data for display with enhanced gradients
 const emotionData: Record<EmotionType, { 
@@ -245,6 +246,9 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
     >
       {/* Enhanced Animated Background */}
       <AnimatedParticles />
+
+      {/* Luna Mascot */}
+      <LumenMascot currentPage="/dashboard" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         {/* Enhanced Header */}

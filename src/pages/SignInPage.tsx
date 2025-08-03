@@ -97,8 +97,8 @@ const SignInPage: React.FC = () => {
           >
             <div className="flex justify-center">
               <SignIn
-                redirectUrl="/dashboard"
-                afterSignInUrl="/dashboard"
+                redirectUrl="/flow"
+                afterSignInUrl="/flow"
                 appearance={{
                   elements: {
                     formButtonPrimary: "bg-black hover:bg-gray-800 transition-all",

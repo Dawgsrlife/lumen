@@ -229,14 +229,18 @@ const LandingPage: React.FC = () => {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lumen-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lumen-primary mx-auto"></div>
+          <div className="mb-4"></div>
+          <p className="text-gray-600">Setting up your experience...</p>
+        </div>
       </div>
     );
   }
 
   if (isSignedIn) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/flow" replace />;
   }
 
   console.log('🔍 Render state:', { showIntro, showContent, isLoaded, isSignedIn });
