@@ -23,7 +23,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   const encouragingMessages = [
     "You're doing amazing! Every step counts towards better mental health! 🌟",
     "I believe in you! Your journey to wellness is inspiring! 💪",
-    "Small steps lead to big changes. Keep going, you've got this! 🌱",
+    "Small steps lead to big changes. So, keep going, because you've got this! 🌱",
     "Your commitment to self-care is beautiful. I'm proud of you! 🦋",
     "Remember: progress, not perfection. You're exactly where you need to be! ✨"
   ];
@@ -36,7 +36,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       '/features': "Ooh, exploring features? I love showing off what we can do together!",
       '/contact': "Want to meet the team? They're as awesome as you'd expect!",
       '/sign-in': "Welcome back! I'm so excited to see you again. Let's continue your journey!",
-      '/sign-up': "Hey there, new friend! I'm Foxie, and I can't wait to be your wellness companion!"
+
     };
     return greetings[page as keyof typeof greetings] || "Hi! I'm Foxie, your friendly Lumen guide!";
   };
@@ -186,7 +186,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
 
 
 
-  const getEyeStyle = (expression: string, isLeftEye: boolean = true) => {
+  const getEyeStyle = (expression: string) => {
     switch (expression) {
       case 'excited':
         return { width: '12px', height: '12px', transform: 'scaleY(1.1)' };
@@ -247,7 +247,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
                 {/* Left Eye */}
                 <div 
                   className="bg-gray-900 rounded-full relative shadow-lg transition-all duration-300"
-                  style={getEyeStyle(eyeExpression, true)}
+                  style={getEyeStyle(eyeExpression)}
                 >
                   {/* Multiple highlights for sparkly eyes - always visible! */}
                   <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>
@@ -257,7 +257,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
                 {/* Right Eye */}
                 <div 
                   className="bg-gray-900 rounded-full relative shadow-lg transition-all duration-300"
-                  style={getEyeStyle(eyeExpression, false)}
+                  style={getEyeStyle(eyeExpression)}
                 >
                   {/* Multiple highlights for sparkly eyes */}
                   <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full opacity-95"></div>

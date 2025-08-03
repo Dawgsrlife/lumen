@@ -44,7 +44,7 @@ export const MoodContributionGraph: React.FC<MoodContributionGraphProps> = ({
   const [hoveredDay, setHoveredDay] = useState<{ date: string; emotion: EmotionType; intensity: number } | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  const { dates, weeks } = useMemo(() => {
+  const { weeks } = useMemo(() => {
     const dateList = [];
     const today = new Date();
     
@@ -70,7 +70,7 @@ export const MoodContributionGraph: React.FC<MoodContributionGraphProps> = ({
       }
     }
     
-    return { dates: dateList, weeks: weeksList };
+    return { weeks: weeksList };
   }, []);
 
   const entryMap = useMemo(() => {
