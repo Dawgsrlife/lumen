@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { AppProvider, useAppContext } from './context/AppContext';
 import { ClerkProvider } from './components/auth/ClerkProvider';
@@ -21,18 +21,27 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Games = lazy(() => import('./pages/Games'));
+const Chat = lazy(() => import('./pages/Chat'));
 
 // Conditional Layout Component
 const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { state } = useAppContext();
+  const location = useLocation();
   
-  // Show header only after emotion selection (post-emotion selection)
-  const shouldShowHeader = state.showHeader;
+  // Always show header for main app pages (dashboard, chat, analytics, profile, games)
+  const mainAppPages = ['/dashboard', '/chat', '/analytics', '/profile', '/games'];
+  const isMainAppPage = mainAppPages.includes(location.pathname);
+  
+  // Show header if in main app pages OR if emotion flow is complete
+  const shouldShowHeader = isMainAppPage || state.showHeader;
   
   console.log('ConditionalLayout: State', {
     showHeader: state.showHeader,
     currentView: state.currentView,
-    user: state.user
+    user: state.user,
+    pathname: location.pathname,
+    isMainAppPage,
+    shouldShowHeader
   });
   
   if (shouldShowHeader) {
@@ -147,6 +156,18 @@ function App() {
                     <ProtectedRoute>
                       <ConditionalLayout>
                         <Games />
+                      </ConditionalLayout>
+                    </ProtectedRoute>
+                  </Suspense>
+                } 
+              />
+              <Route 
+                path="/chat" 
+                element={
+                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                    <ProtectedRoute>
+                      <ConditionalLayout>
+                        <Chat />
                       </ConditionalLayout>
                     </ProtectedRoute>
                   </Suspense>
