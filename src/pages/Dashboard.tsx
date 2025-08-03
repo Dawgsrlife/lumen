@@ -217,6 +217,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
+    <>
     <DashboardScreen
       selectedEmotion={currentEmotion}
       currentStreak={currentStreak}
@@ -444,6 +445,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
