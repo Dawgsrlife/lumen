@@ -50,41 +50,35 @@ const UnityGame: React.FC<UnityGameProps> = ({
   });
 
   const [error, setError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Handle game start event
-  const handleGameStart = useCallback((data: unknown) => {
-    console.log('Game started:', data);
+  const handleGameStart = useCallback((_data: unknown) => {
+    // Game started
   }, []);
 
   // Handle game end event
   const handleGameEnd = useCallback((data: UnityGameData) => {
     setGameData(data);
     onGameComplete?.(data);
-    console.log('Game ended:', data);
   }, [onGameComplete]);
 
   // Handle achievement event
-  const handleAchievement = useCallback((data: unknown) => {
-    console.log('Achievement earned:', data);
+  const handleAchievement = useCallback((_data: unknown) => {
+    // Achievement earned
   }, []);
 
   // Handle reward event
   const handleReward = useCallback((data: UnityReward) => {
     onRewardEarned?.(data);
-    console.log('Reward earned:', data);
   }, [onRewardEarned]);
 
   // Handle Unity errors
-  const handleError = useCallback((message: string) => {
-    console.error('Unity Error:', message);
-    setError(`Unity Error: ${message}`);
+  const handleError = useCallback((_message: string) => {
+    setError(`Unable to load the game`);
   }, []);
 
   // Handle Unity loaded event
   const handleLoaded = useCallback(() => {
-    console.log('Unity application loaded successfully');
-    setIsInitialized(true);
     setError(null);
   }, []);
 
@@ -110,38 +104,16 @@ const UnityGame: React.FC<UnityGameProps> = ({
     };
   }, [addEventListener, removeEventListener, handleGameStart, handleGameEnd, handleAchievement, handleReward, handleError, handleLoaded]);
 
-  // Debug Unity context initialization
-  useEffect(() => {
-    console.log('Unity Context Debug Info:', {
-      buildUrl,
-      gameName,
-      files: {
-        loader: `${buildUrl}/Builds.loader.js${gameName ? `?game=${gameName}` : ''}`,
-        data: `${buildUrl}/Builds.data.br`,
-        framework: `${buildUrl}/Builds.framework.js.br`,
-        wasm: `${buildUrl}/Builds.wasm.br`,
-      },
-      isLoaded,
-      loadingProgression,
-      error,
-      isInitialized,
-    });
-  }, [buildUrl, gameName, isLoaded, loadingProgression, error, isInitialized]);
 
-  // Safe Unity message sending with error handling
+
+  // Safe Unity message sending
   const sendUnityMessage = useCallback((gameObject: string, method: string, parameter?: string) => {
-    if (!isLoaded) {
-      console.warn('Unity not loaded yet, message queued for later');
-      return false;
-    }
+    if (!isLoaded) return false;
 
     try {
-      console.log(`Sending Unity message: ${gameObject}.${method}(${parameter || 'no params'})`);
       sendMessage(gameObject, method, parameter);
       return true;
     } catch (err) {
-      console.warn(`Unity message failed: ${gameObject}.${method} - ${err}`);
-      // Don't set error for missing GameObjects, just log warning
       return false;
     }
   }, [isLoaded, sendMessage]);
@@ -149,8 +121,6 @@ const UnityGame: React.FC<UnityGameProps> = ({
   // Send emotion data to Unity when loaded
   useEffect(() => {
     if (isLoaded && emotionData) {
-      console.log('Sending emotion data to Unity:', emotionData);
-      
       const emotionPayload = JSON.stringify({
         emotion: emotionData.emotion,
         intensity: emotionData.intensity,
@@ -158,39 +128,24 @@ const UnityGame: React.FC<UnityGameProps> = ({
       });
 
       // Try different possible GameObject names
-      const success = sendUnityMessage('GameManager', 'ReceiveEmotionData', emotionPayload) ||
-                     sendUnityMessage('Main Camera', 'ReceiveEmotionData', emotionPayload) ||
-                     sendUnityMessage('Canvas', 'ReceiveEmotionData', emotionPayload);
-      
-      if (!success) {
-        console.log('No GameObject found to receive emotion data - Unity game may handle this internally');
-      }
+      sendUnityMessage('GameManager', 'ReceiveEmotionData', emotionPayload) ||
+      sendUnityMessage('Main Camera', 'ReceiveEmotionData', emotionPayload) ||
+      sendUnityMessage('Canvas', 'ReceiveEmotionData', emotionPayload);
     }
   }, [isLoaded, emotionData, sendUnityMessage]);
 
   // Send game name to Unity when loaded
   useEffect(() => {
     if (isLoaded && gameName) {
-      console.log('Requesting Unity to load game:', gameName);
-      
       // Try different possible GameObject names and methods
-      const success = sendUnityMessage('GameManager', 'LoadGame', gameName) ||
-                     sendUnityMessage('GameController', 'LoadGame', gameName) ||
-                     sendUnityMessage('Main Camera', 'LoadGame', gameName);
-      
-      if (!success) {
-        console.log('No GameObject found to handle game loading - Unity game may use URL parameter');
-      }
+      sendUnityMessage('GameManager', 'LoadGame', gameName) ||
+      sendUnityMessage('GameController', 'LoadGame', gameName) ||
+      sendUnityMessage('Main Camera', 'LoadGame', gameName);
     }
   }, [isLoaded, gameName, sendUnityMessage]);
 
   const handleStartGame = () => {
-    console.log('Starting Unity game:', { gameId, buildUrl, gameName });
-    
-    if (!isLoaded) {
-      console.warn('Unity not loaded yet, cannot start game');
-      return;
-    }
+    if (!isLoaded) return;
 
     const gameData = JSON.stringify({
       gameId,
@@ -199,29 +154,18 @@ const UnityGame: React.FC<UnityGameProps> = ({
     });
 
     // Try to send start message to various possible GameObjects
-    const success = sendUnityMessage('GameManager', 'StartGame', gameData) ||
-                   sendUnityMessage('GameController', 'StartGame', gameData) ||
-                   sendUnityMessage('Main Camera', 'StartGame', gameData);
-    
-    if (!success) {
-      console.log('Unity game started without explicit messaging - game may auto-start');
-    }
+    sendUnityMessage('GameManager', 'StartGame', gameData) ||
+    sendUnityMessage('GameController', 'StartGame', gameData) ||
+    sendUnityMessage('Main Camera', 'StartGame', gameData);
   };
 
   const handleStopGame = () => {
-    if (!isLoaded) {
-      console.warn('Unity not loaded, cannot stop game');
-      return;
-    }
+    if (!isLoaded) return;
 
     // Try to send stop message to various possible GameObjects
-    const success = sendUnityMessage('GameManager', 'EndGame') ||
-                   sendUnityMessage('GameController', 'EndGame') ||
-                   sendUnityMessage('Main Camera', 'EndGame');
-    
-    if (!success) {
-      console.log('Unity game may not have explicit stop handling - this is normal');
-    }
+    sendUnityMessage('GameManager', 'EndGame') ||
+    sendUnityMessage('GameController', 'EndGame') ||
+    sendUnityMessage('Main Camera', 'EndGame');
   };
 
   const handleFullscreen = () => {
@@ -257,16 +201,8 @@ const UnityGame: React.FC<UnityGameProps> = ({
                 <div className="text-center">
                   <LoadingSpinner size="lg" />
                   <p className="text-white mt-4">
-                    Loading Unity Game... {Math.round(loadingProgression * 100)}%
+                    Loading {gameTitle}... {Math.round(loadingProgression * 100)}%
                   </p>
-                  <p className="text-white/70 text-sm mt-2">
-                    Build URL: {buildUrl}
-                  </p>
-                  {loadingProgression === 0 && (
-                    <p className="text-yellow-400 text-sm mt-2">
-                      ⚠️ Loading not started - Check console for errors
-                    </p>
-                  )}
                 </div>
               </div>
             )}
@@ -277,8 +213,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
                 <div className="text-center text-white p-4">
                   <div className="text-2xl mb-2">⚠️</div>
                   <p className="font-semibold">Unity Loading Error</p>
-                  <p className="text-sm mt-2 max-w-md">{error}</p>
-                  <p className="text-xs mt-2 text-white/70">Check browser console for details</p>
+                  <p className="text-sm mt-2 max-w-md">Unable to load the game. Please try refreshing the page.</p>
                   <Button
                     onClick={() => {
                       setError(null);
@@ -305,12 +240,23 @@ const UnityGame: React.FC<UnityGameProps> = ({
                   ⛶ Fullscreen
                 </Button>
                 <Button
-                  onClick={handleStopGame}
+                  onClick={() => {
+                    handleStopGame();
+                    // Trigger game completion to go to post-game feedback
+                    if (onGameComplete) {
+                      onGameComplete({
+                        gameId: gameId,
+                        score: 0,
+                        duration: 0,
+                        achievements: []
+                      });
+                    }
+                  }}
                   size="sm"
                   variant="outline"
                   className="bg-red-600/50 text-white border-red-400/20 hover:bg-red-600/70"
                 >
-                  ⏹ Stop
+                  Stop
                 </Button>
               </div>
             )}
@@ -320,73 +266,12 @@ const UnityGame: React.FC<UnityGameProps> = ({
           {isLoaded && (
             <div className="flex justify-center">
               <Button onClick={handleStartGame} size="lg">
-                🎮 Start Game
+                Start Game
               </Button>
             </div>
           )}
 
-          {/* Game Info */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-semibold text-gray-800 mb-2">Game Information & Debug</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Game ID:</span>
-                <span className="ml-2 font-mono">{gameId}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Game Name:</span>
-                <span className="ml-2 font-mono">{gameName || 'Not specified'}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Status:</span>
-                <span className={`ml-2 ${isLoaded ? 'text-green-600' : error ? 'text-red-600' : 'text-yellow-600'}`}>
-                  {error ? 'Error' : isLoaded ? 'Ready' : 'Loading'}
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-600">Progress:</span>
-                <span className="ml-2">{Math.round(loadingProgression * 100)}%</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Initialized:</span>
-                <span className={`ml-2 ${isInitialized ? 'text-green-600' : 'text-gray-600'}`}>
-                  {isInitialized ? 'Yes' : 'No'}
-                </span>
-              </div>
-              <div className="col-span-full">
-                <span className="text-gray-600">Build Path:</span>
-                <div className="ml-2 font-mono text-xs break-all bg-gray-100 p-2 rounded mt-1">
-                  {buildUrl}
-                </div>
-              </div>
-              <div className="col-span-full">
-                <span className="text-gray-600">Loader URL:</span>
-                <div className="ml-2 font-mono text-xs break-all bg-gray-100 p-2 rounded mt-1">
-                  {buildUrl}/Builds.loader.js{gameName ? `?game=${gameName}` : ''}
-                </div>
-              </div>
-              {error && (
-                <div className="col-span-full">
-                  <span className="text-red-600">Error:</span>
-                  <div className="ml-2 text-xs text-red-700 bg-red-50 p-2 rounded mt-1">
-                    {error}
-                  </div>
-                </div>
-              )}
-              {isLoaded && !error && (
-                <div className="col-span-full">
-                  <span className="text-green-600">Unity Status:</span>
-                  <div className="ml-2 text-xs text-green-700 bg-green-50 p-2 rounded mt-1">
-                    ✅ Unity game loaded successfully! If nothing appears, the game may need:
-                    <br />• Proper lighting setup in Unity scene
-                    <br />• Camera positioned correctly  
-                    <br />• GameObjects with renderers enabled
-                    <br />• Check Unity console for runtime errors
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+
 
           {/* Game Results */}
           {gameData && (

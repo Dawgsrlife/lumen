@@ -34,11 +34,43 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
 
   const handleGamePromptContinue = () => {
     console.log('Game prompt continue');
+    
+    // Update URL with game parameter based on selected emotion
+    const emotionToGameName: Record<string, string> = {
+      'frustration': 'boxbreathing',
+      'stress': 'boxbreathing', 
+      'anxiety': 'boxbreathing',
+      'sad': 'colorbloom',
+      'grief': 'memorylantern',
+      'lethargy': 'rythmgrow',
+      'anger': 'balancingact',
+      'happy': 'colorbloom',
+      'loneliness': 'memorylantern',
+      'fear': 'boxbreathing'
+    };
+    
+    const selectedEmotion = flowState.selectedEmotion;
+    const gameName = selectedEmotion ? emotionToGameName[selectedEmotion] : null;
+    
+    if (gameName) {
+      // Update URL without page refresh
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('game', gameName);
+      window.history.replaceState({}, '', newUrl.toString());
+      console.log('Updated URL with game parameter:', gameName);
+    }
+    
     flowState.actions.setCurrentStep('game');
   };
 
   const handleGameComplete = (data: any) => {
     console.log('Game completed');
+    
+    // Remove game parameter from URL when moving to journaling
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.delete('game');
+    window.history.replaceState({}, '', newUrl.toString());
+    
     flowState.actions.completeGame(data);
     flowState.actions.setCurrentStep('journaling');
   };
