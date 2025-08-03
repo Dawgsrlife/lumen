@@ -121,15 +121,31 @@ export const authenticateToken = async (
     // For hackathon: if token looks like a user ID (not a JWT), use it directly
     if (token.length < 50 && !token.includes('.')) {
       // This is likely a user ID, not a JWT token
-      const user = await UserModel.findOne({ clerkId: token });
+      let user = await UserModel.findOne({ clerkId: token });
       
       if (!user) {
-        res.status(401).json({
-          error: 'User not found',
-          code: 'USER_NOT_FOUND',
-          details: {}
+        // Create new user if they don't exist
+        user = new UserModel({
+          clerkId: token,
+          email: `${token}@test.com`,
+          firstName: 'Test',
+          lastName: 'User',
+          avatar: 'https://via.placeholder.com/150',
+          createdAt: new Date(),
+          lastLoginAt: new Date(),
+          preferences: {
+            theme: 'system',
+            notifications: true,
+            privacyLevel: 'private',
+            language: 'en'
+          }
         });
-        return;
+        await user.save();
+        console.log(`✅ Created new user: ${token}`);
+      } else {
+        // Update last login
+        user.lastLoginAt = new Date();
+        await user.save();
       }
 
       req.user = {

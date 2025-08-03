@@ -1,7 +1,15 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import type { User, UserPreferences } from '../types/index.js';
 
-export interface UserDocument extends Omit<User, 'id'>, Document {}
+export interface UserDocument extends Omit<User, 'id'>, Document {
+  hasLoggedToday(): boolean;
+  updateWeeklyData(dayIndex: number, logged: boolean): Promise<this>;
+  updateStreak(newStreak: number): Promise<this>;
+  resetWeeklyData(): Promise<this>;
+  getCurrentWeekData(): boolean[];
+  isNewWeek(lastDate: Date, currentDate: Date): boolean;
+  getWeekNumber(date: Date): number;
+}
 
 const userPreferencesSchema = new Schema<UserPreferences>({
   theme: {

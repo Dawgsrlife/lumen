@@ -205,12 +205,10 @@ function App() {
                       <ProtectedRoute>
                         <ConditionalLayout>
                           <Analytics />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
-                } 
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
               />
               <Route 
                 path="/games" 

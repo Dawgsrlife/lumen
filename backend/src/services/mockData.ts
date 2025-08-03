@@ -151,7 +151,24 @@ class MockDataService {
         language: 'en'
       },
       createdAt: new Date(),
-      lastLoginAt: new Date()
+      lastLoginAt: new Date(),
+      // Enhanced user tracking
+      currentStreak: 0,
+      longestStreak: 0,
+      lastEmotionDate: undefined,
+      weeklyData: [false, false, false, false, false, false, false],
+      totalEmotionEntries: 0,
+      favoriteEmotions: [],
+      // Session tracking
+      hasPlayedGameToday: false,
+      currentEmotion: null,
+      // Analytics data
+      averageMood: 5,
+      moodTrend: 'stable',
+      // Game statistics
+      gamesPlayed: 0,
+      totalGameTime: 0,
+      favoriteGames: []
     };
 
     this.users.set(user.clerkId, user);

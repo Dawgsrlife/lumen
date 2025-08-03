@@ -113,7 +113,7 @@ router.post('/',
         });
       }
 
-      const { emotion, intensity, context, surveyResponses }: CreateEmotionRequest = req.body;
+      const { emotion, intensity, context, surveyResponses, associateJournal }: CreateEmotionRequest & { associateJournal?: boolean } = req.body;
       const clerkId = req.clerkId!;
 
       // Find or create user
@@ -317,7 +317,7 @@ router.get('/',
       ]);
 
       // Get user data for enhanced response
-      const user = await UserModel.findOne({ clerkId }).lean();
+      const user = await UserModel.findOne({ clerkId });
       const userData = user ? {
         currentStreak: user.currentStreak,
         longestStreak: user.longestStreak,
