@@ -111,6 +111,7 @@ export const UserProfile: React.FC = () => {
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Your Profile
             </h1>
+            <div className="mb-4"></div>
             <p className="text-lg text-gray-600 leading-relaxed text-center">
               Manage your account and preferences
             </p>
