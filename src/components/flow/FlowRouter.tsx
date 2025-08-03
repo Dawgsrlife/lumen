@@ -1,147 +1,136 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import WelcomeScreen from '../WelcomeScreen';
-import EmotionSelectionScreen from '../EmotionSelectionScreen';
-import FlowGameSection from './FlowGameSection';
-import { PostGameFeedback } from '../games';
-import JournalingStep from '../JournalingStep';
-import type { FlowStep } from '../../context/FlowProvider';
-import type { UnityGameData, UnityReward } from '../../services/unity';
-import type { EmotionType } from '../../types';
+import { WelcomeScreen } from '../WelcomeScreen';
+import { EmotionSelectionScreen } from '../EmotionSelectionScreen';
+import { GamePromptScreen } from '../GamePromptScreen';
+import { UnityGame } from '../games/UnityGame';
+import { GameCompletion } from '../games/GameCompletion';
+import { PostGameFeedback } from '../games/PostGameFeedback';
+import { JournalingStep } from '../JournalingStep';
+import { DashboardScreen } from '../DashboardScreen';
+import { useFlowManager } from '../../hooks/useFlowManager';
+import { useFlowParams } from '../../hooks/useFlowParams';
+import { useFlowState } from '../../hooks/useFlowState';
+import { useUserFlowState } from '../../hooks/useUserFlowState';
+import { LumenMascot } from '../ui';
 
 interface FlowRouterProps {
-  currentStep: FlowStep;
-  selectedEmotion: EmotionType | null;
-  user: any;
-  onEmotionSelect: (emotion: EmotionType) => void;
-  onGameComplete: (data: UnityGameData) => void;
-  onRewardEarned: (reward: UnityReward) => void;
-  onSkipGame: () => void;
-  onFeedbackResponse: (feeling: boolean) => void;
-  onSkipFeedback: () => void;
-  onJournalingComplete: () => void;
-  onJournalingSkip: () => void;
-  setCurrentStep: (step: FlowStep) => void;
+  onComplete?: () => void;
 }
 
-const stepOrder: FlowStep[] = ['welcome', 'emotion-selection', 'game', 'feedback', 'journaling'];
+const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
+  const { currentStep, selectedEmotion, isManualFlow, hasLoggedToday } = useFlowState();
+  const { advanceToNextStep, resetFlow } = useFlowManager();
+  const { gameId, gameName } = useFlowParams();
+  const { currentStreak, weeklyData } = useUserFlowState();
 
-const FlowRouter: React.FC<FlowRouterProps> = ({
-  currentStep,
-  selectedEmotion,
-  user,
-  onEmotionSelect,
-  onGameComplete,
-  onRewardEarned,
-  onSkipGame,
-  onFeedbackResponse,
-  onSkipFeedback,
-  onJournalingComplete,
-  onJournalingSkip,
-  setCurrentStep
-}) => {
-  const advanceToNextStep = () => {
-    const idx = stepOrder.indexOf(currentStep);
-    if (idx < stepOrder.length - 1) setCurrentStep(stepOrder[idx + 1]);
+  const handleRewardEarned = (reward: any) => {
+    // TODO: Add reward handling to flow state
   };
 
+  const handleGameComplete = () => {
+    advanceToNextStep();
+  };
 
+  const handleFlowComplete = () => {
+    if (onComplete) {
+      onComplete();
+    }
+  };
 
-  switch (currentStep) {
-    case 'welcome':
-      return (
-        <WelcomeScreen
-          username={user?.username}
-          onComplete={advanceToNextStep}
-        />
-      );
-    case 'emotion-selection':
-      return (
-        <EmotionSelectionScreen
-          onEmotionSelect={emotion => {
-            onEmotionSelect(emotion);
-            advanceToNextStep();
-          }}
-        />
-      );
-    case 'game':
-      if (!selectedEmotion) {
+  const renderStep = () => {
+    switch (currentStep) {
+      case 'welcome':
         return (
-          <div key="game-error" className="min-h-screen flex items-center justify-center">
+          <WelcomeScreen
+            isManualFlow={isManualFlow}
+            onContinue={advanceToNextStep}
+          />
+        );
+
+      case 'emotion-selection':
+        return (
+          <EmotionSelectionScreen
+            onEmotionSelected={advanceToNextStep}
+            selectedEmotion={selectedEmotion}
+          />
+        );
+
+      case 'game-prompt':
+        return (
+          <GamePromptScreen
+            selectedEmotion={selectedEmotion}
+            onContinue={advanceToNextStep}
+          />
+        );
+
+      case 'game':
+        return (
+          <UnityGame
+            gameId={gameId}
+            gameName={gameName}
+            emotionData={selectedEmotion}
+            onGameComplete={handleGameComplete}
+            onRewardEarned={handleRewardEarned}
+          />
+        );
+
+      case 'game-completion':
+        return (
+          <GameCompletion
+            onContinue={advanceToNextStep}
+          />
+        );
+
+      case 'post-game-feedback':
+        return (
+          <PostGameFeedback
+            onContinue={advanceToNextStep}
+          />
+        );
+
+      case 'journaling':
+        return (
+          <JournalingStep
+            selectedEmotion={selectedEmotion}
+            onComplete={advanceToNextStep}
+          />
+        );
+
+      case 'dashboard':
+        return (
+          <DashboardScreen
+            selectedEmotion={selectedEmotion}
+            currentStreak={currentStreak}
+            weeklyData={weeklyData}
+            onReset={resetFlow}
+          />
+        );
+
+      default:
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-4xl mb-4">⚠️</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No emotion selected</h3>
-              <p className="text-gray-600">Please select an emotion to continue</p>
-              <button onClick={advanceToNextStep} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Continue</button>
-              <button onClick={() => window.location.href = '/dashboard'} className="fixed bottom-4 right-4 text-xs text-gray-400 underline">Skip to Dashboard</button>
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">Step Not Found</h1>
+              <p className="text-gray-600 mb-6">The requested step could not be found.</p>
+              <button 
+                onClick={() => window.location.href = '/dashboard'} 
+                className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
+              >
+                Go to Dashboard
+              </button>
             </div>
           </div>
         );
-      }
-      return (
-        <FlowGameSection
-          emotion={selectedEmotion}
-          onGameComplete={data => {
-            onGameComplete(data);
-            advanceToNextStep();
-          }}
-          onRewardEarned={onRewardEarned}
-          onSkip={() => {
-            onSkipGame();
-            advanceToNextStep();
-          }}
-        />
-      );
-    case 'feedback':
-      if (!selectedEmotion) {
-        return (
-          <div key="feedback-error" className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-4xl mb-4">⚠️</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No emotion selected</h3>
-              <p className="text-gray-600">Please select an emotion to continue</p>
-              <button onClick={advanceToNextStep} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Continue</button>
-              <button onClick={() => window.location.href = '/dashboard'} className="fixed bottom-4 right-4 text-xs text-gray-400 underline">Skip to Dashboard</button>
-            </div>
-          </div>
-        );
-      }
-      return (
-        <PostGameFeedback
-          emotion={selectedEmotion}
-          gameTitle="Calming Game"
-          onFeedback={feeling => {
-            onFeedbackResponse(feeling);
-            advanceToNextStep();
-          }}
-          onSkip={() => {
-            onSkipFeedback();
-            advanceToNextStep();
-          }}
-        />
-      );
-    case 'journaling':
-      return (
-        <JournalingStep
-          onComplete={() => {
-            onJournalingComplete();
-            // Optionally, navigate to dashboard or show a complete screen
-          }}
-          onSkip={() => {
-            onJournalingSkip();
-            // Optionally, navigate to dashboard or show a complete screen
-          }}
-        />
-      );
-    default:
-      return (
-        <div>
-          <p>Unknown step: {currentStep}</p>
-          <button onClick={advanceToNextStep}>Continue</button>
-          <button onClick={() => window.location.href = '/dashboard'} className="fixed bottom-4 right-4 text-xs text-gray-400 underline">Skip to Dashboard</button>
-        </div>
-      );
-  }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <LumenMascot currentPage="/flow" />
+      {renderStep()}
+    </div>
+  );
 };
 
 export default FlowRouter; 

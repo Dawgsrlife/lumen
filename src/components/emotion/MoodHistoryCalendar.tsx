@@ -303,7 +303,7 @@ const MoodHistoryCalendar: React.FC<MoodHistoryCalendarProps> = ({
             <motion.button
               key={mode}
               onClick={() => setViewMode(mode)}
-              className={`px-6 py-3 pt-8 rounded-2xl font-medium transition-all duration-300 ${
+              className={`px-6 py-3 pt-8 rounded-2xl font-medium transition-all duration-300 cursor-pointer ${
                 viewMode === mode
                   ? 'text-white shadow-lg'
                   : 'text-white/70 hover:text-white'

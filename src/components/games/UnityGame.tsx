@@ -205,10 +205,9 @@ const UnityGame: React.FC<UnityGameProps> = ({
 
         {/* Game info panel */}
         <div className="p-6 bg-gray-50">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{gameTitle}</h3>
-            <p className="text-gray-600 text-sm mb-4">{description}</p>
-          </div>
+          <div className="mb-4"></div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{gameTitle}</h3>
+          <p className="text-gray-600 text-sm mb-4">{description}</p>
 
           {/* Status indicator */}
           <div className="flex items-center justify-between">
