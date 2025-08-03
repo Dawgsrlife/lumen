@@ -144,7 +144,21 @@ const Dashboard: React.FC = () => {
   // Set up authentication token when user is available
   useEffect(() => {
     if (user?.id) {
+      console.log('Dashboard: Setting up auth for user:', user.id);
       apiService.setClerkUserId(user.id);
+      
+      // Test API call to verify authentication works
+      const testAuth = async () => {
+        try {
+          console.log('Dashboard: Testing API authentication...');
+          const result = await apiService.getTodayEmotion();
+          console.log('Dashboard: API auth test successful:', result);
+        } catch (error) {
+          console.error('Dashboard: API auth test failed:', error);
+        }
+      };
+      
+      testAuth();
     }
   }, [user]);
 
@@ -164,21 +178,29 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const handleMoodSelect = async (emotion: EmotionType) => {
-    if (!user) return;
+    if (!user) {
+      console.error('Dashboard: No user available for mood selection');
+      return;
+    }
 
+    console.log('Dashboard: Saving mood selection', { emotion, userId: user.id });
     setSelectedMood(emotion);
     setIsSaving(true);
 
     try {
       // Save emotion to backend
-      await apiService.createEmotionEntry({
+      console.log('Dashboard: Creating emotion entry...');
+      const emotionResult = await apiService.createEmotionEntry({
         emotion,
         intensity: 5, // Default intensity, could be made configurable
         context: `Mood logged from dashboard on ${new Date().toLocaleDateString()}`
       });
+      console.log('Dashboard: Emotion entry created successfully', emotionResult);
 
       // Start game session
+      console.log('Dashboard: Starting game session...');
       const gameSession = await apiService.startGameSession(emotion);
+      console.log('Dashboard: Game session created successfully', gameSession);
       
       setShowConfirmation(true);
       setTimeout(() => {
@@ -193,7 +215,7 @@ const Dashboard: React.FC = () => {
       }, 4000);
 
     } catch (error) {
-      console.error('Error saving emotion or starting game session:', error);
+      console.error('Dashboard: Error saving emotion or starting game session:', error);
       // Still show confirmation even if save fails
       setShowConfirmation(true);
       setTimeout(() => setShowConfirmation(false), 2000);

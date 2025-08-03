@@ -3,7 +3,7 @@ import WelcomeScreen from '../WelcomeScreen';
 import EmotionSelectionScreen from '../EmotionSelectionScreen';
 import GamePromptScreen from '../GamePromptScreen';
 import UnityGame from '../games/UnityGame';
-import JournalingStep from '../JournalingStep';
+import VoiceChatStep from '../VoiceChatStep';
 import { useFlowState } from '../../hooks/useFlowState';
 import { LumenMascot } from '../ui';
 import type { EmotionType } from '../../types';
@@ -40,12 +40,11 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
   const handleGameComplete = (data: any) => {
     console.log('Game completed');
     flowState.actions.completeGame(data);
-    flowState.actions.setCurrentStep('journaling');
+    flowState.actions.setCurrentStep('voice-chat');
   };
 
-  const handleJournalingComplete = () => {
-    console.log('Journaling completed');
-    // Save journal entry and complete flow
+  const handleVoiceChatComplete = () => {
+    console.log('Voice chat completed');
     flowState.actions.completeFlow();
     if (onComplete) {
       onComplete();
@@ -100,12 +99,12 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
           />
         );
 
-      case 'journaling':
+      case 'voice-chat':
         return (
-          <JournalingStep
+          <VoiceChatStep
             selectedEmotion={flowState.selectedEmotion || 'happy'}
             gameCompleted={flowState.gameData?.gameId || undefined}
-            onComplete={handleJournalingComplete}
+            onComplete={handleVoiceChatComplete}
             onSkip={() => {
               flowState.actions.completeFlow();
               if (onComplete) onComplete();

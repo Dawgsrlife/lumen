@@ -21,9 +21,9 @@ const FlowPage = lazy(() => import('./pages/FlowPage'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Analytics = lazy(() => import('./pages/Analytics'));
+const Chat = lazy(() => import('./pages/Chat'));
 const Games = lazy(() => import('./pages/Games'));
 const Clinic = lazy(() => import('./pages/Clinic'));
-const Chat = lazy(() => import('./pages/Chat'));
 
 // Enhanced Conditional Layout Component
 const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -32,10 +32,10 @@ const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }
   const location = window.location.pathname;
   
   // Determine if header/footer should be shown
-  // Show header/footer for dashboard, analytics, chat (main navigation pages)
+  // Show header/footer for dashboard, analytics, chat, games, clinic (main navigation pages)
   // Hide header/footer for all other pages (flow, welcome, etc.)
   const shouldShowHeader = 
-    location === '/dashboard' || location === '/analytics' || location === '/chat';
+    location === '/dashboard' || location === '/analytics' || location === '/chat' || location === '/games' || location === '/clinic';
   
   console.log('ConditionalLayout: State', {
     pathname: location,
@@ -209,50 +209,6 @@ function App() {
                       </ProtectedRoute>
                     </Suspense>
                   } 
-              />
-              <Route 
-                path="/games" 
-                element={
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                        <ProtectedRoute>
-                          <Games />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
-                } 
-              />
-              <Route 
-                path="/clinic" 
-                element={
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                        <ProtectedRoute>
-                          <Clinic />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
-                } 
-              />
-              
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Router>
-        </AppProvider>
-      </ClerkProvider>
-                        </ConditionalLayout>
-                      </ProtectedRoute>
-                    </Suspense>
-                  } 
                 />
                 <Route 
                   path="/chat" 
@@ -269,6 +225,46 @@ function App() {
                       <ProtectedRoute>
                         <ConditionalLayout>
                           <Chat />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/games" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading games...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <Games />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/clinic" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading voice therapy...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <Clinic />
                         </ConditionalLayout>
                       </ProtectedRoute>
                     </Suspense>

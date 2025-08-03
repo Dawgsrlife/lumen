@@ -43,7 +43,7 @@ const journalEntrySchema = new Schema<JournalEntryDocument>({
   },
   source: {
     type: String,
-    enum: ['manual', 'voice_chat', 'ai_generated'],
+    enum: ['manual', 'voice_chat', 'ai_generated', 'gemini_voice_chat'],
     default: 'manual'
   },
   metadata: {

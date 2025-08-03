@@ -6,24 +6,41 @@ import type {
   AIInsightResponse,
   CreateEmotionRequest,
   CreateJournalRequest,
-  PostGameFeedback,
-  CreateFeedbackRequest,
   User,
   NotificationResponse
 } from '../types/index';
 
+// Add Clerk type declaration
+declare global {
+  interface Window {
+    Clerk: any;
+  }
+}
+
 // API Configuration - backend server runs on port 5001
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
-// Helper function to get auth token
+// Helper function to get auth token from Clerk
 const getAuthToken = async (): Promise<string> => {
-  // For hackathon: we'll use a simple approach
-  // In production, this should get the actual Clerk token
-  const token = localStorage.getItem('lumen_token');
-  if (!token) {
-    throw new Error('No authentication token found');
+  // Get Clerk auth instance
+  if (typeof window !== 'undefined' && window.Clerk) {
+    try {
+      const token = await window.Clerk.session?.getToken();
+      if (token) {
+        return token;
+      }
+    } catch (error) {
+      console.warn('Failed to get Clerk token:', error);
+    }
   }
-  return token;
+  
+  // Fallback: try localStorage (for development/testing)
+  const fallbackToken = localStorage.getItem('lumen_token');
+  if (fallbackToken) {
+    return fallbackToken;
+  }
+  
+  throw new Error('No authentication token found');
 };
 
 class ApiService {
@@ -41,9 +58,26 @@ class ApiService {
 
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
-      (config) => {
-        if (this.token) {
-          config.headers.Authorization = `Bearer ${this.token}`;
+      async (config) => {
+        try {
+          // Try to get fresh token for each request
+          const token = await getAuthToken();
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+            this.token = token; // Cache for other uses
+            console.log('API: Using auth token for request', { 
+              url: config.url, 
+              tokenPreview: token.substring(0, 20) + '...' 
+            });
+          } else {
+            console.warn('API: No token available for request', { url: config.url });
+          }
+        } catch (error) {
+          console.warn('API: Error getting auth token for request', { 
+            url: config.url, 
+            error: error instanceof Error ? error.message : error 
+          });
+          // Continue without token for public endpoints
         }
         return config;
       },
@@ -95,11 +129,12 @@ class ApiService {
     localStorage.setItem('lumen_token', token);
   }
 
-  getToken(): string | null {
-    if (!this.token) {
-      this.token = localStorage.getItem('lumen_token');
+  async getToken(): Promise<string | null> {
+    try {
+      return await getAuthToken();
+    } catch (error) {
+      return null;
     }
-    return this.token;
   }
 
   clearToken() {
@@ -109,6 +144,10 @@ class ApiService {
 
   // Set token from Clerk user ID (for hackathon)
   setClerkUserId(userId: string) {
+    console.log('API: Setting Clerk user ID as token:', { 
+      userId, 
+      tokenLength: userId.length 
+    });
     this.setToken(userId);
   }
 
@@ -153,21 +192,25 @@ class ApiService {
   async createEmotionEntry(data: CreateEmotionRequest): Promise<EmotionEntry> {
     try {
       const response = await this.api.post<{
-        emotionEntry: EmotionEntry;
-        userData: {
-          currentStreak: number;
-          longestStreak: number;
-          weeklyData: boolean[];
-          totalEmotionEntries: number;
-          averageMood: number;
+        success: boolean;
+        data: {
+          emotionEntry: EmotionEntry;
+          userData: {
+            currentStreak: number;
+            longestStreak: number;
+            weeklyData: boolean[];
+            totalEmotionEntries: number;
+            averageMood: number;
+          };
         };
+        error?: string;
       }>('/emotions', data);
 
-      if (!response.data.success) {
+      if (response.data.success === false) {
         throw new Error(response.data.error || 'Failed to create emotion entry');
       }
 
-      return response.data.data!.emotionEntry;
+      return response.data.data.emotionEntry;
     } catch (error) {
       console.error('Error creating emotion entry:', error);
       throw error;
@@ -213,30 +256,34 @@ class ApiService {
       if (params?.sort) queryParams.append('sort', params.sort);
 
       const response = await this.api.get<{
-        emotions: EmotionEntry[];
-        userData?: {
-          currentStreak: number;
-          longestStreak: number;
-          weeklyData: boolean[];
-          totalEmotionEntries: number;
-          averageMood: number;
-          hasLoggedToday: boolean;
+        success: boolean;
+        data: {
+          emotions: EmotionEntry[];
+          userData?: {
+            currentStreak: number;
+            longestStreak: number;
+            weeklyData: boolean[];
+            totalEmotionEntries: number;
+            averageMood: number;
+            hasLoggedToday: boolean;
+          };
+          pagination: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+            hasNext: boolean;
+            hasPrev: boolean;
+          };
         };
-        pagination: {
-          page: number;
-          limit: number;
-          total: number;
-          totalPages: number;
-          hasNext: boolean;
-          hasPrev: boolean;
-        };
+        error?: string;
       }>(`/emotions?${queryParams.toString()}`);
 
-      if (!response.data.success) {
+      if (response.data.success === false) {
         throw new Error(response.data.error || 'Failed to fetch emotion entries');
       }
 
-      return response.data.data!;
+      return response.data.data;
     } catch (error) {
       console.error('Error fetching emotion entries:', error);
       throw error;
@@ -259,22 +306,26 @@ class ApiService {
   }> {
     try {
       const response = await this.api.get<{
-        hasLoggedToday: boolean;
-        todayEntry?: EmotionEntry;
-        userData?: {
-          currentStreak: number;
-          longestStreak: number;
-          weeklyData: boolean[];
-          currentEmotion?: string | null;
-          hasPlayedGameToday: boolean;
+        success: boolean;
+        data: {
+          hasLoggedToday: boolean;
+          todayEntry?: EmotionEntry;
+          userData?: {
+            currentStreak: number;
+            longestStreak: number;
+            weeklyData: boolean[];
+            currentEmotion?: string | null;
+            hasPlayedGameToday: boolean;
+          };
         };
+        error?: string;
       }>('/emotions/today');
 
-      if (!response.data.success) {
+      if (response.data.success === false) {
         throw new Error(response.data.error || 'Failed to check today\'s emotion');
       }
 
-      return response.data.data!;
+      return response.data.data;
     } catch (error) {
       console.error('Error checking today\'s emotion:', error);
       throw error;
@@ -416,11 +467,33 @@ class ApiService {
     therapeuticContext: any;
     wsUrl: string;
   }> {
-    const response: AxiosResponse = await this.api.post('/api/voice-chat/start', {
-      emotion,
-      intensity
-    });
-    return response.data.data;
+    try {
+      console.log('API: Starting voice chat session', { emotion, intensity });
+      const response = await this.api.post<{
+        success: boolean;
+        data: {
+          sessionId: string;
+          therapeuticContext: any;
+          wsUrl: string;
+          instructions: any;
+        };
+        error?: string;
+      }>('/api/voice-chat/start', {
+        emotion,
+        intensity
+      });
+
+      console.log('API: Voice chat session response', response.data);
+
+      if (response.data.success === false) {
+        throw new Error(response.data.error || 'Failed to start voice chat session');
+      }
+
+      return response.data.data;
+    } catch (error) {
+      console.error('API: Error starting voice chat session:', error);
+      throw error;
+    }
   }
 
   async endVoiceChatSession(sessionId: string): Promise<{

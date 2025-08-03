@@ -14,18 +14,33 @@ const LoginRedirectHandler: React.FC = () => {
 
   // Check daily status when user is signed in
   useEffect(() => {
-    const checkDailyStatus = async () => {
+    const initializeUserSession = async () => {
       if (!isSignedIn || !user) return;
 
-      console.log('LoginRedirectHandler: Checking daily status for user:', user.id);
+      console.log('LoginRedirectHandler: Initializing session for user:', user.id);
       setIsCheckingDailyStatus(true);
       
       try {
+        // Set the user ID for API authentication (fallback for hackathon)
+        console.log('LoginRedirectHandler: Setting up auth for user:', user.id);
+        apiService.setClerkUserId(user.id);
+        
+        // Test API connectivity first
+        console.log('LoginRedirectHandler: Testing API connectivity...');
+        await apiService.healthCheck();
+        console.log('LoginRedirectHandler: API health check passed');
+        
+        // Check daily status
+        console.log('LoginRedirectHandler: Checking today emotion status...');
         const response = await apiService.getTodayEmotion();
         const hasLogged = response.hasLoggedToday;
         setHasLoggedToday(hasLogged);
         
-        console.log('LoginRedirectHandler: Daily status result:', { hasLogged });
+        console.log('LoginRedirectHandler: Daily status result:', { 
+          hasLogged, 
+          userId: user.id,
+          response 
+        });
       } catch (error) {
         console.error('LoginRedirectHandler: Error checking daily status:', error);
         // On API error, default to flow (safer option)
@@ -36,7 +51,7 @@ const LoginRedirectHandler: React.FC = () => {
     };
 
     if (isSignedIn && user) {
-      checkDailyStatus();
+      initializeUserSession();
     }
   }, [isSignedIn, user]);
 

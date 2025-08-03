@@ -46,9 +46,9 @@ const UnityGame: React.FC<UnityGameProps> = ({
     requestFullscreen,
   } = useUnityContext({
     loaderUrl: `${buildUrl}/Builds.loader.js${gameName ? `?game=${gameName}` : ''}`,
-    dataUrl: `${buildUrl}/Builds.data.br`,
-    frameworkUrl: `${buildUrl}/Builds.framework.js.br`,
-    codeUrl: `${buildUrl}/Builds.wasm.br`,
+    dataUrl: `${buildUrl}/Builds.data`,
+    frameworkUrl: `${buildUrl}/Builds.framework.js`,
+    codeUrl: `${buildUrl}/Builds.wasm`,
   });
 
   // Event handlers
