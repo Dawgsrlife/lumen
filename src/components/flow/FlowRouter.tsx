@@ -12,6 +12,7 @@ import { useFlowParams } from '../../hooks/useFlowParams';
 import { useFlowState } from '../../hooks/useFlowState';
 import { useUserFlowState } from '../../hooks/useUserFlowState';
 import { LumenMascot } from '../ui';
+import { useFlow } from '../../context/FlowProvider';
 
 interface FlowRouterProps {
   onComplete?: () => void;
@@ -22,6 +23,7 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
   const { initializeFlow, handleAutoTransitions, shouldRedirectToDashboard } = useFlowManager();
   const { isManualFlow: isManualFlowParam } = useFlowParams();
   const { state: userFlowState } = useUserFlowState();
+  const { dispatch } = useFlow();
 
   const handleRewardEarned = () => {
     // TODO: Add reward handling to flow state
@@ -33,19 +35,23 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
 
   const handleWelcomeComplete = () => {
     // Advance to emotion selection after welcome
-    // This will be handled by the flow state management
+    dispatch({ type: 'SET_CURRENT_STEP', payload: 'emotion-selection' });
   };
 
   const handleEmotionSelect = (emotion: string) => {
-    // This will be handled by the flow state management
+    // Select emotion and advance to game prompt
+    dispatch({ type: 'SET_SELECTED_EMOTION', payload: emotion });
+    dispatch({ type: 'SET_CURRENT_STEP', payload: 'game-prompt' });
   };
 
   const handleGamePromptContinue = () => {
-    // This will be handled by the flow state management
+    // Advance to game
+    dispatch({ type: 'SET_CURRENT_STEP', payload: 'game' });
   };
 
   const handleGameCompletionContinue = () => {
-    // This will be handled by the flow state management
+    // Advance to journaling
+    dispatch({ type: 'SET_CURRENT_STEP', payload: 'journaling' });
   };
 
   const handleJournalingComplete = () => {
