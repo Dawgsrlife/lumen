@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useClerkUser } from '../hooks/useClerkUser';
@@ -6,14 +6,41 @@ import { Card, Button } from '../components/ui';
 import {
   LineChart,
   Line,
-  Area,
-  AreaChart,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+
+// Animated background particles
+const AnimatedBackground: React.FC = () => {
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-gray-200 rounded-full opacity-30"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 8 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 5,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const Analytics: React.FC = () => {
   const { user } = useClerkUser();
@@ -107,6 +134,7 @@ const Analytics: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      <AnimatedBackground />
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
         {/* Header */}
         <div className="mb-8">
@@ -149,7 +177,35 @@ const Analytics: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Chart */}
+        {/* Key Metrics - Strategic Color Placement #1 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-purple-600 bg-clip-text text-transparent mb-2">
+              {stats.totalEntries}
+            </div>
+            <div className="text-sm text-gray-600">Total Entries</div>
+          </Card>
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-purple-600 bg-clip-text text-transparent mb-2">
+              {stats.averageMood}
+            </div>
+            <div className="text-sm text-gray-600">Average Mood</div>
+          </Card>
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-purple-600 bg-clip-text text-transparent mb-2">
+              {stats.currentStreak}
+            </div>
+            <div className="text-sm text-gray-600">Day Streak</div>
+          </Card>
+          <Card className="p-6 text-center">
+            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-purple-600 bg-clip-text text-transparent mb-2">
+              {stats.totalActivities}
+            </div>
+            <div className="text-sm text-gray-600">Activities</div>
+          </Card>
+        </div>
+
+        {/* Main Chart - Simplified */}
         <div className="mb-16">
           <Card className="p-8">
             <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
@@ -160,7 +216,7 @@ const Analytics: React.FC = () => {
             </p>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={getData()}>
+                <LineChart data={getData()}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey={getXAxisKey()} 
@@ -181,54 +237,26 @@ const Analytics: React.FC = () => {
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                     }}
                   />
-                  <Area
+                  <Line
                     type="monotone"
                     dataKey="mood"
                     stroke="url(#moodGradient)"
-                    fill="url(#moodGradient)"
                     strokeWidth={3}
-                    fillOpacity={0.3}
+                    dot={{ fill: 'url(#moodGradient)', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: 'url(#moodGradient)', strokeWidth: 2 }}
                   />
-                </AreaChart>
+                </LineChart>
               </ResponsiveContainer>
             </div>
             {/* Gradient definitions */}
             <svg width="0" height="0">
               <defs>
-                <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="moodGradient" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%" stopColor="#fbbf24" />
                   <stop offset="100%" stopColor="#8b5cf6" />
                 </linearGradient>
               </defs>
             </svg>
-          </Card>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
-              {stats.totalEntries}
-            </div>
-            <div className="text-sm text-gray-600">Total Entries</div>
-          </Card>
-          <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
-              {stats.averageMood}
-            </div>
-            <div className="text-sm text-gray-600">Average Mood</div>
-          </Card>
-          <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
-              {stats.currentStreak}
-            </div>
-            <div className="text-sm text-gray-600">Day Streak</div>
-          </Card>
-          <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
-              {stats.totalActivities}
-            </div>
-            <div className="text-sm text-gray-600">Activities</div>
           </Card>
         </div>
 
@@ -260,7 +288,7 @@ const Analytics: React.FC = () => {
             <div className="space-y-4">
               {stats.insights.map((insight, index) => (
                 <div key={index} className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-gray-700 text-sm">{insight}</p>
                 </div>
               ))}
@@ -268,14 +296,16 @@ const Analytics: React.FC = () => {
           </Card>
         </div>
 
-        {/* Action Button */}
+        {/* Action Button - Strategic Color Placement #2 */}
         <div className="mt-12 text-center">
+          <div className="mb-4"></div>
           <Button
             onClick={() => window.location.href = '/dashboard'}
             className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-xl font-semibold hover:from-yellow-500 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
           >
             Back to Dashboard
           </Button>
+          <div className="mb-4"></div>
         </div>
       </div>
     </div>
