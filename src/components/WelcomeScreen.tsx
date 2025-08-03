@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LumenIcon } from './ui';
 import { useAppContext } from '../context/AppContext';
@@ -9,22 +9,29 @@ interface WelcomeScreenProps {
   onComplete?: () => void;
 }
 
-// WelcomeScreen now uses the centralized FlowBackground system
-
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) => {
   const { state } = useAppContext();
   const { state: userFlowState } = useUserFlowState();
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onComplete?.();
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [onComplete]);
+    // Only trigger animation and auto-advance once
+    if (!hasAnimated) {
+      setHasAnimated(true);
+      
+      const timer = setTimeout(() => {
+        onComplete?.();
+      }, 3000); // Increased duration for better UX
+      
+      return () => clearTimeout(timer);
+    }
+  }, [onComplete, hasAnimated]);
 
+  // Prevent re-rendering by using a stable key
+  const welcomeKey = 'welcome-screen';
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center overflow-hidden">
+    <div key={welcomeKey} className="relative min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center overflow-hidden">
       {/* Content Container - True Center */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-6">
         {/* Icon Animation */}
@@ -65,7 +72,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) =
             transition={{ delay: 1.0, duration: 0.8 }}
           >
             <div className="mb-2"></div>
-            {username}!
+            {username || 'there'}!
           </motion.h2>
         </motion.div>
 
@@ -89,6 +96,20 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) =
             : 'Ready to check in with your emotions?'
           }
         </motion.p>
+
+        {/* Loading Indicator */}
+        <motion.div
+          className="mt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.0, duration: 0.6 }}
+        >
+          <div className="flex items-center justify-center space-x-2">
+            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Bottom Gradient Fade */}

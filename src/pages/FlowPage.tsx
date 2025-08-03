@@ -1,13 +1,52 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LumenMascot, FlowBackground } from '../components/ui';
 import { FlowRouter, FlowErrorBoundary, FlowLoadingState } from '../components/flow';
 import { useFlowState } from '../hooks/useFlowState';
+import { useClerkUser } from '../hooks/useClerkUser';
+import { apiService } from '../services/api';
 import type { UnityGameData, UnityReward } from '../services/unity';
 
 const FlowPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useClerkUser();
   const flowState = useFlowState();
+  const [isCheckingDailyStatus, setIsCheckingDailyStatus] = useState(true);
+  const [hasLoggedToday, setHasLoggedToday] = useState(false);
+
+  // Check daily emotion status on mount
+  useEffect(() => {
+    const checkDailyStatus = async () => {
+      if (!user) return;
+
+      try {
+        setIsCheckingDailyStatus(true);
+        const response = await apiService.getTodayEmotion();
+        const hasLogged = response.hasLoggedToday;
+        
+        setHasLoggedToday(hasLogged);
+        
+        // If user has already logged today, redirect to dashboard
+        if (hasLogged) {
+          console.log('User has already logged today, redirecting to dashboard');
+          navigate('/dashboard', { replace: true });
+          return;
+        }
+        
+        // If user hasn't logged today, start with welcome screen
+        console.log('User has not logged today, starting flow');
+        flowState.actions.setCurrentStep('welcome');
+      } catch (error) {
+        console.error('Error checking daily status:', error);
+        // On error, default to welcome screen
+        flowState.actions.setCurrentStep('welcome');
+      } finally {
+        setIsCheckingDailyStatus(false);
+      }
+    };
+
+    checkDailyStatus();
+  }, [user, navigate, flowState.actions]);
 
   // Memoized background theme
   const backgroundTheme = useMemo(() => {
@@ -76,6 +115,11 @@ const FlowPage: React.FC = () => {
     navigate('/dashboard');
   };
 
+  // Show loading while checking daily status
+  if (isCheckingDailyStatus) {
+    return <FlowLoadingState stage="checking-daily-status" />;
+  }
+
   // Early returns for loading and error states
   if (flowState.isLoading) {
     return <FlowLoadingState stage="initializing" />;
@@ -113,18 +157,10 @@ const FlowPage: React.FC = () => {
         )}
         {/* Flow Router */}
         <FlowRouter
-          currentStep={flowState.currentStep}
-          selectedEmotion={flowState.selectedEmotion}
-          user={flowState.user}
-          onEmotionSelect={handleEmotionSelect}
-          onGameComplete={handleGameComplete}
-          onRewardEarned={handleRewardEarned}
-          onSkipGame={handleSkipGame}
-          onFeedbackResponse={handleFeedbackResponse}
-          onSkipFeedback={handleSkipFeedback}
-          onJournalingComplete={handleJournalingComplete}
-          onJournalingSkip={handleJournalingSkip}
-          setCurrentStep={flowState.actions.setCurrentStep}
+          onComplete={() => {
+            // Handle flow completion
+            navigate('/dashboard');
+          }}
         />
       </div>
     </FlowErrorBoundary>

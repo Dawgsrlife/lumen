@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { LoadingSpinner } from '../ui';
 
-type LoadingStage = 'initializing' | 'checking-progress' | 'loading-game' | 'processing';
+type LoadingStage = 'initializing' | 'checking-progress' | 'loading-game' | 'processing' | 'checking-daily-status';
 
 interface FlowLoadingStateProps {
   stage: LoadingStage;
@@ -13,14 +13,16 @@ const FlowLoadingState: React.FC<FlowLoadingStateProps> = ({ stage }) => {
     'initializing': 'Setting up your experience...',
     'checking-progress': 'Checking your progress...',
     'loading-game': 'Preparing your personalized activity...',
-    'processing': 'Processing your response...'
+    'processing': 'Processing your response...',
+    'checking-daily-status': 'Checking your daily status...'
   };
 
   const descriptions = {
     'initializing': 'We\'re getting everything ready for you',
     'checking-progress': 'Checking if you\'ve already logged today',
     'loading-game': 'Loading your personalized therapeutic activity',
-    'processing': 'Saving your reflection and insights'
+    'processing': 'Saving your reflection and insights',
+    'checking-daily-status': 'Checking if you\'ve already logged emotions today'
   };
 
   return (

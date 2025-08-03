@@ -1,59 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useFlow } from '../context/FlowProvider';
+import { Button } from './ui';
+import { apiService } from '../services/api';
+import { useClerkUser } from '../hooks/useClerkUser';
+import type { EmotionType } from '../types';
 
 interface JournalingStepProps {
   onComplete: () => void;
   onSkip?: () => void;
+  selectedEmotion?: EmotionType;
+  gameCompleted?: string;
 }
 
-// JournalingStep now uses the centralized FlowBackground system
-
-const JournalingStep: React.FC<JournalingStepProps> = ({ onComplete, onSkip }) => {
-  const { state, setJournalEntry } = useFlow();
+const JournalingStep: React.FC<JournalingStepProps> = ({ 
+  onComplete, 
+  onSkip, 
+  selectedEmotion = 'happy',
+  gameCompleted = null 
+}) => {
+  const { user } = useClerkUser();
+  const [journalEntry, setJournalEntry] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [journalText, setJournalText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-
-  useEffect(() => {
-    // Detect typing for subtle feedback
-    if (journalText.length > 0) {
-      setIsTyping(true);
-      const typingTimer = setTimeout(() => setIsTyping(false), 1000);
-      return () => clearTimeout(typingTimer);
-    }
-  }, [journalText]);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
-    if (!journalText.trim()) {
-      onComplete();
+    if (!journalEntry.trim()) {
+      setError('Please share your thoughts before continuing.');
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      // Simulate saving journal entry to API
-      const journalData = {
-        content: journalText,
-        mood: state.selectedEmotion,
-        tags: ['daily-reflection', 'post-game'],
-        isPrivate: true,
-        emotionEntryId: state.gameData?.emotionEntryId,
-      };
+    if (!user) {
+      setError('User not authenticated.');
+      return;
+    }
 
-      console.log('JournalingStep: Saving journal entry (placeholder)', journalData);
-      
-      // Minimal delay for smooth UX
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      setJournalEntry(journalText);
-      console.log('JournalingStep: Journal entry saved successfully (placeholder)');
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      // Submit journal entry to MongoDB
+      await apiService.createJournalEntry({
+        title: `Daily Reflection - ${selectedEmotion}`,
+        content: journalEntry.trim(),
+        emotionEntryId: undefined,
+        mood: 5, // Default mood value
+        tags: [selectedEmotion, 'daily-reflection'],
+        isPrivate: false
+      });
+
+      // Mark emotion as logged for today
+      await apiService.createEmotionEntry({
+        emotion: selectedEmotion,
+        intensity: 5, // Default intensity
+        context: 'daily-check-in',
+        surveyResponses: []
+      });
+
+      onComplete();
     } catch (error) {
-      console.warn('JournalingStep: Failed to save journal entry, continuing anyway:', error);
-      // Continue even if API fails
+      console.error('Error submitting journal entry:', error);
+      setError('Failed to save your reflection. Please try again.');
     } finally {
       setIsSubmitting(false);
-      onComplete();
     }
   };
 
@@ -66,122 +74,95 @@ const JournalingStep: React.FC<JournalingStepProps> = ({ onComplete, onSkip }) =
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 relative overflow-hidden">
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-12">
-        
-        {/* Header Section - Much More Minimal */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-6">
+      <motion.div
+        className="max-w-2xl w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Header */}
         <motion.div
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center mb-16 max-w-lg"
+          transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <h1 className="text-3xl font-light text-gray-800 mb-4 tracking-wide">
-            How are you feeling?
+          <div className="text-6xl mb-4">📝</div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            How are you feeling now?
           </h1>
-          <p className="text-gray-500 text-sm font-light">
-            Take a moment to reflect
+          <p className="text-gray-600 text-lg">
+            Take a moment to reflect on your experience and share your thoughts.
           </p>
         </motion.div>
 
-        {/* Journal Input - Clean & Focused */}
+        {/* Journal Input */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="w-full max-w-2xl mb-12"
-        >
-          <div className="relative">
-            <textarea
-              value={journalText}
-              onChange={(e) => setJournalText(e.target.value)}
-              placeholder="Share your thoughts, feelings, or insights..."
-              className={`
-                w-full h-48 p-6 rounded-2xl border-0 
-                bg-white/80 backdrop-blur-sm
-                shadow-sm hover:shadow-md focus:shadow-lg
-                text-gray-700 text-lg leading-relaxed
-                placeholder-gray-400 font-light
-                resize-none outline-none
-                transition-all duration-300
-                ${isTyping ? 'ring-2 ring-blue-200/50' : ''}
-              `}
-              style={{
-                fontFamily: 'system-ui, -apple-system, sans-serif'
-              }}
-            />
-            
-            {/* Subtle character count */}
-            {journalText.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="absolute bottom-3 right-4 text-xs text-gray-400"
-              >
-                {journalText.length} characters
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Action Buttons - Simplified */}
-        <motion.div
+          className="mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-col sm:flex-row gap-4 w-full max-w-md"
+          transition={{ delay: 0.4, duration: 0.6 }}
         >
-          {/* Primary Action */}
-          <motion.button
-            onClick={handleSubmit}
+          <label htmlFor="journal-entry" className="block text-sm font-medium text-gray-700 mb-3">
+            Your Reflection
+          </label>
+          <textarea
+            id="journal-entry"
+            value={journalEntry}
+            onChange={(e) => setJournalEntry(e.target.value)}
+            placeholder="Share your thoughts, feelings, or any insights from today's experience..."
+            className="w-full h-32 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-300"
             disabled={isSubmitting}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex-1 py-4 px-8 rounded-xl font-medium text-white
-                       bg-gradient-to-r from-blue-500 to-purple-500
-                       shadow-lg hover:shadow-xl
-                       transition-all duration-200
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Saving...
-              </span>
-            ) : (
-              'Continue'
-            )}
-          </motion.button>
-          
-          {/* Secondary Action */}
-          {onSkip && (
-            <motion.button
-              onClick={handleSkip}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="py-4 px-8 rounded-xl font-medium text-gray-600
-                         bg-white/60 backdrop-blur-sm border border-gray-200
-                         hover:bg-white/80 hover:shadow-md
-                         transition-all duration-200"
+          />
+          {error && (
+            <motion.p
+              className="text-red-600 text-sm mt-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
             >
-              Skip
-            </motion.button>
+              {error}
+            </motion.p>
           )}
         </motion.div>
 
-        {/* Inspirational Quote - Subtle */}
+        {/* Action Buttons */}
         <motion.div
+          className="flex flex-col sm:flex-row gap-4 justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !journalEntry.trim()}
+            className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? 'Saving...' : 'Save & Continue'}
+          </Button>
+          
+          <Button
+            onClick={handleSkip}
+            disabled={isSubmitting}
+            variant="outline"
+            className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Skip for Now
+          </Button>
+        </motion.div>
+
+        {/* Encouraging Message */}
+        <motion.div
+          className="mt-8 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1 }}
-          className="mt-16 text-center"
+          transition={{ delay: 0.8, duration: 0.6 }}
         >
-          <p className="text-gray-400 text-sm font-light italic">
-            "Every reflection is a step toward self-awareness"
+          <p className="text-sm text-gray-500 italic">
+            Your reflections help you track your emotional journey and provide valuable insights over time.
           </p>
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 };

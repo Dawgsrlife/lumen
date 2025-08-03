@@ -31,23 +31,50 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
     // TODO: Implement game completion logic
   };
 
+  const handleWelcomeComplete = () => {
+    // Advance to emotion selection after welcome
+    // This will be handled by the flow state management
+  };
+
+  const handleEmotionSelect = (emotion: string) => {
+    // This will be handled by the flow state management
+  };
+
+  const handleGamePromptContinue = () => {
+    // This will be handled by the flow state management
+  };
+
+  const handleGameCompletionContinue = () => {
+    // This will be handled by the flow state management
+  };
+
+  const handleJournalingComplete = () => {
+    // Complete the flow and redirect to dashboard
+    if (onComplete) {
+      onComplete();
+    }
+  };
+
+  const handleJournalingSkip = () => {
+    // Skip journaling and complete flow
+    if (onComplete) {
+      onComplete();
+    }
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 'welcome':
         return (
           <WelcomeScreen
-            onContinue={() => {
-              // TODO: Implement continue logic
-            }}
+            onComplete={handleWelcomeComplete}
           />
         );
 
       case 'emotion-selection':
         return (
           <EmotionSelectionScreen
-            onEmotionSelect={() => {
-              // TODO: Implement emotion selection logic
-            }}
+            onEmotionSelect={handleEmotionSelect}
             selectedEmotion={selectedEmotion || 'happy'}
           />
         );
@@ -56,9 +83,7 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
         return (
           <GamePromptScreen
             selectedEmotion={selectedEmotion || 'happy'}
-            onContinue={() => {
-              // TODO: Implement continue logic
-            }}
+            onContinue={handleGamePromptContinue}
           />
         );
 
@@ -83,18 +108,17 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
             gameTitle="Default Game"
             gameData={{}}
             rewards={[]}
-            onContinue={() => {
-              // TODO: Implement continue logic
-            }}
+            onContinue={handleGameCompletionContinue}
           />
         );
 
       case 'journaling':
         return (
           <JournalingStep
-            onComplete={() => {
-              // TODO: Implement complete logic
-            }}
+            onComplete={handleJournalingComplete}
+            onSkip={handleJournalingSkip}
+            selectedEmotion={selectedEmotion || 'happy'}
+            gameCompleted="default"
           />
         );
 

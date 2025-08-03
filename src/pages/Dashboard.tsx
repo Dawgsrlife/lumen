@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { useClerkUser } from '../hooks/useClerkUser';
+import { apiService } from '../services/api';
 import DashboardScreen from '../components/DashboardScreen';
 
 const Dashboard: React.FC = () => {
   const { state, resetToEmotionSelection } = useAppContext();
+  const { user } = useClerkUser();
   
   // Debug logging
   console.log('Dashboard: Current state', {
@@ -12,6 +15,29 @@ const Dashboard: React.FC = () => {
     isLoading: state.isLoading,
     showHeader: state.showHeader,
   });
+
+  // Check if user has logged emotions today
+  useEffect(() => {
+    const checkDailyStatus = async () => {
+      if (!user) return;
+
+      try {
+        const response = await apiService.getTodayEmotion();
+        const hasLogged = response.hasLoggedToday;
+        
+        if (!hasLogged) {
+          // If user hasn't logged today, redirect to flow
+          console.log('Dashboard: User has not logged today, redirecting to flow');
+          window.location.href = '/flow';
+        }
+      } catch (error) {
+        console.error('Error checking daily status:', error);
+        // On error, stay on dashboard
+      }
+    };
+
+    checkDailyStatus();
+  }, [user]);
 
   if (state.isLoading) {
     console.log('Dashboard: Showing loading spinner');
@@ -35,19 +61,18 @@ const Dashboard: React.FC = () => {
     </div>;
   }
 
-  if (!state.user.currentEmotion) {
-    console.log('Dashboard: No current emotion, redirecting to flow');
-    // Redirect to flow if no emotion is set
-    return <Navigate to="/flow" replace />;
-  }
+  // Default to 'happy' if no current emotion is set
+  const currentEmotion = state.user.currentEmotion || 'happy';
+  const currentStreak = state.user.currentStreak || 0;
+  const weeklyData = state.user.weeklyData || [false, false, false, false, false, false, false];
 
   console.log('Dashboard: Rendering dashboard');
 
   return (
     <DashboardScreen
-      selectedEmotion={state.user.currentEmotion}
-      currentStreak={state.user.currentStreak}
-      weeklyData={state.user.weeklyData}
+      selectedEmotion={currentEmotion}
+      currentStreak={currentStreak}
+      weeklyData={weeklyData}
       onReset={resetToEmotionSelection}
     />
   );
