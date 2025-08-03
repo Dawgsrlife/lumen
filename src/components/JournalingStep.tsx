@@ -56,14 +56,15 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
         surveyResponses: []
       });
 
-      onComplete();
+      // Navigate to dashboard instead of just completing
+      window.location.href = '/dashboard';
     } catch (error: any) {
       console.error('Error submitting journal entry:', error);
       
-      // If API is unavailable, still complete the flow
+      // If API is unavailable, still complete the flow and go to dashboard
       if (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED') {
         console.log('API unavailable, completing flow without saving');
-        onComplete();
+        window.location.href = '/dashboard';
       } else {
         setError('Failed to save your reflection. Please try again.');
       }
@@ -73,11 +74,8 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
   };
 
   const handleSkip = () => {
-    if (onSkip) {
-      onSkip();
-    } else {
-      onComplete();
-    }
+    // Navigate to dashboard when skipping too
+    window.location.href = '/dashboard';
   };
 
   return (
@@ -145,7 +143,7 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
             disabled={isSubmitting || !journalEntry.trim()}
             className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Saving...' : 'Save & Continue'}
+            {isSubmitting ? 'Saving...' : 'Save & Go to Dashboard'}
           </Button>
           
           <Button
@@ -154,7 +152,7 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
             variant="outline"
             className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
-            Skip for Now
+            Skip & Go to Dashboard
           </Button>
         </motion.div>
 

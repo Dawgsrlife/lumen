@@ -57,7 +57,10 @@ const FlowPage: React.FC = () => {
       
       if (isManualFlow) {
         console.log('Manual flow requested, starting at welcome step');
-        flowState.actions.setCurrentStep('welcome');
+        // Only set to welcome if not already at welcome
+        if (flowState.currentStep !== 'welcome') {
+          flowState.actions.setCurrentStep('welcome');
+        }
         setIsCheckingDailyStatus(false);
         return;
       }
@@ -77,12 +80,18 @@ const FlowPage: React.FC = () => {
         
         // If user hasn't logged today, start with welcome screen
         console.log('User has not logged today, starting flow at welcome step');
-        flowState.actions.setCurrentStep('welcome');
+        // Only set to welcome if not already at welcome
+        if (flowState.currentStep !== 'welcome') {
+          flowState.actions.setCurrentStep('welcome');
+        }
       } catch (error) {
         console.error('Error checking daily status:', error);
         // On API error, default to welcome screen and don't retry
         console.log('API unavailable, defaulting to welcome screen');
-        flowState.actions.setCurrentStep('welcome');
+        // Only set to welcome if not already at welcome
+        if (flowState.currentStep !== 'welcome') {
+          flowState.actions.setCurrentStep('welcome');
+        }
       } finally {
         setIsCheckingDailyStatus(false);
       }

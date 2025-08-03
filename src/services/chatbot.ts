@@ -1,7 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { EmotionType, EmotionEntry, UserAnalytics } from '../types';
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+console.log('🔑 API Key loaded:', apiKey ? 'Yes (length: ' + apiKey.length + ')' : 'No');
+
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export interface ChatMessage {
   id: string;
@@ -31,6 +34,12 @@ export class ChatbotService {
   private model: unknown;
 
   private constructor() {
+    console.log('🤖 Initializing ChatbotService...');
+    if (!apiKey) {
+      console.error('❌ No API key found! Please check your .env file');
+      throw new Error('No API key configured');
+    }
+    
     this.model = genAI.getGenerativeModel({ 
       model: 'gemini-1.5-flash',
       generationConfig: {
@@ -53,6 +62,7 @@ Safety protocols:
 - Never provide medical advice or diagnose conditions
 - Encourage professional mental health support when appropriate`
     });
+    console.log('✅ ChatbotService initialized successfully');
   }
 
   public static getInstance(): ChatbotService {
@@ -108,6 +118,8 @@ If user expresses self-harm thoughts: "I'm concerned about you and want to help.
     context: ChatContext
   ): Promise<string> {
     try {
+      console.log('💬 Generating response for:', userMessage.substring(0, 50) + '...');
+      
       const systemPrompt = this.buildContextPrompt(context);
       
       // Build conversation history
@@ -127,11 +139,14 @@ user: ${userMessage}
 ## Your Response:
 assistant:`;
 
+      console.log('📤 Sending request to Gemini API...');
       const result = await this.model.generateContent(fullPrompt);
       const response = await result.response;
-      return response.text();
+      const responseText = response.text();
+      console.log('✅ Received response:', responseText.substring(0, 50) + '...');
+      return responseText;
     } catch (error) {
-      console.error('Chatbot response generation failed:', error);
+      console.error('❌ Chatbot response generation failed:', error);
       
       // Fallback response based on current mood
       if (context.currentMood) {
