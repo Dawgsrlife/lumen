@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import WelcomeScreen from '../WelcomeScreen';
 import EmotionSelectionScreen from '../EmotionSelectionScreen';
 import GamePromptScreen from '../GamePromptScreen';
@@ -17,6 +17,11 @@ interface FlowRouterProps {
 
 const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
   const flowState = useFlowState(); // Use the unified hook
+  
+  // Debug logging for step changes
+  useEffect(() => {
+    console.log('FlowRouter: Step changed to:', flowState.currentStep);
+  }, [flowState.currentStep]);
   
   const handleWelcomeComplete = () => {
     console.log('Welcome completed, advancing to emotion selection');

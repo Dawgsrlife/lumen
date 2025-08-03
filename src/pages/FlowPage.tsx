@@ -20,15 +20,20 @@ const FlowPage: React.FC = () => {
       currentStep: flowState.currentStep,
       selectedEmotion: flowState.selectedEmotion,
       hasLoggedToday: flowState.hasLoggedToday,
-      isLoading: flowState.isLoading
+      isLoading: flowState.isLoading,
+      user: user?.id
     });
-  }, [flowState]);
+  }, [flowState, user]);
 
   // Check daily emotion status on mount
   useEffect(() => {
     const checkDailyStatus = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user available, skipping daily status check');
+        return;
+      }
 
+      console.log('Checking daily status for user:', user.id);
       try {
         setIsCheckingDailyStatus(true);
         const response = await apiService.getTodayEmotion();
@@ -44,7 +49,7 @@ const FlowPage: React.FC = () => {
         }
         
         // If user hasn't logged today, start with welcome screen
-        console.log('User has not logged today, starting flow');
+        console.log('User has not logged today, starting flow at welcome step');
         flowState.actions.setCurrentStep('welcome');
       } catch (error) {
         console.error('Error checking daily status:', error);
