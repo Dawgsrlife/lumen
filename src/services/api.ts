@@ -1,16 +1,20 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 import type { 
   EmotionEntry, 
-  JournalEntry, 
-  UserAnalytics, 
-  AIInsightResponse,
-  CreateEmotionRequest,
-  CreateJournalRequest,
   User
 } from '../types/index';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// Helper function to get auth token
+const getAuthToken = async (): Promise<string> => {
+  const token = localStorage.getItem('lumen_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  return token;
+};
 
 class ApiService {
   private api: AxiosInstance;
@@ -312,6 +316,24 @@ export const markNotificationAsRead = async (notificationId: string): Promise<No
   } catch (error) {
     console.error('Error marking notification as read:', error);
     return { success: false, message: 'Failed to mark notification as read' };
+  }
+};
+
+export const markAllNotificationsAsRead = async (): Promise<NotificationResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/notifications/mark-all-read`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${await getAuthToken()}`
+      }
+    });
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    return { success: false, message: 'Failed to mark all notifications as read' };
   }
 };
 
