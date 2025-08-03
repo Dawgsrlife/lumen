@@ -116,13 +116,8 @@ const Header: React.FC = () => {
             ) : (
               <div className="flex items-center space-x-3">
                 <Link to="/sign-in">
-                  <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 hover:border-gray-400 rounded-lg transition-colors">
-                    Sign In
-                  </button>
-                </Link>
-                <Link to="/sign-up">
                   <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-                    Sign Up
+                    Sign In
                   </button>
                 </Link>
               </div>

@@ -84,26 +84,7 @@ const Dashboard: React.FC = () => {
   const [timeOfDay, setTimeOfDay] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  // Mock mood entries for demonstration
-  const mockMoodEntries = React.useMemo(() => {
-    const entries = [];
-    const emotions: EmotionType[] = ['happy', 'sad', 'anxiety', 'stress', 'frustration'];
-    
-    for (let i = 0; i < 100; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      
-      if (Math.random() > 0.3) { // 70% chance of having an entry
-        entries.push({
-          date: date.toISOString().split('T')[0],
-          emotion: emotions[Math.floor(Math.random() * emotions.length)],
-          intensity: Math.floor(Math.random() * 10) + 1
-        });
-      }
-    }
-    
-    return entries;
-  }, []);
+
 
   useEffect(() => {
     const hour = new Date().getHours();

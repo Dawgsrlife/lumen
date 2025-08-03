@@ -321,7 +321,7 @@ const LandingPage: React.FC = () => {
                 <div ref={buttonRef}>
                   <button
                     onClick={() => {
-                      // Simple, clean navigation
+                      // Simple, clean navigation - Clerk handles sign-up automatically
                       window.location.href = '/sign-in';
                     }}
                     className="hero-button relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
