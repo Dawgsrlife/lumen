@@ -1,14 +1,16 @@
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
-import type {
-  EmotionEntry,
-  User,
-  JournalEntry,
+import type { 
+  EmotionEntry, 
+  JournalEntry, 
+  UserAnalytics, 
+  AIInsightResponse,
   CreateEmotionRequest,
   CreateJournalRequest,
-  UserAnalytics,
-  AIInsightResponse,
+  PostGameFeedback,
+  CreateFeedbackRequest,
+  User,
   NotificationResponse
-} from '../types';
+} from '../types/index';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -117,20 +119,135 @@ class ApiService {
   }
 
   // Emotion entries
-  async createEmotionEntry(emotionData: CreateEmotionRequest): Promise<EmotionEntry> {
-    const response: AxiosResponse = await this.api.post('/api/emotions', emotionData);
-    return response.data.data;
+  async createEmotionEntry(data: CreateEmotionRequest): Promise<EmotionEntry> {
+    try {
+      const response = await this.api.post<{
+        emotionEntry: EmotionEntry;
+        userData: {
+          currentStreak: number;
+          longestStreak: number;
+          weeklyData: boolean[];
+          totalEmotionEntries: number;
+          averageMood: number;
+        };
+      }>('/emotions', data);
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to create emotion entry');
+      }
+
+      return response.data.data!.emotionEntry;
+    } catch (error) {
+      console.error('Error creating emotion entry:', error);
+      throw error;
+    }
   }
 
+  /**
+   * Get emotion entries with enhanced user data
+   */
   async getEmotionEntries(params?: {
     page?: number;
     limit?: number;
     emotion?: string;
     startDate?: string;
     endDate?: string;
-  }): Promise<{ emotions: EmotionEntry[]; pagination: any }> {
-    const response: AxiosResponse = await this.api.get('/api/emotions', { params });
-    return response.data.data;
+    sort?: string;
+  }): Promise<{
+    emotions: EmotionEntry[];
+    userData?: {
+      currentStreak: number;
+      longestStreak: number;
+      weeklyData: boolean[];
+      totalEmotionEntries: number;
+      averageMood: number;
+      hasLoggedToday: boolean;
+    };
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
+  }> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append('page', params.page.toString());
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+      if (params?.emotion) queryParams.append('emotion', params.emotion);
+      if (params?.startDate) queryParams.append('startDate', params.startDate);
+      if (params?.endDate) queryParams.append('endDate', params.endDate);
+      if (params?.sort) queryParams.append('sort', params.sort);
+
+      const response = await this.api.get<{
+        emotions: EmotionEntry[];
+        userData?: {
+          currentStreak: number;
+          longestStreak: number;
+          weeklyData: boolean[];
+          totalEmotionEntries: number;
+          averageMood: number;
+          hasLoggedToday: boolean;
+        };
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+          hasNext: boolean;
+          hasPrev: boolean;
+        };
+      }>(`/emotions?${queryParams.toString()}`);
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to fetch emotion entries');
+      }
+
+      return response.data.data!;
+    } catch (error) {
+      console.error('Error fetching emotion entries:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if user has logged emotion today and get today's data
+   */
+  async getTodayEmotion(): Promise<{
+    hasLoggedToday: boolean;
+    todayEntry?: EmotionEntry;
+    userData?: {
+      currentStreak: number;
+      longestStreak: number;
+      weeklyData: boolean[];
+      currentEmotion?: string | null;
+      hasPlayedGameToday: boolean;
+    };
+  }> {
+    try {
+      const response = await this.api.get<{
+        hasLoggedToday: boolean;
+        todayEntry?: EmotionEntry;
+        userData?: {
+          currentStreak: number;
+          longestStreak: number;
+          weeklyData: boolean[];
+          currentEmotion?: string | null;
+          hasPlayedGameToday: boolean;
+        };
+      }>('/emotions/today');
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to check today\'s emotion');
+      }
+
+      return response.data.data!;
+    } catch (error) {
+      console.error('Error checking today\'s emotion:', error);
+      throw error;
+    }
   }
 
   async getDailyEmotions(days: number = 30): Promise<{
@@ -260,6 +377,29 @@ class ApiService {
   async healthCheck(): Promise<{ success: boolean; message: string; timestamp: string; environment: string }> {
     const response: AxiosResponse = await this.api.get('/health');
     return response.data;
+  }
+
+  // Post-Game Feedback
+  async createFeedback(feedbackData: CreateFeedbackRequest): Promise<PostGameFeedback> {
+    const response: AxiosResponse = await this.api.post('/api/feedback', feedbackData);
+    return response.data.data;
+  }
+
+  async getFeedback(gameId?: string, emotion?: string): Promise<PostGameFeedback[]> {
+    const response: AxiosResponse = await this.api.get('/api/feedback', {
+      params: { gameId, emotion }
+    });
+    return response.data.data;
+  }
+
+  async getFeedbackStats(): Promise<{
+    totalResponses: number;
+    positiveResponses: number;
+    responsesByGame: Record<string, { positive: number; total: number }>;
+    responsesByEmotion: Record<string, { positive: number; total: number }>;
+  }> {
+    const response: AxiosResponse = await this.api.get('/api/feedback/stats');
+    return response.data.data;
   }
 }
 

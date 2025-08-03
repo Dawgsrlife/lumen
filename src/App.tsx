@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useAppContext } from './context/AppContext';
 import { ClerkProvider } from './components/auth/ClerkProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Header, Footer } from './components/layout';
@@ -21,6 +21,50 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Games = lazy(() => import('./pages/Games'));
+const Chat = lazy(() => import('./pages/Chat'));
+
+// Conditional Layout Component
+const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { state } = useAppContext();
+  const location = useLocation();
+  
+  // Always show header for main app pages (dashboard, chat, analytics, profile, games)
+  const mainAppPages = ['/dashboard', '/chat', '/analytics', '/profile', '/games'];
+  const isMainAppPage = mainAppPages.includes(location.pathname);
+  
+  // Show header if in main app pages OR if emotion flow is complete
+  const shouldShowHeader = isMainAppPage || state.showHeader;
+  
+  console.log('ConditionalLayout: State', {
+    showHeader: state.showHeader,
+    currentView: state.currentView,
+    user: state.user,
+    pathname: location.pathname,
+    isMainAppPage,
+    shouldShowHeader
+  });
+  
+  if (shouldShowHeader) {
+    console.log('ConditionalLayout: Showing header and footer');
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          {children}
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
+  // No header/footer for pre-emotion selection screens
+  console.log('ConditionalLayout: No header/footer');
+  return (
+    <div className="min-h-screen">
+      {children}
+    </div>
+  );
+};
 
 function App() {
   return (
@@ -44,101 +88,89 @@ function App() {
               } />
 
               
-              {/* Protected Routes - With Header/Footer */}
+              {/* Protected Routes - Conditional Header/Footer */}
               <Route 
                 path="/welcome" 
                 element={
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                        <ProtectedRoute>
-                          <WelcomePage />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
+                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                    <ProtectedRoute>
+                      <ConditionalLayout>
+                        <WelcomePage />
+                      </ConditionalLayout>
+                    </ProtectedRoute>
+                  </Suspense>
                 } 
               />
               <Route 
                 path="/onboarding" 
                 element={
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                        <ProtectedRoute>
-                          <Onboarding />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
+                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                    <ProtectedRoute>
+                      <ConditionalLayout>
+                        <Onboarding />
+                      </ConditionalLayout>
+                    </ProtectedRoute>
+                  </Suspense>
                 } 
               />
               <Route 
                 path="/dashboard" 
                 element={
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                        <ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
+                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                    <ProtectedRoute>
+                      <ConditionalLayout>
+                        <Dashboard />
+                      </ConditionalLayout>
+                    </ProtectedRoute>
+                  </Suspense>
                 } 
               />
               <Route 
                 path="/profile" 
                 element={
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                        <ProtectedRoute>
-                          <Profile />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
+                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                    <ProtectedRoute>
+                      <ConditionalLayout>
+                        <Profile />
+                      </ConditionalLayout>
+                    </ProtectedRoute>
+                  </Suspense>
                 } 
               />
               <Route 
                 path="/analytics" 
                 element={
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                        <ProtectedRoute>
-                          <Analytics />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
+                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                    <ProtectedRoute>
+                      <ConditionalLayout>
+                        <Analytics />
+                      </ConditionalLayout>
+                    </ProtectedRoute>
+                  </Suspense>
                 } 
               />
               <Route 
                 path="/games" 
                 element={
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
-                        <ProtectedRoute>
-                          <Games />
-                        </ProtectedRoute>
-                      </Suspense>
-                    </main>
-                    <Footer />
-                  </div>
+                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                    <ProtectedRoute>
+                      <ConditionalLayout>
+                        <Games />
+                      </ConditionalLayout>
+                    </ProtectedRoute>
+                  </Suspense>
+                } 
+              />
+              <Route 
+                path="/chat" 
+                element={
+                  <Suspense fallback={<LoadingSpinner size="lg" className="mt-20" />}>
+                    <ProtectedRoute>
+                      <ConditionalLayout>
+                        <Chat />
+                      </ConditionalLayout>
+                    </ProtectedRoute>
+                  </Suspense>
                 } 
               />
               
