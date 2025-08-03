@@ -116,6 +116,8 @@ const WeeklyProgress: React.FC<{ weeklyData: boolean[] }> = ({ weeklyData }) => 
         ))}
       </div>
       
+      <div className="mb-4"></div>
+      
       <motion.div
         className="text-center"
         initial={{ opacity: 0, y: 10 }}
@@ -171,6 +173,8 @@ const StreakCounter: React.FC<{ currentStreak: number }> = ({ currentStreak }) =
         <div className="text-sm text-gray-600 font-medium">day streak</div>
       </div>
       
+      <div className="mb-4"></div>
+      
       <motion.p
         className="text-sm text-gray-700 font-medium"
         initial={{ opacity: 0 }}
@@ -206,13 +210,13 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
         {/* Beautiful Header - Inspired by Landing Page */}
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-20 flex flex-col items-center justify-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
           <motion.h1
-            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6"
+            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6 text-center"
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -222,7 +226,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </motion.h1>
           
           <motion.p
-            className="text-xl leading-relaxed text-gray-600 max-w-2xl mx-auto font-light"
+            className="text-xl leading-relaxed text-gray-600 max-w-2xl mx-auto font-light text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
@@ -264,6 +268,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             >
               "{emotion.encouragingMessage}"
             </motion.p>
+            
+            <div className="mb-4"></div>
             
             <motion.button
               onClick={onReset}
