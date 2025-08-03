@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Unity, useUnityContext } from 'react-unity-webgl';
-import { LoadingSpinner } from '../ui';
+import { Card, Button, LoadingSpinner } from '../ui';
 import type { UnityGameData, UnityReward } from '../../services/unity';
 
 interface UnityGameProps {
@@ -32,10 +32,8 @@ const UnityGame: React.FC<UnityGameProps> = ({
   className = '',
 }) => {
   const [gameData, setGameData] = useState<UnityGameData | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-
-  // Initialize Unity context
+  // Initialize Unity context with proper URLs and game parameter
   const {
     unityProvider,
     isLoaded,
@@ -51,49 +49,67 @@ const UnityGame: React.FC<UnityGameProps> = ({
     codeUrl: `${buildUrl}/Builds.wasm.br`,
   });
 
-  // Event handlers
-  const handleGameStart = useCallback(() => {
-    // Game started event
+  const [error, setError] = useState<string | null>(null);
+
+  // Handle game start event
+  const handleGameStart = useCallback((_data: unknown) => {
+    // Game started
   }, []);
 
+  // Handle game end event
   const handleGameEnd = useCallback((data: UnityGameData) => {
     setGameData(data);
     onGameComplete?.(data);
   }, [onGameComplete]);
 
+  // Handle achievement event
+  const handleAchievement = useCallback((_data: unknown) => {
+    // Achievement earned
+  }, []);
+
+  // Handle reward event
   const handleReward = useCallback((data: UnityReward) => {
     onRewardEarned?.(data);
   }, [onRewardEarned]);
 
-  const handleError = useCallback((message: string) => {
-    setError(`Unity Error: ${message}`);
+  // Handle Unity errors
+  const handleError = useCallback((_message: string) => {
+    setError(`Unable to load the game`);
   }, []);
 
+  // Handle Unity loaded event
   const handleLoaded = useCallback(() => {
     setError(null);
   }, []);
 
-  // Setup event listeners
+  // Setup event listeners including error handling
   useEffect(() => {
+    // Game event listeners
     addEventListener('GameStart', handleGameStart);
     addEventListener('GameEnd', handleGameEnd);
+    addEventListener('Achievement', handleAchievement);
     addEventListener('Reward', handleReward);
+    
+    // System event listeners
     addEventListener('error', handleError);
     addEventListener('loaded', handleLoaded);
 
     return () => {
       removeEventListener('GameStart', handleGameStart);
       removeEventListener('GameEnd', handleGameEnd);
+      removeEventListener('Achievement', handleAchievement);
       removeEventListener('Reward', handleReward);
       removeEventListener('error', handleError);
       removeEventListener('loaded', handleLoaded);
     };
-  }, [addEventListener, removeEventListener, handleGameStart, handleGameEnd, handleReward, handleError, handleLoaded]);
+  }, [addEventListener, removeEventListener, handleGameStart, handleGameEnd, handleAchievement, handleReward, handleError, handleLoaded]);
+
+
 
   // Safe Unity message sending
   const sendUnityMessage = useCallback((gameObject: string, method: string, parameter?: string) => {
     if (!isLoaded) return false;
-    
+
     try {
       sendMessage(gameObject, method, parameter);
       return true;
@@ -109,49 +125,48 @@ const UnityGame: React.FC<UnityGameProps> = ({
         emotion: emotionData.emotion,
         intensity: emotionData.intensity,
         timestamp: new Date().toISOString(),
-        context: emotionData.context || {}
       });
 
-      // Try multiple possible game object names for better compatibility
-      const gameObjects = ['GameManager', 'Main Camera', 'GameController', 'EmotionManager'];
-      let messageSent = false;
-      
-      for (const gameObject of gameObjects) {
-        if (sendUnityMessage(gameObject, 'ReceiveEmotionData', emotionPayload)) {
-          console.log(`Emotion data sent to ${gameObject}`);
-          messageSent = true;
-          break;
-        }
-      }
-      
-      if (!messageSent) {
-        console.warn('Could not send emotion data to Unity - no compatible game object found');
-      }
+      // Try different possible GameObject names
+      sendUnityMessage('GameManager', 'ReceiveEmotionData', emotionPayload) ||
+      sendUnityMessage('Main Camera', 'ReceiveEmotionData', emotionPayload) ||
+      sendUnityMessage('Canvas', 'ReceiveEmotionData', emotionPayload);
     }
   }, [isLoaded, emotionData, sendUnityMessage]);
 
   // Send game name to Unity when loaded
   useEffect(() => {
     if (isLoaded && gameName) {
-      // Try multiple possible game object names for better compatibility
-      const gameObjects = ['GameManager', 'GameController', 'Main Camera', 'GameLoader'];
-      let messageSent = false;
-      
-      for (const gameObject of gameObjects) {
-        if (sendUnityMessage(gameObject, 'LoadGame', gameName)) {
-          console.log(`Game load request sent to ${gameObject}`);
-          messageSent = true;
-          break;
-        }
-      }
-      
-      if (!messageSent) {
-        console.warn('Could not send game load request to Unity - no compatible game object found');
-      }
+      // Try different possible GameObject names and methods
+      sendUnityMessage('GameManager', 'LoadGame', gameName) ||
+      sendUnityMessage('GameController', 'LoadGame', gameName) ||
+      sendUnityMessage('Main Camera', 'LoadGame', gameName);
     }
   }, [isLoaded, gameName, sendUnityMessage]);
 
+  const handleStartGame = () => {
+    if (!isLoaded) return;
 
+    const gameData = JSON.stringify({
+      gameId,
+      gameName,
+      userData: { emotionData }
+    });
+
+    // Try to send start message to various possible GameObjects
+    sendUnityMessage('GameManager', 'StartGame', gameData) ||
+    sendUnityMessage('GameController', 'StartGame', gameData) ||
+    sendUnityMessage('Main Camera', 'StartGame', gameData);
+  };
+
+  const handleStopGame = () => {
+    if (!isLoaded) return;
+
+    // Try to send stop message to various possible GameObjects
+    sendUnityMessage('GameManager', 'EndGame') ||
+    sendUnityMessage('GameController', 'EndGame') ||
+    sendUnityMessage('Main Camera', 'EndGame');
+  };
 
   const handleFullscreen = () => {
     requestFullscreen(true);
@@ -162,8 +177,8 @@ const UnityGame: React.FC<UnityGameProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-      className={`w-full ${className}`}
+      transition={{ duration: 0.3 }}
+      className={className}
     >
       {/* Clean game container */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
@@ -252,65 +267,65 @@ const UnityGame: React.FC<UnityGameProps> = ({
                 </div>
               )}
             </div>
-            
-            {/* Subtle skip button */}
-            {isLoaded && (
-              <button
-                onClick={() => {
-                  // Trigger game completion and move to journaling
-                  if (onGameComplete) {
-                    onGameComplete({
-                      gameId: gameId,
-                      score: 0,
-                      duration: 0,
-                      achievements: []
-                    });
-                  }
-                }}
-                className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors duration-200 opacity-60 hover:opacity-100 cursor-pointer"
-              >
-                Skip for now
-              </button>
-            )}
-          </div>
-        </div>
 
-        {/* Game results */}
-        {gameData && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="p-6 bg-gradient-to-r from-yellow-50 to-purple-50 border-t border-gray-200"
-          >
-            <h4 className="font-semibold text-gray-900 mb-4">🎉 Game Complete!</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-              <div>
-                <span className="text-gray-600">Score:</span>
-                <span className="ml-2 font-bold text-purple-600">{gameData.score}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Duration:</span>
-                <span className="ml-2">{Math.round(gameData.duration / 60)}m {gameData.duration % 60}s</span>
-              </div>
-            </div>
-            
-            {gameData.achievements.length > 0 && (
-              <div className="mb-4">
-                <span className="text-gray-600 text-sm mb-4">Achievements:</span>
-                <div className="flex flex-wrap gap-1">
-                  {gameData.achievements.map((achievement, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
-                    >
-                      {achievement}
-                    </span>
-                  ))}
+            <button
+              onClick={() => {
+                // Trigger game completion and move to journaling
+                if (onGameComplete) {
+                  onGameComplete({
+                    gameId: gameId,
+                    score: 0,
+                    duration: 0,
+                    achievements: []
+                  });
+                }
+              }}
+              className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors duration-200 opacity-60 hover:opacity-100 cursor-pointer"
+            >
+              Skip for now
+            </button>
+          </div>
+
+          {/* Game Results */}
+          {gameData && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-4 border border-blue-500/20"
+            >
+              <h4 className="font-semibold text-gray-900 mb-3">Game Results</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Score:</span>
+                  <span className="ml-2 font-bold text-blue-600">{gameData.score}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Duration:</span>
+                  <span className="ml-2">{Math.round(gameData.duration / 60)}m {gameData.duration % 60}s</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-gray-600">Achievements:</span>
+                  <div className="mt-1">
+                    {gameData.achievements.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {gameData.achievements.map((achievement, index) => (
+                          <span
+                            key={index}
+                            className="px-2 py-1 bg-blue-500/20 text-blue-600 text-xs rounded-full"
+                          >
+                            {achievement}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-gray-500 text-xs">No achievements earned</span>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
-          </motion.div>
-        )}
+            </motion.div>
+          )}
+        </div>
       </div>
     </motion.div>
   );

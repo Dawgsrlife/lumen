@@ -46,6 +46,13 @@ const emotionToGame: Record<string, { gameId: string; gameName: string; title: s
     title: 'Rhythm Grow',
     description: 'Energize yourself with rhythmic growth activities'
   },
+  // Balancing act for emotional balance
+  anger: {
+    gameId: 'lumen-minigames',
+    gameName: 'balancingact',
+    title: 'Balancing Act',
+    description: 'Find emotional balance through mindful interaction'
+  },
   // Default mappings for other emotions (use appropriate games)
   happy: {
     gameId: 'lumen-minigames',
