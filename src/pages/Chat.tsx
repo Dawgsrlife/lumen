@@ -16,11 +16,16 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'end',
+      inline: 'nearest'
+    });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    const timer = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timer);
   }, [messages]);
 
   useEffect(() => {
@@ -129,9 +134,9 @@ export default function Chat() {
 
         {/* Chat Container */}
         <div className="max-w-4xl mx-auto">
-          <Card className="h-[600px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
+          <Card className="h-[70vh] min-h-[500px] max-h-[600px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4 scroll-smooth">
               <div className="mb-4"></div>
               
               <AnimatePresence>

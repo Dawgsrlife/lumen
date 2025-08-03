@@ -28,7 +28,7 @@ export interface ChatContext {
 
 export class ChatbotService {
   private static instance: ChatbotService;
-  private model: any;
+  private model: unknown;
 
   private constructor() {
     this.model = genAI.getGenerativeModel({ 

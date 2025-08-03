@@ -87,7 +87,7 @@ export interface UserEngagement {
   userId: ObjectId;
   action: 'emotion_logged' | 'game_played' | 'ai_feedback_viewed' | 'survey_completed';
   timestamp: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface WeeklyInsight {
@@ -393,7 +393,7 @@ class DatabaseService {
       emotionEntryId,
       feedback,
       createdAt: new Date()
-    } as any);
+    } as unknown);
   }
 
   // Database Health Check

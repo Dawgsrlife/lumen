@@ -91,7 +91,7 @@ class StorageService {
   }
 
   // Get weekly trends
-  async getWeeklyTrends(userId: string): Promise<any> {
+  async getWeeklyTrends(userId: string): Promise<unknown> {
     const userEntries = await this.getEmotionEntries(userId);
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -159,7 +159,7 @@ class StorageService {
   }
 
   // Update user statistics
-  private updateUserStats(_userId: string): void {
+  private updateUserStats(): void {
     // This could be used to update cached stats
     // For now, we'll calculate stats on-demand
   }
