@@ -208,9 +208,9 @@ export interface NavItem {
 export interface AppError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
   timestamp: Date;
-} 
+}
 
 export interface Notification {
   _id?: string;
@@ -227,7 +227,7 @@ export interface NotificationResponse {
   success: boolean;
   notifications?: Notification[];
   message?: string;
-} 
+}
 
 // Journal Types
 export interface JournalEntry {
@@ -259,26 +259,19 @@ export interface JournalEntry {
   updatedAt: Date;
 }
 
-// API Request Types
-export interface CreateEmotionRequest {
-  emotion: EmotionType;
-  intensity: number;
-  context: string;
-  surveyResponses?: SurveyResponse[];
-}
-
-export interface CreateJournalRequest {
-  title: string;
-  content: string;
-  emotionEntryId?: string;
-  mood?: number;
-  tags?: string[];
-  isPrivate?: boolean;
-}
-
 // Analytics Types
 export interface UserAnalytics {
   userId: string;
+  totalEntries: number;
+  averageMood: number;
+  emotionDistribution: Record<EmotionType, number>;
+  streakData: {
+    current: number;
+    longest: number;
+  };
+  weeklyProgress: EmotionTrend[];
+  gamesPlayed: number;
+  achievementsUnlocked: Achievement[];
   weeklyStats: {
     averageMood: number;
     totalEntries: number;
@@ -298,11 +291,60 @@ export interface UserAnalytics {
 // AI Response Types
 export interface AIInsightResponse {
   success: boolean;
-  insights?: {
+  insights: string[];
+  recommendations: string[];
+  summary: string;
+  resources: string[];
+  detailedInsights?: {
     summary: string;
     recommendations: string[];
     moodAnalysis: string;
     trendObservations: string[];
   };
   error?: string;
+}
+
+// Request Types
+export interface CreateEmotionRequest {
+  emotion: EmotionType;
+  intensity: number;
+  context: string;
+  surveyResponses?: SurveyResponse[];
+}
+
+export interface CreateJournalRequest {
+  title: string;
+  content: string;
+  emotionEntryId?: string;
+  mood?: number;
+  tags?: string[];
+  isPrivate?: boolean;
+}
+
+// Post-Game Feedback Types
+export interface PostGameFeedback {
+  id: string;
+  userId: string;
+  gameId: string;
+  gameName: string;
+  emotion: EmotionType;
+  feelsBetter: boolean;
+  timestamp: Date;
+  sessionData?: {
+    score?: number;
+    duration?: number;
+    achievements?: string[];
+  };
+}
+
+export interface CreateFeedbackRequest {
+  gameId: string;
+  gameName: string;
+  emotion: EmotionType;
+  feelsBetter: boolean;
+  sessionData?: {
+    score?: number;
+    duration?: number;
+    achievements?: string[];
+  };
 } 

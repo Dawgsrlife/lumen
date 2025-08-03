@@ -6,7 +6,7 @@ import { Button } from '../components/ui';
 const WelcomePage: React.FC = () => {
   const { user } = useClerkUser();
   
-  const displayName = user?.firstName || user?.email?.split('@')[0] || 'there';
+  const displayName = user?.firstName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'there';
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">

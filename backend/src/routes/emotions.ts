@@ -32,9 +32,71 @@ const validateEmotionEntry = [
     .withMessage('Survey responses must be an array')
 ];
 
+// Helper function to calculate streak
+const calculateStreak = async (clerkId: string): Promise<number> => {
+  const today = new Date();
+  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  
+  let streak = 0;
+  let currentDate = new Date(startOfDay);
+  
+  while (true) {
+    const entry = await EmotionEntryModel.findOne({
+      clerkId,
+      createdAt: {
+        $gte: currentDate,
+        $lt: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)
+      }
+    });
+    
+    if (entry) {
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+};
+
+// Helper function to update weekly data
+const updateWeeklyData = async (clerkId: string, user: any): Promise<boolean[]> => {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  // Check if we need to reset weekly data (new week)
+  const lastEmotion = user.lastEmotionDate ? new Date(user.lastEmotionDate) : null;
+  if (!lastEmotion || isNewWeek(lastEmotion, today)) {
+    user.weeklyData = [false, false, false, false, false, false, false];
+  }
+  
+  // Update today's entry
+  user.weeklyData[dayOfWeek] = true;
+  await user.save();
+  
+  return user.weeklyData;
+};
+
+// Helper function to check if it's a new week
+const isNewWeek = (lastDate: Date, currentDate: Date): boolean => {
+  const lastWeek = getWeekNumber(lastDate);
+  const currentWeek = getWeekNumber(currentDate);
+  return lastWeek !== currentWeek;
+};
+
+// Helper function to get week number
+const getWeekNumber = (date: Date): number => {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+};
+
 /**
  * POST /api/emotions
- * Create a new emotion entry
+ * Create a new emotion entry with enhanced data integration
  */
 router.post('/', 
   HACKATHON_MODE ? hackathonAuth : authenticateToken, 
@@ -53,32 +115,24 @@ router.post('/',
 
       const { emotion, intensity, context, surveyResponses }: CreateEmotionRequest = req.body;
       const clerkId = req.clerkId!;
-      const associateJournal = req.query.associateJournal === 'true';
 
-      if (HACKATHON_MODE) {
-        // Use mock data service for hackathon mode
-        const emotionEntry = await mockDataService.createEmotionEntry(clerkId, {
-          emotion,
-          intensity: intensity || 5,
-          context,
-          surveyResponses
-        });
-
-        res.status(201).json({
-          success: true,
-          data: { emotionEntry },
-          message: 'Emotion logged successfully (hackathon mode)'
-        });
-        return;
-      }
-
-      // Find user
-      const user = await UserModel.findOne({ clerkId });
+      // Find or create user
+      let user = await UserModel.findOne({ clerkId });
       if (!user) {
         return res.status(404).json({
-          error: 'User not found',
-          code: 'USER_NOT_FOUND',
-          details: {}
+          success: false,
+          error: 'User not found'
+        });
+      }
+
+      // Check if user has already logged an emotion today
+      const today = new Date();
+      const hasLoggedToday = user.hasLoggedToday();
+      
+      if (hasLoggedToday) {
+        return res.status(400).json({
+          success: false,
+          error: 'You have already logged an emotion today'
         });
       }
 
@@ -91,20 +145,56 @@ router.post('/',
           .lean();
       }
 
-      // Create emotion entry with auto-assigned intensity if not provided
+      // Create emotion entry
       const emotionEntry = new EmotionEntryModel({
         userId: user.id,
         clerkId,
         emotion,
-        intensity: intensity || 5, // Auto-assign 5 if not provided
+        intensity: intensity || 5,
         context,
         surveyResponses
       });
 
       await emotionEntry.save();
 
-      // If there's a recent journal entry and association was requested, associate it with this emotion
-      if (latestJournalEntry && associateJournal) {
+      // Update user data
+      user.lastEmotionDate = today;
+      user.currentEmotion = emotion;
+      user.totalEmotionEntries += 1;
+      
+      // Update favorite emotions
+      if (!user.favoriteEmotions.includes(emotion)) {
+        user.favoriteEmotions.push(emotion);
+        if (user.favoriteEmotions.length > 5) {
+          user.favoriteEmotions = user.favoriteEmotions.slice(-5); // Keep last 5
+        }
+      }
+      
+      // Update weekly data
+      const weeklyData = await updateWeeklyData(clerkId, user);
+      
+      // Calculate new streak
+      const newStreak = await calculateStreak(clerkId);
+      user.currentStreak = newStreak;
+      if (newStreak > user.longestStreak) {
+        user.longestStreak = newStreak;
+      }
+      
+      // Update average mood (simplified calculation)
+      const recentEmotions = await EmotionEntryModel.find({ clerkId })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean();
+      
+      if (recentEmotions.length > 0) {
+        const totalIntensity = recentEmotions.reduce((sum, entry) => sum + entry.intensity, 0);
+        user.averageMood = Math.round(totalIntensity / recentEmotions.length);
+      }
+      
+      await user.save();
+
+      // If there's a recent journal entry, associate it with this emotion
+      if (latestJournalEntry) {
         await JournalEntryModel.findByIdAndUpdate(
           latestJournalEntry._id,
           { emotionEntryId: emotionEntry.id }
@@ -113,7 +203,16 @@ router.post('/',
 
       res.status(201).json({
         success: true,
-        data: { emotionEntry },
+        data: {
+          emotionEntry,
+          userData: {
+            currentStreak: user.currentStreak,
+            longestStreak: user.longestStreak,
+            weeklyData: user.weeklyData,
+            totalEmotionEntries: user.totalEmotionEntries,
+            averageMood: user.averageMood
+          }
+        },
         message: 'Emotion logged successfully'
       });
 
@@ -130,7 +229,7 @@ router.post('/',
 
 /**
  * GET /api/emotions
- * Get user's emotion entries with optional filtering
+ * Get user's emotion entries with enhanced data
  */
 router.get('/', 
   HACKATHON_MODE ? hackathonAuth : authenticateToken, 
@@ -217,12 +316,24 @@ router.get('/',
         EmotionEntryModel.countDocuments(query)
       ]);
 
+      // Get user data for enhanced response
+      const user = await UserModel.findOne({ clerkId }).lean();
+      const userData = user ? {
+        currentStreak: user.currentStreak,
+        longestStreak: user.longestStreak,
+        weeklyData: user.weeklyData,
+        totalEmotionEntries: user.totalEmotionEntries,
+        averageMood: user.averageMood,
+        hasLoggedToday: user.hasLoggedToday()
+      } : null;
+
       const totalPages = Math.ceil(total / limitNum);
 
       res.json({
         success: true,
         data: {
           emotions,
+          userData,
           pagination: {
             page: pageNum,
             limit: limitNum,
@@ -240,6 +351,104 @@ router.get('/',
         error: 'Failed to fetch emotion entries',
         code: 'INTERNAL_ERROR',
         details: {}
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/emotions/today
+ * Check if user has logged emotion today and get today's data
+ */
+router.get('/today', 
+  authenticateToken, 
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const clerkId = req.clerkId!;
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+
+      const todayEntry = await EmotionEntryModel.findOne({
+        clerkId,
+        createdAt: {
+          $gte: startOfDay,
+          $lt: endOfDay
+        }
+      }).lean();
+
+      const user = await UserModel.findOne({ clerkId }).lean();
+
+      res.json({
+        success: true,
+        data: {
+          hasLoggedToday: !!todayEntry,
+          todayEntry,
+          userData: user ? {
+            currentStreak: user.currentStreak,
+            longestStreak: user.longestStreak,
+            weeklyData: user.weeklyData,
+            currentEmotion: user.currentEmotion,
+            hasPlayedGameToday: user.hasPlayedGameToday
+          } : null
+        }
+      });
+
+    } catch (error) {
+      console.error('Error checking today\'s emotion:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch emotion entries'
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/emotions/today
+ * Check if user has logged emotion today and get today's data
+ */
+router.get('/today', 
+  authenticateToken, 
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const clerkId = req.clerkId!;
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+
+      const todayEntry = await EmotionEntryModel.findOne({
+        clerkId,
+        createdAt: {
+          $gte: startOfDay,
+          $lt: endOfDay
+        }
+      }).lean();
+
+      const user = await UserModel.findOne({ clerkId }).lean();
+
+      res.json({
+        success: true,
+        data: {
+          hasLoggedToday: !!todayEntry,
+          todayEntry,
+          userData: user ? {
+            currentStreak: user.currentStreak,
+            longestStreak: user.longestStreak,
+            weeklyData: user.weeklyData,
+            currentEmotion: user.currentEmotion,
+            hasPlayedGameToday: user.hasPlayedGameToday
+          } : null
+        }
+      });
+
+    } catch (error) {
+      console.error('Error checking today\'s emotion:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to check today\'s emotion'
       });
     }
   }

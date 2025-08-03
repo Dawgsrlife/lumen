@@ -11,6 +11,23 @@ export interface User {
   createdAt: Date;
   lastLoginAt: Date;
   preferences: UserPreferences;
+  // Enhanced user tracking
+  currentStreak: number;
+  longestStreak: number;
+  lastEmotionDate?: Date;
+  weeklyData: boolean[]; // [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+  totalEmotionEntries: number;
+  favoriteEmotions: EmotionType[];
+  // Session tracking
+  hasPlayedGameToday: boolean;
+  currentEmotion?: EmotionType | null;
+  // Analytics data
+  averageMood: number;
+  moodTrend: 'improving' | 'stable' | 'declining';
+  // Game statistics
+  gamesPlayed: number;
+  totalGameTime: number; // in minutes
+  favoriteGames: string[];
 }
 
 export interface UserPreferences {

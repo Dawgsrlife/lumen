@@ -161,7 +161,15 @@ const Onboarding: React.FC = () => {
   };
 
   if (!user) {
-    return <LoadingSpinner size="lg" className="mt-20" />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <div className="mb-4"></div>
+          <p className="text-gray-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

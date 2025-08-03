@@ -27,23 +27,20 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
+      className="w-full"
     >
-      <h2 className="text-4xl md:text-5xl font-light text-gray-900 text-center mb-8">
-        How are you feeling?
-      </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 max-w-6xl mx-auto px-4">
-        {(Object.keys(emotionData) as EmotionType[]).map((emotion) => (
+      <div className="grid grid-cols-3 gap-6 mb-8 max-w-4xl mx-auto">
+        {(Object.keys(emotionData) as EmotionType[]).map((emotion, index) => (
           <motion.button
             key={emotion}
-            onClick={() => !disabled && onMoodSelect(emotion)}
-            whileHover={disabled ? {} : { scale: 1.05 }}
-            whileTap={disabled ? {} : { scale: 0.95 }}
-            disabled={disabled}
+            onClick={() => onMoodSelect(emotion)}
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             className={`
-              relative p-6 sm:p-8 lg:p-10 rounded-3xl transition-all duration-300 
+              relative p-6 rounded-2xl cursor-pointer
               ${selectedMood === emotion 
                 ? 'shadow-lg ring-4 ring-blue-200 scale-105' 
-                : 'shadow-md hover:shadow-xl hover:scale-102'
+                : 'shadow-sm hover:shadow-md'
               }
               ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
             `}
@@ -52,9 +49,17 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
               color: '#1f2937',
               border: '1px solid rgba(0, 0, 0, 0.05)'
             }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ 
+              duration: 0.3, 
+              delay: 0.05 + index * 0.05,
+              ease: "easeOut"
+            }}
+
           >
-            <div className="text-4xl sm:text-5xl lg:text-6xl mb-4">{emotionData[emotion].emoji}</div>
-            <div className="text-lg sm:text-xl font-semibold">{emotionData[emotion].label}</div>
+            <div className="text-4xl mb-4">{emotionData[emotion].emoji}</div>
+            <div className="text-lg font-medium">{emotionData[emotion].label}</div>
           </motion.button>
         ))}
       </div>
