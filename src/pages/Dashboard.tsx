@@ -1,13 +1,9 @@
-import React, { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import React from 'react';
 import { useAppContext } from '../context/AppContext';
-import { useClerkUser } from '../hooks/useClerkUser';
-import { apiService } from '../services/api';
 import DashboardScreen from '../components/DashboardScreen';
 
 const Dashboard: React.FC = () => {
   const { state, resetToEmotionSelection } = useAppContext();
-  const { user } = useClerkUser();
   
   // Debug logging
   console.log('Dashboard: Current state', {
@@ -16,32 +12,8 @@ const Dashboard: React.FC = () => {
     showHeader: state.showHeader,
   });
 
-  // Check if user has logged emotions today
-  useEffect(() => {
-    const checkDailyStatus = async () => {
-      if (!user) return;
-
-      try {
-        const response = await apiService.getTodayEmotion();
-        const hasLogged = response.hasLoggedToday;
-        
-        if (!hasLogged) {
-          // If user hasn't logged today, redirect to flow
-          console.log('Dashboard: User has not logged today, redirecting to flow');
-          window.location.href = '/flow';
-        }
-      } catch (error) {
-        console.error('Error checking daily status:', error);
-        // On API error, stay on dashboard and don't retry
-        console.log('API unavailable, staying on dashboard');
-      }
-    };
-
-    // Only check once when user is available
-    if (user) {
-      checkDailyStatus();
-    }
-  }, [user]); // Remove dependencies to prevent re-runs
+  // Removed automatic redirect to flow - this should only happen on initial login
+  // The flow will be triggered automatically only once per session via LoginRedirectHandler
 
   if (state.isLoading) {
     console.log('Dashboard: Showing loading spinner');
@@ -77,7 +49,6 @@ const Dashboard: React.FC = () => {
       selectedEmotion={currentEmotion}
       currentStreak={currentStreak}
       weeklyData={weeklyData}
-      onReset={resetToEmotionSelection}
     />
   );
 };

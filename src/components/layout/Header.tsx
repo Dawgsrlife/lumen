@@ -122,7 +122,7 @@ const Header: React.FC = () => {
             message: 'Take a 5-minute break to practice mindfulness and reduce stress.',
             isRead: true,
             createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-            actionUrl: '/flow'
+            actionUrl: '/dashboard'
           },
           {
             _id: '4',
@@ -248,7 +248,7 @@ const Header: React.FC = () => {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo with LumenIcon */}
-          <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <LumenIcon size="sm" />
             <span className="text-xl font-light text-gray-900">Lumen</span>
           </Link>

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LumenMascot, FlowBackground } from '../components/ui';
+import { FlowBackground } from '../components/ui';
 import { FlowRouter, FlowErrorBoundary, FlowLoadingState } from '../components/flow';
 import { useFlowState } from '../hooks/useFlowState';
 import { useClerkUser } from '../hooks/useClerkUser';
@@ -14,11 +14,37 @@ const FlowPage: React.FC = () => {
   const [isCheckingDailyStatus, setIsCheckingDailyStatus] = useState(true);
   const [hasLoggedToday, setHasLoggedToday] = useState(false);
 
+  // Add initial state logging
+  useEffect(() => {
+    console.log('FlowPage state:', {
+      currentStep: flowState.currentStep,
+      selectedEmotion: flowState.selectedEmotion,
+      hasLoggedToday: flowState.hasLoggedToday,
+      isLoading: flowState.isLoading,
+      user: user?.id
+    });
+  }, [flowState, user]);
+
   // Check daily emotion status on mount
   useEffect(() => {
     const checkDailyStatus = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user available, skipping daily status check');
+        return;
+      }
 
+      // Check if this is a manual flow request
+      const urlParams = new URLSearchParams(window.location.search);
+      const isManualFlow = urlParams.get('manual') === 'true';
+      
+      if (isManualFlow) {
+        console.log('Manual flow requested, starting at welcome step');
+        flowState.actions.setCurrentStep('welcome');
+        setIsCheckingDailyStatus(false);
+        return;
+      }
+
+      console.log('Checking daily status for user:', user.id);
       try {
         setIsCheckingDailyStatus(true);
         const response = await apiService.getTodayEmotion();
@@ -34,7 +60,7 @@ const FlowPage: React.FC = () => {
         }
         
         // If user hasn't logged today, start with welcome screen
-        console.log('User has not logged today, starting flow');
+        console.log('User has not logged today, starting flow at welcome step');
         flowState.actions.setCurrentStep('welcome');
       } catch (error) {
         console.error('Error checking daily status:', error);
@@ -119,6 +145,11 @@ const FlowPage: React.FC = () => {
     navigate('/dashboard');
   };
 
+  const handleFlowComplete = () => {
+    console.log('Flow completed, navigating to dashboard');
+    navigate('/dashboard', { replace: true });
+  };
+
   // Show loading while checking daily status
   if (isCheckingDailyStatus) {
     return <FlowLoadingState stage="checking-daily-status" />;
@@ -155,17 +186,8 @@ const FlowPage: React.FC = () => {
 
         {/* Dynamic Background */}
         <FlowBackground theme={backgroundTheme} />
-        {/* Only show mascot after welcome screen */}
-        {flowState.currentStep !== 'welcome' && (
-          <LumenMascot currentPage="/flow" />
-        )}
         {/* Flow Router */}
-        <FlowRouter
-          onComplete={() => {
-            // Handle flow completion
-            navigate('/dashboard');
-          }}
-        />
+        <FlowRouter onComplete={handleFlowComplete} />
       </div>
     </FlowErrorBoundary>
   );

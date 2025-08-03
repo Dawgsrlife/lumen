@@ -21,6 +21,7 @@ const FlowPage = lazy(() => import('./pages/FlowPage'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Analytics = lazy(() => import('./pages/Analytics'));
+const Chat = lazy(() => import('./pages/Chat'));
 
 // Enhanced Conditional Layout Component
 const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -29,16 +30,14 @@ const ConditionalLayout: React.FC<{ children: React.ReactNode }> = ({ children }
   const location = window.location.pathname;
   
   // Determine if header/footer should be shown
-  // Show header/footer ONLY for dashboard, analytics
-  // Hide header/footer for all other pages
+  // Show header/footer for dashboard, analytics, chat (main navigation pages)
+  // Hide header/footer for all other pages (flow, welcome, etc.)
   const shouldShowHeader = 
-    (location === '/dashboard' || location === '/analytics') &&
-    appState.showHeader;
+    location === '/dashboard' || location === '/analytics' || location === '/chat';
   
   console.log('ConditionalLayout: State', {
     pathname: location,
     flowStep: flowState.currentStep,
-    appShowHeader: appState.showHeader,
     shouldShowHeader,
     user: appState.user
   });
@@ -204,6 +203,26 @@ function App() {
                       <ProtectedRoute>
                         <ConditionalLayout>
                           <Analytics />
+                        </ConditionalLayout>
+                      </ProtectedRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/chat" 
+                  element={
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                        <div className="text-center">
+                          <LoadingSpinner size="lg" />
+                          <div className="mb-4"></div>
+                          <p className="text-gray-600">Loading chat...</p>
+                        </div>
+                      </div>
+                    }>
+                      <ProtectedRoute>
+                        <ConditionalLayout>
+                          <Chat />
                         </ConditionalLayout>
                       </ProtectedRoute>
                     </Suspense>

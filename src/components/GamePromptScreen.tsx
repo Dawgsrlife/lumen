@@ -146,6 +146,8 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
           {emotion.label}
         </motion.h2>
 
+        <div className="mb-4"></div>
+
         <motion.p
           className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed"
           initial={{ opacity: 0, y: 20 }}
@@ -154,6 +156,8 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
         >
           {emotion.encouragingMessage}
         </motion.p>
+
+        <div className="mb-4"></div>
 
         {/* Game Information Card */}
         <motion.div
@@ -165,6 +169,8 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
           <h3 className="text-xl font-medium text-gray-900 mb-4">
             🎮 Game Information
           </h3>
+
+          <div className="mb-4"></div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="text-center">
@@ -183,6 +189,8 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
               <div className="font-medium text-gray-900">{emotion.gameInfo.benefits.length} areas</div>
             </div>
           </div>
+
+          <div className="mb-4"></div>
           
           <div className="text-left">
             <div className="text-sm text-gray-600 mb-2">What you'll gain:</div>
@@ -195,7 +203,11 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
               ))}
             </ul>
           </div>
+
+          <div className="mb-4"></div>
         </motion.div>
+
+        <div className="mb-4"></div>
 
         <motion.h3
           className="text-2xl md:text-3xl font-light text-gray-900 mb-8"
@@ -205,6 +217,8 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
         >
           Would you like to play a calming game?
         </motion.h3>
+
+        <div className="mb-4"></div>
 
         <motion.div
           className="flex flex-col sm:flex-row gap-4 justify-center"

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { LumenIcon } from './ui';
 import { useAppContext } from '../context/AppContext';
 import { useUserFlowState } from '../hooks/useUserFlowState';
+import { useClerkUser } from '../hooks/useClerkUser';
 
 interface WelcomeScreenProps {
   username?: string;
@@ -12,23 +13,48 @@ interface WelcomeScreenProps {
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) => {
   const { state } = useAppContext();
   const { state: userFlowState } = useUserFlowState();
+  const { user } = useClerkUser();
   const [hasAnimated, setHasAnimated] = useState(false);
 
+  // Get username from Clerk user or fallback
+  const displayName = username || user?.firstName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'there';
+
   useEffect(() => {
+    console.log('WelcomeScreen mounted, hasAnimated:', hasAnimated);
+    
     // Only trigger animation and auto-advance once
     if (!hasAnimated) {
+      console.log('Starting welcome animation...');
       setHasAnimated(true);
-      
-      const timer = setTimeout(() => {
-        onComplete?.();
-      }, 3000); // Increased duration for better UX
-      
-      return () => clearTimeout(timer);
     }
-  }, [onComplete, hasAnimated]);
+  }, [hasAnimated]);
+
+  // Separate useEffect for the timer to avoid cleanup issues
+  useEffect(() => {
+    if (hasAnimated && !hasCompletedRef.current) {
+      console.log('Setting up welcome timer...');
+      const timer = setTimeout(() => {
+        console.log('Welcome timer fired, calling onComplete');
+        if (onComplete && !hasCompletedRef.current) {
+          hasCompletedRef.current = true;
+          onComplete();
+        } else {
+          console.error('onComplete is undefined or already called!');
+        }
+      }, 3000);
+      
+      return () => {
+        console.log('Cleaning up welcome timer');
+        clearTimeout(timer);
+      };
+    }
+  }, [hasAnimated, onComplete]);
 
   // Prevent re-rendering by using a stable key
   const welcomeKey = 'welcome-screen';
+
+  // Add a ref to track if we've already called onComplete
+  const hasCompletedRef = useRef(false);
 
   return (
     <div key={welcomeKey} className="relative min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center overflow-hidden">
@@ -72,7 +98,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) =
             transition={{ delay: 1.0, duration: 0.8 }}
           >
             <div className="mb-2"></div>
-            {username || 'there'}!
+            {displayName}!
           </motion.h2>
         </motion.div>
 

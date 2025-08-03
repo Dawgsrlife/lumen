@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -107,116 +107,128 @@ export default function Chat() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-yellow-50 to-purple-50 p-6">
-      {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-6"
-      >
-        <div className="flex items-center justify-center mb-2">
-          <Sparkles className="h-8 w-8 text-yellow-500 mr-2" />
-          <h1 className="text-3xl font-bold text-gray-800">Chat with Lumi</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      <div className="max-w-6xl mx-auto px-8 py-16">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="mb-4"></div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Chat with Lumi
+            </h1>
+            <p className="text-xl text-gray-600">
+              Your compassionate AI companion
+            </p>
+          </motion.div>
+          <div className="mb-4"></div>
         </div>
-        <p className="text-gray-600">Your compassionate AI companion</p>
-      </motion.div>
 
-      {/* Fixed-Size Chat Container */}
-      <div className="max-w-4xl mx-auto">
-        <Card className="h-[700px] flex flex-col overflow-hidden">
-          {/* Messages Area - Fixed height with scroll */}
-          <div className="h-[600px] overflow-y-auto px-4 pt-16 pb-4 space-y-4">
-            <AnimatePresence>
-              {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`flex items-start space-x-3 max-w-[80%] ${
-                    message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                  }`}>
-                    {/* Avatar */}
-                    <div className={`p-2 rounded-full ${
-                      message.role === 'user' 
-                        ? 'bg-purple-100 text-purple-600' 
-                        : 'bg-yellow-100 text-yellow-600'
+        {/* Chat Container */}
+        <div className="max-w-4xl mx-auto">
+          <Card className="h-[600px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4">
+              <div className="mb-4"></div>
+              
+              <AnimatePresence>
+                {messages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`flex items-start space-x-3 max-w-[80%] ${
+                      message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                     }`}>
-                      {message.role === 'user' ? (
-                        <User className="h-4 w-4" />
-                      ) : (
-                        <Bot className="h-4 w-4" />
-                      )}
-                    </div>
-
-                    {/* Message Bubble */}
-                    <div className={`p-3 rounded-2xl ${
-                      message.role === 'user'
-                        ? 'bg-purple-600 text-white rounded-br-sm'
-                        : 'bg-gray-100 text-gray-800 rounded-bl-sm'
-                    }`}>
-                      <p className="whitespace-pre-wrap">{message.content}</p>
-                      <p className={`text-xs mt-2 ${
-                        message.role === 'user' ? 'text-purple-200' : 'text-gray-500'
+                      {/* Avatar */}
+                      <div className={`p-2 rounded-full ${
+                        message.role === 'user' 
+                          ? 'bg-gray-100 text-gray-600' 
+                          : 'bg-gradient-to-r from-yellow-400 to-purple-600 text-white'
                       }`}>
-                        {message.timestamp.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </p>
+                        {message.role === 'user' ? (
+                          <User className="h-4 w-4" />
+                        ) : (
+                          <Bot className="h-4 w-4" />
+                        )}
+                      </div>
+
+                      {/* Message Bubble */}
+                      <div className={`p-4 rounded-2xl ${
+                        message.role === 'user'
+                          ? 'bg-gray-900 text-white rounded-br-sm'
+                          : 'bg-gray-50 text-gray-800 rounded-bl-sm border border-gray-100'
+                      }`}>
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                        <div className="mb-2"></div>
+                        <p className={`text-xs ${
+                          message.role === 'user' ? 'text-gray-300' : 'text-gray-500'
+                        }`}>
+                          {message.timestamp.toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {/* Loading Indicator */}
+              {isLoading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex justify-start"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-purple-600 text-white">
+                      <Bot className="h-4 w-4" />
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-2xl rounded-bl-sm border border-gray-100">
+                      <LoadingSpinner size="sm" />
                     </div>
                   </div>
                 </motion.div>
-              ))}
-            </AnimatePresence>
+              )}
 
-            {/* Loading Indicator */}
-            {isLoading && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex justify-start"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-full bg-yellow-100 text-yellow-600">
-                    <Bot className="h-4 w-4" />
-                  </div>
-                  <div className="bg-gray-100 p-3 rounded-2xl rounded-bl-sm">
-                    <LoadingSpinner size="sm" />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Fixed Input Area - Always at bottom, fixed height */}
-          <div className="h-[100px] border-t bg-white p-4 flex flex-col justify-center">
-            <div className="relative">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleInputKeyDown}
-                placeholder="Share what's on your mind..."
-                className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500"
-                disabled={isLoading}
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-yellow-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <Send className="h-4 w-4 hover:cursor-pointer" />
-              </button>
+              <div ref={messagesEndRef} />
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
-              Lumi is here to listen and support you. For urgent concerns, please contact a mental health professional.
-            </p>
-          </div>
-        </Card>
+
+            {/* Input Area */}
+            <div className="border-t border-gray-100 bg-white p-6">
+              <div className="mb-4"></div>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleInputKeyDown}
+                  placeholder="Share what's on your mind..."
+                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 bg-gray-50/50 transition-all"
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputMessage.trim() || isLoading}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-yellow-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="mb-4"></div>
+              <p className="text-xs text-gray-500 text-center">
+                Lumi is here to listen and support you. For urgent concerns, please contact a mental health professional.
+              </p>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionType } from '../types';
 import { LumenMascot } from './ui';
-import { Header, Footer } from './layout';
+import { useFlow } from '../context/FlowProvider';
 
 // Emotion data with premium styling
 const emotionData: Record<EmotionType, { 
@@ -86,6 +86,8 @@ const WeeklyProgress: React.FC<{ weeklyData: boolean[] }> = ({ weeklyData }) => 
         <h4 className="text-lg font-semibold text-gray-900 mb-2">This Week</h4>
         <p className="text-sm text-gray-600">{loggedDays}/7 days</p>
       </div>
+      
+      <div className="mb-4"></div>
       
       <div className="grid grid-cols-7 gap-2">
         {weeklyData.map((logged, index) => (
@@ -176,6 +178,8 @@ const StreakCounter: React.FC<{ currentStreak: number }> = ({ currentStreak }) =
       
       <div className="mb-4"></div>
       
+      <div className="mb-4"></div>
+      
       <motion.p
         className="text-sm text-gray-700 font-medium"
         initial={{ opacity: 0 }}
@@ -192,25 +196,20 @@ interface DashboardScreenProps {
   selectedEmotion: EmotionType;
   currentStreak: number;
   weeklyData: boolean[];
-  onReset: () => void;
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = ({ 
   selectedEmotion, 
   currentStreak, 
-  weeklyData, 
-  onReset 
+  weeklyData
 }) => {
   const emotion = emotionData[selectedEmotion];
+  const { state } = useFlow();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
-      {/* Header */}
-      <Header />
-      
-      {/* Luna Mascot */}
-      <LumenMascot currentPage="/dashboard" />
-
+      {/* Show mascot only if user has completed flow today */}
+      {state.hasCompletedToday && <LumenMascot currentPage="/dashboard" />}
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
         {/* Beautiful Header - Inspired by Landing Page */}
         <motion.div
@@ -229,6 +228,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             Welcome back
           </motion.h1>
           
+          <div className="mb-4"></div>
+          
           <motion.p
             className="text-xl leading-relaxed text-gray-600 max-w-2xl mx-auto font-light text-center"
             initial={{ opacity: 0, y: 20 }}
@@ -238,6 +239,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             Here's your gentle overview for today
           </motion.p>
         </motion.div>
+
+        <div className="mb-4"></div>
 
         {/* Clean Three-card Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
@@ -262,7 +265,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               Current Mood
             </h3>
             
+            <div className="mb-4"></div>
+            
             <p className="text-xl text-gray-700 mb-6 font-semibold">{emotion.label}</p>
+            
+            <div className="mb-4"></div>
             
             <motion.p
               className="text-gray-600 mb-8 italic font-light"
@@ -275,31 +282,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             
             <div className="mb-4"></div>
             
-            <motion.button
-              onClick={onReset}
-              className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer w-full"
-              style={{
-                background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
-                boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {/* Minimal shimmer effect - subtle and elegant */}
-              <div 
-                className="absolute inset-0 rounded-xl opacity-30"
-                style={{
-                  background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)',
-                  backgroundSize: '200% 200%',
-                  animation: 'shimmer 3s ease-in-out infinite'
-                }}
-              ></div>
-              
-              {/* Clean, minimal button text */}
-              <span className="relative z-10">
-                Track New Feeling
-              </span>
-            </motion.button>
+            <div className="mb-4"></div>
           </motion.div>
 
           {/* Weekly Progress Card */}
@@ -327,6 +310,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <StreakCounter currentStreak={currentStreak} />
           </motion.div>
         </div>
+
+        <div className="mb-4"></div>
+        
+        <div className="mb-4"></div>
 
         {/* Beautiful Action Buttons - Inspired by Landing Page */}
         <motion.div
@@ -371,8 +358,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </motion.button>
         </motion.div>
       </div>
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

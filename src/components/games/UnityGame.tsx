@@ -46,9 +46,9 @@ const UnityGame: React.FC<UnityGameProps> = ({
     requestFullscreen,
   } = useUnityContext({
     loaderUrl: `${buildUrl}/Builds.loader.js${gameName ? `?game=${gameName}` : ''}`,
-    dataUrl: `${buildUrl}/Builds.data`,
-    frameworkUrl: `${buildUrl}/Builds.framework.js`,
-    codeUrl: `${buildUrl}/Builds.wasm`,
+    dataUrl: `${buildUrl}/Builds.data.br`,
+    frameworkUrl: `${buildUrl}/Builds.framework.js.br`,
+    codeUrl: `${buildUrl}/Builds.wasm.br`,
   });
 
   // Event handlers
@@ -109,18 +109,45 @@ const UnityGame: React.FC<UnityGameProps> = ({
         emotion: emotionData.emotion,
         intensity: emotionData.intensity,
         timestamp: new Date().toISOString(),
+        context: emotionData.context || {}
       });
 
-      sendUnityMessage('GameManager', 'ReceiveEmotionData', emotionPayload) ||
-      sendUnityMessage('Main Camera', 'ReceiveEmotionData', emotionPayload);
+      // Try multiple possible game object names for better compatibility
+      const gameObjects = ['GameManager', 'Main Camera', 'GameController', 'EmotionManager'];
+      let messageSent = false;
+      
+      for (const gameObject of gameObjects) {
+        if (sendUnityMessage(gameObject, 'ReceiveEmotionData', emotionPayload)) {
+          console.log(`Emotion data sent to ${gameObject}`);
+          messageSent = true;
+          break;
+        }
+      }
+      
+      if (!messageSent) {
+        console.warn('Could not send emotion data to Unity - no compatible game object found');
+      }
     }
   }, [isLoaded, emotionData, sendUnityMessage]);
 
   // Send game name to Unity when loaded
   useEffect(() => {
     if (isLoaded && gameName) {
-      sendUnityMessage('GameManager', 'LoadGame', gameName) ||
-      sendUnityMessage('GameController', 'LoadGame', gameName);
+      // Try multiple possible game object names for better compatibility
+      const gameObjects = ['GameManager', 'GameController', 'Main Camera', 'GameLoader'];
+      let messageSent = false;
+      
+      for (const gameObject of gameObjects) {
+        if (sendUnityMessage(gameObject, 'LoadGame', gameName)) {
+          console.log(`Game load request sent to ${gameObject}`);
+          messageSent = true;
+          break;
+        }
+      }
+      
+      if (!messageSent) {
+        console.warn('Could not send game load request to Unity - no compatible game object found');
+      }
     }
   }, [isLoaded, gameName, sendUnityMessage]);
 

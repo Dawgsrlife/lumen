@@ -62,11 +62,13 @@ export const useFlowState = (): FlowState & { actions: FlowActions } => {
   }, [dispatch]);
 
   const selectEmotion = useCallback((emotion: EmotionType) => {
+    console.log('Selecting emotion:', emotion);
     setEmotion(emotion);
     logEmotion(emotion);
     markEmotionLogged();
-    dispatch({ type: 'SET_CURRENT_STEP', payload: 'game' });
-  }, [setEmotion, logEmotion, markEmotionLogged, dispatch]);
+    // ✅ DON'T auto-advance - let FlowRouter handle step transitions
+    // Remove: dispatch({ type: 'SET_CURRENT_STEP', payload: 'game' });
+  }, [setEmotion, logEmotion, markEmotionLogged]);
 
   const handleCompleteGame = useCallback((data: UnityGameData) => {
     setGameData(data);
