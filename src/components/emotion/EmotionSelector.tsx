@@ -27,10 +27,10 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
     >
-      <h2 className="text-4xl md:text-5xl font-light text-gray-900 text-center mb-8">
+      <h2 className="text-5xl md:text-6xl lg:text-7xl font-light text-gray-900 text-center mb-12">
         How are you feeling?
       </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 max-w-6xl mx-auto px-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 sm:gap-12 lg:gap-16 max-w-7xl mx-auto px-4">
         {(Object.keys(emotionData) as EmotionType[]).map((emotion) => (
           <motion.button
             key={emotion}
@@ -38,7 +38,7 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={`
-              relative p-6 sm:p-8 lg:p-10 rounded-3xl transition-all duration-300 
+              relative p-8 sm:p-10 lg:p-12 rounded-3xl transition-all duration-300 
               ${selectedMood === emotion 
                 ? 'shadow-lg ring-4 ring-blue-200 scale-105' 
                 : 'shadow-md hover:shadow-xl hover:scale-102'
@@ -50,8 +50,8 @@ const EmotionSelector: React.FC<EmotionSelectorProps> = ({ selectedMood, onMoodS
               border: '1px solid rgba(0, 0, 0, 0.05)'
             }}
           >
-            <div className="text-4xl sm:text-5xl lg:text-6xl mb-4">{emotionData[emotion].emoji}</div>
-            <div className="text-lg sm:text-xl font-semibold">{emotionData[emotion].label}</div>
+            <div className="text-5xl sm:text-6xl lg:text-7xl mb-4">{emotionData[emotion].emoji}</div>
+            <div className="text-xl sm:text-2xl font-semibold">{emotionData[emotion].label}</div>
           </motion.button>
         ))}
       </div>

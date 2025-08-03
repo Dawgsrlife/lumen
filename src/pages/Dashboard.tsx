@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LoadingSpinner } from '../components/ui';
+import { LoadingSpinner, MoodContributionGraph } from '../components/ui';
 import { EmotionSelector } from '../components/emotion';
 import { useClerkUser } from '../hooks/useClerkUser';
 import type { EmotionType } from '../types';
@@ -198,129 +198,139 @@ const Dashboard: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Single Column Center Layout */}
-        <div className="flex flex-col items-center space-y-12 mt-8">
-          {/* Primary: Emotion Selection */}
-          <motion.div 
-            className="w-full max-w-4xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <EmotionSelector 
-              selectedMood={selectedMood} 
-              onMoodSelect={handleMoodSelect} 
-            />
-          </motion.div>
-          
-          {/* Consolidated Stats Section */}
-          <motion.div
-            className="w-full max-w-6xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Current Mood */}
-              <div 
-                className="relative rounded-2xl p-6 text-center bg-white"
-                style={{
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
-                }}
+        {/* Progressive Disclosure Layout */}
+        <div className="flex flex-col items-center justify-center mt-8">
+          <AnimatePresence mode="wait">
+            {!selectedMood ? (
+              /* Step 1: Only Emotion Selection */
+              <motion.div 
+                key="emotion-selector"
+                className="w-full max-w-5xl flex flex-col items-center justify-center min-h-[60vh]"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.6 }}
               >
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Current Mood</h3>
-                <div className="text-5xl mb-3">
-                  {selectedMood ? emotionData[selectedMood].emoji : '🤔'}
-                </div>
-                <p className="text-base text-gray-700 font-medium">
-                  {selectedMood ? emotionData[selectedMood].label : 'No mood selected'}
-                </p>
-              </div>
-
-              {/* This Week Stats */}
-              <div 
-                className="relative rounded-2xl p-6 bg-white"
-                style={{
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
-                }}
+                <EmotionSelector 
+                  selectedMood={selectedMood} 
+                  onMoodSelect={handleMoodSelect} 
+                />
+              </motion.div>
+            ) : (
+              /* Step 2: Stats and Graph After Selection */
+              <motion.div 
+                key="stats-view"
+                className="w-full flex flex-col items-center space-y-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.6 }}
               >
-                <h3 className="text-lg font-medium text-gray-900 mb-4">This Week</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 text-sm">Days logged</span>
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-1">
-                        {[...Array(7)].map((_, i) => (
-                          <div
-                            key={i}
-                            className={`w-2.5 h-2.5 rounded-full ${
-                              i < 5 ? 'bg-green-400' : 'bg-gray-200'
-                            }`}
-                          />
-                        ))}
+                {/* Consolidated Stats Section */}
+                <div className="w-full max-w-6xl">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Current Mood */}
+                    <div 
+                      className="relative rounded-2xl p-6 text-center bg-white"
+                      style={{
+                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                        boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
+                      }}
+                    >
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Current Mood</h3>
+                      <div className="text-5xl mb-3">
+                        {emotionData[selectedMood].emoji}
                       </div>
-                      <span className="font-medium text-gray-900">5/7</span>
+                      <p className="text-base text-gray-700 font-medium">
+                        {emotionData[selectedMood].label}
+                      </p>
+                      <button 
+                        className="mt-4 text-sm text-blue-500 hover:text-blue-600 font-medium"
+                        onClick={() => setSelectedMood(null)}
+                      >
+                        Change mood
+                      </button>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 text-sm">Streak</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">🔥</span>
-                      <span className="font-medium text-gray-900">3 days</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Quick Actions */}
-              <div 
-                className="relative rounded-2xl p-6 bg-white"
-                style={{
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
-                }}
-              >
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-                <div className="space-y-2">
-                  <button 
-                    className="w-full text-left p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-                    onClick={() => window.location.href = '/analytics'}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">📊</span>
-                      <span className="font-medium text-gray-700">Analytics</span>
+                    {/* This Week Stats */}
+                    <div 
+                      className="relative rounded-2xl p-6 bg-white"
+                      style={{
+                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                        boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
+                      }}
+                    >
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">This Week</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 text-sm">Days logged</span>
+                          <div className="flex items-center gap-2">
+                            <div className="flex gap-1">
+                              {[...Array(7)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  className={`w-2.5 h-2.5 rounded-full ${
+                                    i < 5 ? 'bg-green-400' : 'bg-gray-200'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="font-medium text-gray-900">5/7</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 text-sm">Streak</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">🔥</span>
+                            <span className="font-medium text-gray-900">3 days</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </button>
-                  <button 
-                    className="w-full text-left p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-                    onClick={() => window.location.href = '/games'}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">🎮</span>
-                      <span className="font-medium text-gray-700">Games</span>
+
+                    {/* Quick Actions */}
+                    <div 
+                      className="relative rounded-2xl p-6 bg-white"
+                      style={{
+                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                        boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)'
+                      }}
+                    >
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+                      <div className="space-y-2">
+                        <button 
+                          className="w-full text-left p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                          onClick={() => window.location.href = '/analytics'}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">📊</span>
+                            <span className="font-medium text-gray-700">Analytics</span>
+                          </div>
+                        </button>
+                        <button 
+                          className="w-full text-left p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                          onClick={() => window.location.href = '/games'}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">🎮</span>
+                            <span className="font-medium text-gray-700">Games</span>
+                          </div>
+                        </button>
+                      </div>
                     </div>
-                  </button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </motion.div>
-          
-          {/* Mood Activity Graph - Full Width (placeholder) */}
-          <motion.div 
-            className="w-full max-w-6xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-          >
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Mood Activity</h3>
-              <div className="h-32 bg-gray-50 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Mood analytics coming soon...</p>
-              </div>
-            </div>
-          </motion.div>
+                
+                {/* Mood Activity Graph - Full Width */}
+                <div className="w-full max-w-6xl">
+                  <MoodContributionGraph 
+                    entries={mockMoodEntries}
+                    className="w-full"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
