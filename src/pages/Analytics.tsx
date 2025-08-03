@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { LumenMascot } from '../components/ui';
-import { Header, Footer } from '../components/layout';
 import { useClerkUser } from '../hooks/useClerkUser';
 import {
   LineChart,
@@ -50,9 +49,6 @@ const Analytics: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
-      {/* Header */}
-      <Header />
-      
       {/* Luna Mascot */}
       <LumenMascot currentPage="/analytics" />
 
@@ -281,9 +277,6 @@ const Analytics: React.FC = () => {
           </motion.button>
         </motion.div>
       </div>
-      
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
