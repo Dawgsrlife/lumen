@@ -57,9 +57,16 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
       });
 
       onComplete();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting journal entry:', error);
-      setError('Failed to save your reflection. Please try again.');
+      
+      // If API is unavailable, still complete the flow
+      if (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED') {
+        console.log('API unavailable, completing flow without saving');
+        onComplete();
+      } else {
+        setError('Failed to save your reflection. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

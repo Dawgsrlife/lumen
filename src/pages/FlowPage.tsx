@@ -38,15 +38,19 @@ const FlowPage: React.FC = () => {
         flowState.actions.setCurrentStep('welcome');
       } catch (error) {
         console.error('Error checking daily status:', error);
-        // On error, default to welcome screen
+        // On API error, default to welcome screen and don't retry
+        console.log('API unavailable, defaulting to welcome screen');
         flowState.actions.setCurrentStep('welcome');
       } finally {
         setIsCheckingDailyStatus(false);
       }
     };
 
-    checkDailyStatus();
-  }, [user, navigate, flowState.actions]);
+    // Only check once when user is available
+    if (user && isCheckingDailyStatus) {
+      checkDailyStatus();
+    }
+  }, [user]); // Remove navigate and flowState.actions from dependencies to prevent re-runs
 
   // Memoized background theme
   const backgroundTheme = useMemo(() => {

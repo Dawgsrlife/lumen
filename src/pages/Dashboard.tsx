@@ -32,12 +32,16 @@ const Dashboard: React.FC = () => {
         }
       } catch (error) {
         console.error('Error checking daily status:', error);
-        // On error, stay on dashboard
+        // On API error, stay on dashboard and don't retry
+        console.log('API unavailable, staying on dashboard');
       }
     };
 
-    checkDailyStatus();
-  }, [user]);
+    // Only check once when user is available
+    if (user) {
+      checkDailyStatus();
+    }
+  }, [user]); // Remove dependencies to prevent re-runs
 
   if (state.isLoading) {
     console.log('Dashboard: Showing loading spinner');
