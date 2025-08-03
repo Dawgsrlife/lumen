@@ -137,7 +137,7 @@ class ApiService {
     return response.data.data;
   }
 
-  async updateUserPreferences(preferences: any): Promise<any> {
+  async updateUserPreferences(preferences: unknown): Promise<unknown> {
     const response: AxiosResponse = await this.api.put('/api/users/preferences', { preferences });
     return response.data.data;
   }
@@ -319,7 +319,7 @@ class ApiService {
     startDate?: string;
     endDate?: string;
     includePrivate?: boolean;
-  }): Promise<{ entries: JournalEntry[]; pagination: any }> {
+  }): Promise<{ entries: JournalEntry[]; pagination: unknown }> {
     const response: AxiosResponse = await this.api.get('/api/journal', { params });
     return response.data.data;
   }
@@ -337,7 +337,7 @@ class ApiService {
 
   async searchJournalEntries(query: string, page: number = 1, limit: number = 20): Promise<{
     entries: JournalEntry[];
-    pagination: any;
+    pagination: unknown;
   }> {
     const response: AxiosResponse = await this.api.get('/api/journal/search', {
       params: { q: query, page, limit }
@@ -387,7 +387,7 @@ class ApiService {
   }
 
   async getMoodTrends(days: number = 30): Promise<{
-    trends: any[];
+    trends: unknown[];
     totalDays: number;
     dateRange: { start: string; end: string };
   }> {

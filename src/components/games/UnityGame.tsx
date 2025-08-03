@@ -113,7 +113,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
     try {
       sendMessage(gameObject, method, parameter);
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   }, [isLoaded, sendMessage]);

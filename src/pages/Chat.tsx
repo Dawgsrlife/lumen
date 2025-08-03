@@ -23,7 +23,11 @@ export default function Chat() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'end',
+      inline: 'nearest'
+    });
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -167,7 +171,7 @@ export default function Chat() {
           <div className="mb-4"></div>
         </div>
 
-        {/* Chat Container */}
+        {/* Fixed-Size Chat Container */}
         <div className="max-w-4xl mx-auto">
           <Card className="h-[600px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100 relative">
             {/* Messages Area */}
@@ -315,6 +319,7 @@ export default function Chat() {
           </Card>
         </div>
       </div>
+      <div className="mb-8"></div>
     </div>
   );
 }
