@@ -42,7 +42,7 @@ const FlowPage: React.FC = () => {
         'colorbloom': 'sad',
         'memorylantern': 'grief',
         'rythmgrow': 'lethargy',
-        'balancingact': 'anger'
+        'balancingact': 'stress'
       };
       
       // Handle direct game access via URL parameter

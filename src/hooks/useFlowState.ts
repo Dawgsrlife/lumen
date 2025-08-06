@@ -8,7 +8,7 @@ import type { UnityGameData, UnityReward } from '../services/unity';
 
 export interface FlowState {
   // App state
-  user: any;
+  user: Record<string, unknown>;
   isLoading: boolean;
   
   // Flow state
@@ -35,8 +35,8 @@ export interface FlowActions {
 
 export const useFlowState = (): FlowState & { actions: FlowActions } => {
   const { state: appState, logEmotion, completeGame } = useAppContext();
-  const { state: flowState, dispatch, setEmotion, setGameData, skipToJournaling, skipToEmotionSelection } = useFlow();
-  const { state: userFlowState, setManualFlow, markEmotionLogged, resetFlowState } = useUserFlowState();
+  const { state: flowState, dispatch, setEmotion, setGameData, skipToJournaling } = useFlow();
+  const { state: userFlowState, markEmotionLogged, resetFlowState } = useUserFlowState();
 
   // Memoized state
   const state = useMemo((): FlowState => ({

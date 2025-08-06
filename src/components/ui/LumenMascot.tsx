@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import { sample } from 'lodash';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +14,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   const [showGreeting, setShowGreeting] = useState(false);
   const [greetingText, setGreetingText] = useState('');
   const [isWaving, setIsWaving] = useState(false);
-  const [earTwitch, setEarTwitch] = useState(false);
+  const [earTwitch] = useState(false);
   const [isBlinking, setIsBlinking] = useState(false);
   const [eyeExpression, setEyeExpression] = useState('happy');
   const [encouragingMessage, setEncouragingMessage] = useState('');
@@ -22,22 +22,22 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   const textboxRef = useRef<HTMLDivElement>(null);
 
   // Pool of encouraging messages (Duolingo style!)
-  const encouragingMessages = [
+  const encouragingMessages = useMemo(() => [
     "You're doing amazing! Every step counts towards better mental health! 🌟",
     "I believe in you! Your journey to wellness is inspiring! 💪",
     "Small steps lead to big changes. So, keep going, because you've got this! 🌱",
     "Your commitment to self-care is beautiful. I'm proud of you! 🦋",
     "Remember: progress, not perfection. You're exactly where you need to be! ✨"
-  ];
+  ], []);
 
   // Welcoming messages for landing page
-  const welcomingMessages = [
+  const welcomingMessages = useMemo(() => [
     "Welcome to Lumen! I'm Luna, your magical companion on this journey! ✨",
     "Ready to explore mindful gaming? Let's discover what we can do together! 🌟",
     "I'm so excited to be your guide! Every emotion is valid and every step matters! 💫",
     "Together we'll create a beautiful journey of self-discovery and growth! 🦋",
     "Your mental wellness journey starts here. I believe in you! 🌱"
-  ];
+  ], []);
 
   // Different greetings for different pages
   const getGreeting = (page: string) => {
@@ -52,7 +52,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
   };
 
   // Get appropriate messages based on current page
-  const getMessagesForPage = (page: string) => {
+  const getMessagesForPage = useCallback((page: string) => {
     // Welcoming messages for landing page
     if (page === '/') {
       return welcomingMessages;
@@ -63,7 +63,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     }
     // Default to encouraging messages
     return encouragingMessages;
-  };
+  }, [welcomingMessages, encouragingMessages]);
 
   // Spring animation for floating movement with bounce
   const mascotSpring = useSpring({
@@ -105,17 +105,6 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     config: { duration: 1500 }
   });
 
-  // Tail wagging
-  const tailSpring = useSpring({
-    from: { transform: 'rotate(-30deg)' },
-    to: async (next) => {
-      while (true) {
-        await next({ transform: 'rotate(30deg)' });
-        await next({ transform: 'rotate(-30deg)' });
-      }
-    },
-    config: { duration: 400 }
-  });
 
   // Position mascot on screen
   useEffect(() => {
@@ -210,7 +199,7 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
     return () => {
       clearInterval(encouragingTimer);
     };
-  }, [isVisible, currentPage]);
+  }, [isVisible, currentPage, getMessagesForPage, showEncouragingBox]);
 
   // Don't render if not visible
   if (!isVisible) return null;

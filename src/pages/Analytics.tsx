@@ -91,7 +91,7 @@ const Analytics: React.FC = () => {
           ].map((range) => (
             <motion.button
               key={range.key}
-              onClick={() => setSelectedTimeRange(range.key as any)}
+              onClick={() => setSelectedTimeRange(range.key as '7days' | 'month' | '3months' | 'alltime')}
               className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
                 selectedTimeRange === range.key
                   ? 'bg-gradient-to-r from-yellow-400 to-purple-600 text-white shadow-lg'

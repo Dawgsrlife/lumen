@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User } from 'lucide-react';
-import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { chatbotService } from '../services/chatbot';
@@ -11,7 +10,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [userAnalytics, setUserAnalytics] = useState<any>(null);
+  const [userAnalytics, setUserAnalytics] = useState<Record<string, unknown> | null>(null);
   const [recentEmotions, setRecentEmotions] = useState([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

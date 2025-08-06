@@ -6,7 +6,7 @@ interface AnimatedBackgroundProps {
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<any>(null);
+  const particlesRef = useRef<unknown>(null);
 
   useEffect(() => {
     const loadParticles = async () => {

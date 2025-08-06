@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { LumenIcon } from './ui';
-import { useAppContext } from '../context/AppContext';
 import { useUserFlowState } from '../hooks/useUserFlowState';
 import { useClerkUser } from '../hooks/useClerkUser';
 
@@ -11,7 +10,6 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ username, onComplete }) => {
-  const { state } = useAppContext();
   const { state: userFlowState } = useUserFlowState();
   const { user } = useClerkUser();
   const [hasAnimated, setHasAnimated] = useState(false);

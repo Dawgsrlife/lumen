@@ -6,18 +6,19 @@ import type { EmotionType } from '../../types';
 
 // Map emotions to working Unity games
 const emotionToGame: Record<string, { gameId: string; gameName: string; title: string; description: string }> = {
-  // Breathing game for anger, frustration, stress
+  // Breathing game for anger, frustration
   frustration: {
     gameId: 'lumen-minigames',
     gameName: 'boxbreathing',
     title: 'Box Breathing',
     description: 'Release frustration with structured breathing patterns'
   },
+  // Balancing act for stress management
   stress: {
     gameId: 'lumen-minigames',
-    gameName: 'boxbreathing',
-    title: 'Box Breathing',
-    description: 'Unwind stress through calming breath work'
+    gameName: 'balancingact',
+    title: 'Balancing Act',
+    description: 'Find balance and manage stress through mindful interaction'
   },
   anxiety: {
     gameId: 'lumen-minigames',
@@ -46,12 +47,12 @@ const emotionToGame: Record<string, { gameId: string; gameName: string; title: s
     title: 'Rhythm Grow',
     description: 'Energize yourself with rhythmic growth activities'
   },
-  // Balancing act for emotional balance
+  // Box breathing for anger management
   anger: {
     gameId: 'lumen-minigames',
-    gameName: 'balancingact',
-    title: 'Balancing Act',
-    description: 'Find emotional balance through mindful interaction'
+    gameName: 'boxbreathing',
+    title: 'Box Breathing',
+    description: 'Channel anger through focused breathing techniques'
   },
   // Default mappings for other emotions (use appropriate games)
   happy: {

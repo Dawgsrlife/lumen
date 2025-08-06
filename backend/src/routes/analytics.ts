@@ -370,7 +370,7 @@ function calculateStreak(emotions: any[]): number {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   let streak = 0;
-  let currentDate = new Date();
+  const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
   const emotionDates = new Set(
@@ -394,7 +394,7 @@ function calculateLongestStreak(emotions: any[]): number {
 
   let longestStreak = 0;
   let currentStreak = 0;
-  let currentDate = new Date();
+  const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
   // Go back 365 days to find the longest streak

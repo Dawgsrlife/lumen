@@ -52,7 +52,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Handle game start event
-  const handleGameStart = useCallback((_data: unknown) => {
+  const handleGameStart = useCallback(() => {
     // Game started
   }, []);
 
@@ -63,7 +63,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
   }, [onGameComplete]);
 
   // Handle achievement event
-  const handleAchievement = useCallback((_data: unknown) => {
+  const handleAchievement = useCallback(() => {
     // Achievement earned
   }, []);
 
@@ -73,7 +73,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
   }, [onRewardEarned]);
 
   // Handle Unity errors
-  const handleError = useCallback((_message: string) => {
+  const handleError = useCallback(() => {
     setError(`Unable to load the game`);
   }, []);
 
@@ -128,9 +128,13 @@ const UnityGame: React.FC<UnityGameProps> = ({
       });
 
       // Try different possible GameObject names
-      sendUnityMessage('GameManager', 'ReceiveEmotionData', emotionPayload) ||
-      sendUnityMessage('Main Camera', 'ReceiveEmotionData', emotionPayload) ||
-      sendUnityMessage('Canvas', 'ReceiveEmotionData', emotionPayload);
+      try {
+        sendUnityMessage('GameManager', 'ReceiveEmotionData', emotionPayload) ||
+        sendUnityMessage('Main Camera', 'ReceiveEmotionData', emotionPayload) ||
+        sendUnityMessage('Canvas', 'ReceiveEmotionData', emotionPayload);
+      } catch {
+        // Silently fail if Unity message sending fails
+      }
     }
   }, [isLoaded, emotionData, sendUnityMessage]);
 
@@ -138,9 +142,13 @@ const UnityGame: React.FC<UnityGameProps> = ({
   useEffect(() => {
     if (isLoaded && gameName) {
       // Try different possible GameObject names and methods
-      sendUnityMessage('GameManager', 'LoadGame', gameName) ||
-      sendUnityMessage('GameController', 'LoadGame', gameName) ||
-      sendUnityMessage('Main Camera', 'LoadGame', gameName);
+      try {
+        sendUnityMessage('GameManager', 'LoadGame', gameName) ||
+        sendUnityMessage('GameController', 'LoadGame', gameName) ||
+        sendUnityMessage('Main Camera', 'LoadGame', gameName);
+      } catch {
+        // Silently fail if Unity message sending fails
+      }
     }
   }, [isLoaded, gameName, sendUnityMessage]);
 
@@ -154,18 +162,26 @@ const UnityGame: React.FC<UnityGameProps> = ({
     });
 
     // Try to send start message to various possible GameObjects
-    sendUnityMessage('GameManager', 'StartGame', gameData) ||
-    sendUnityMessage('GameController', 'StartGame', gameData) ||
-    sendUnityMessage('Main Camera', 'StartGame', gameData);
+    try {
+      sendUnityMessage('GameManager', 'StartGame', gameData) ||
+      sendUnityMessage('GameController', 'StartGame', gameData) ||
+      sendUnityMessage('Main Camera', 'StartGame', gameData);
+    } catch {
+      // Silently fail if Unity message sending fails
+    }
   };
 
   const handleStopGame = () => {
     if (!isLoaded) return;
 
     // Try to send stop message to various possible GameObjects
-    sendUnityMessage('GameManager', 'EndGame') ||
-    sendUnityMessage('GameController', 'EndGame') ||
-    sendUnityMessage('Main Camera', 'EndGame');
+    try {
+      sendUnityMessage('GameManager', 'EndGame') ||
+      sendUnityMessage('GameController', 'EndGame') ||
+      sendUnityMessage('Main Camera', 'EndGame');
+    } catch {
+      // Silently fail if Unity message sending fails
+    }
   };
 
   const handleFullscreen = () => {

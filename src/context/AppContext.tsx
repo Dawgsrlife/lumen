@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { useClerkUser } from '../hooks/useClerkUser';
-import { apiService } from '../services/api';
 import type { EmotionType } from '../types';
 
 // User Session Interface
@@ -227,7 +226,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (todayData.userData) {
           userSession.currentStreak = todayData.userData.currentStreak;
           userSession.weeklyData = todayData.userData.weeklyData;
-          userSession.currentEmotion = todayData.userData.currentEmotion as any;
+          userSession.currentEmotion = todayData.userData.currentEmotion as EmotionType;
           userSession.hasPlayedGameToday = todayData.userData.hasPlayedGameToday;
         }
 

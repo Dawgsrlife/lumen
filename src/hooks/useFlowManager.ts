@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useFlowParams } from './useFlowParams';
 import { useUserFlowState } from './useUserFlowState';
 import type { FlowStep } from '../context/FlowProvider';
@@ -12,9 +11,8 @@ export interface FlowManager {
 }
 
 export const useFlowManager = (): FlowManager => {
-  const navigate = useNavigate();
   const { isManualFlow } = useFlowParams();
-  const { state: userFlowState, setManualFlow } = useUserFlowState();
+  const { state: userFlowState } = useUserFlowState();
   const autoTransitionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup timer on unmount
@@ -37,7 +35,7 @@ export const useFlowManager = (): FlowManager => {
     
     // Return the initial step
     return isManualFlow ? 'emotion-selection' : 'welcome';
-  }, [userFlowState.isLoading, userFlowState.hasLoggedEmotionToday, isManualFlow, setManualFlow]);
+  }, [userFlowState.isLoading, isManualFlow]);
 
   // Auto-transition logic
   const handleAutoTransitions = useCallback((currentStep: FlowStep) => {

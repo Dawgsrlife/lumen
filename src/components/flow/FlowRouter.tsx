@@ -38,12 +38,12 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
     // Update URL with game parameter based on selected emotion
     const emotionToGameName: Record<string, string> = {
       'frustration': 'boxbreathing',
-      'stress': 'boxbreathing', 
+      'stress': 'balancingact', 
       'anxiety': 'boxbreathing',
       'sad': 'colorbloom',
       'grief': 'memorylantern',
       'lethargy': 'rythmgrow',
-      'anger': 'balancingact',
+      'anger': 'boxbreathing',
       'happy': 'colorbloom',
       'loneliness': 'memorylantern',
       'fear': 'boxbreathing'
@@ -63,7 +63,7 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
     flowState.actions.setCurrentStep('game');
   };
 
-  const handleGameComplete = (data: any) => {
+  const handleGameComplete = (data: Record<string, unknown>) => {
     console.log('Game completed');
     
     // Remove game parameter from URL when moving to journaling

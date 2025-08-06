@@ -35,7 +35,7 @@ const calculateStreak = async (clerkId: string): Promise<number> => {
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   
   let streak = 0;
-  let currentDate = new Date(startOfDay);
+  const currentDate = new Date(startOfDay);
   
   while (true) {
     const entry = await EmotionEntryModel.findOne({
@@ -114,7 +114,7 @@ router.post('/',
       const clerkId = req.clerkId!;
 
       // Find or create user
-      let user = await UserModel.findOne({ clerkId });
+      const user = await UserModel.findOne({ clerkId });
       if (!user) {
         return res.status(404).json({
           success: false,

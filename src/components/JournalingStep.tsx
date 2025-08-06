@@ -15,8 +15,7 @@ interface JournalingStepProps {
 const JournalingStep: React.FC<JournalingStepProps> = ({ 
   onComplete, 
   onSkip, 
-  selectedEmotion = 'happy',
-  gameCompleted = null 
+  selectedEmotion = 'happy'
 }) => {
   const { user } = useClerkUser();
   const [journalEntry, setJournalEntry] = useState('');
@@ -57,7 +56,7 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
       });
 
       onComplete();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting journal entry:', error);
       
       // If API is unavailable, still complete the flow

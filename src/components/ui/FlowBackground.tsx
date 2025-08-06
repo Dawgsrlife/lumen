@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 
 export type BackgroundTheme = 'welcome' | 'emotions' | 'survey' | 'game' | 'insights' | 'none';

@@ -15,7 +15,7 @@ export type FlowStep =
 export interface FlowState {
   currentStep: FlowStep;
   selectedEmotion: string | null;
-  gameData: any | null;
+  gameData: Record<string, unknown> | null;
   journalEntry: string;
   hasCompletedToday: boolean;
   isLoading: boolean;
@@ -26,7 +26,7 @@ export interface FlowState {
 export type FlowAction = 
   | { type: 'SET_CURRENT_STEP'; payload: FlowStep }
   | { type: 'SET_SELECTED_EMOTION'; payload: string }
-  | { type: 'SET_GAME_DATA'; payload: any }
+  | { type: 'SET_GAME_DATA'; payload: Record<string, unknown> }
   | { type: 'SET_JOURNAL_ENTRY'; payload: string }
   | { type: 'SET_COMPLETED_TODAY'; payload: boolean }
   | { type: 'SET_LOADING'; payload: boolean }
@@ -82,7 +82,7 @@ const flowReducer = (state: FlowState, action: FlowAction): FlowState => {
     case 'COMPLETE_FLOW':
       return { ...state, hasCompletedToday: true };
     
-    case 'NEXT_STEP':
+    case 'NEXT_STEP': {
       const nextSteps: Record<FlowStep, FlowStep> = {
         'welcome': 'emotion-selection',
         'emotion-selection': 'game-prompt',
@@ -94,8 +94,9 @@ const flowReducer = (state: FlowState, action: FlowAction): FlowState => {
         'dashboard': 'dashboard',
       };
       return { ...state, currentStep: nextSteps[state.currentStep] };
+    }
     
-    case 'PREVIOUS_STEP':
+    case 'PREVIOUS_STEP': {
       const prevSteps: Record<FlowStep, FlowStep> = {
         'welcome': 'welcome',
         'emotion-selection': 'welcome',
@@ -107,6 +108,7 @@ const flowReducer = (state: FlowState, action: FlowAction): FlowState => {
         'dashboard': 'journaling',
       };
       return { ...state, currentStep: prevSteps[state.currentStep] };
+    }
     
     case 'SKIP_TO_EMOTION_SELECTION':
       return { ...state, currentStep: 'emotion-selection' };
@@ -128,7 +130,7 @@ interface FlowContextType {
   resetFlow: () => void;
   completeFlow: () => void;
   setEmotion: (emotion: string) => void;
-  setGameData: (data: any) => void;
+  setGameData: (data: Record<string, unknown>) => void;
   setJournalEntry: (entry: string) => void;
   skipToJournaling: () => void;
   skipToDashboard: () => void;
@@ -165,7 +167,7 @@ export const FlowProvider: React.FC<FlowProviderProps> = ({ children }) => {
     dispatch({ type: 'SET_SELECTED_EMOTION', payload: emotion });
   };
 
-  const setGameData = (data: any) => {
+  const setGameData = (data: Record<string, unknown>) => {
     dispatch({ type: 'SET_GAME_DATA', payload: data });
   };
 

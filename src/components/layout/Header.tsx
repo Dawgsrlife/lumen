@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useClerk } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -84,7 +84,7 @@ const Header: React.FC = () => {
   };
 
   // Fetch notifications
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!isAuthenticated) return;
 
     try {
@@ -172,7 +172,7 @@ const Header: React.FC = () => {
         }
       ]);
     }
-  };
+  }, [isAuthenticated, getNotifications, user?.id]);
 
   // Handle notification click
   const handleNotificationClick = async (notification: Notification) => {
@@ -230,7 +230,7 @@ const Header: React.FC = () => {
   // Load notifications on mount
   useEffect(() => {
     fetchNotifications();
-  }, [isAuthenticated]);
+  }, [fetchNotifications]);
 
   // Don't show header on landing or welcome pages for minimal design
   if (isLandingPage || isWelcomePage) {

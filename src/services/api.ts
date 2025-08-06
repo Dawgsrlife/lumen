@@ -376,7 +376,7 @@ class ApiService {
   }
 
   async getEmotionAnalytics(days: number = 30): Promise<{
-    emotionStats: Record<string, any>;
+    emotionStats: Record<string, number>;
     totalEntries: number;
     dateRange: { start: string; end: string };
   }> {

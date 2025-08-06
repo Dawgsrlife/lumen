@@ -40,7 +40,7 @@ export const useUserFlowState = () => {
         isLoading: false,
         error: null,
       });
-    } catch (error) {
+    } catch {
       setState(prev => ({
         ...prev,
         isLoading: false,

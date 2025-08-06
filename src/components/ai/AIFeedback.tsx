@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, Button, LoadingSpinner } from '../ui';
 import { aiService } from '../../services/ai';
@@ -23,13 +23,7 @@ const AIFeedback: React.FC<AIFeedbackProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (emotion && intensity > 0) {
-      generateFeedback();
-    }
-  }, [emotion, intensity, context]);
-
-  const generateFeedback = async () => {
+  const generateFeedback = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -48,7 +42,13 @@ const AIFeedback: React.FC<AIFeedbackProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [emotion, intensity, context, onFeedbackGenerated]);
+
+  useEffect(() => {
+    if (emotion && intensity > 0) {
+      generateFeedback();
+    }
+  }, [emotion, intensity, context, generateFeedback]);
 
   const getMoodColor = (mood: string) => {
     switch (mood) {
