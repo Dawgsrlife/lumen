@@ -26,15 +26,6 @@ const PostGameFeedback: React.FC<PostGameFeedbackProps> = ({
   const handleSave = async (feelsBetter: boolean) => {
     setIsLoading(true);
     
-<<<<<<< Updated upstream
-    // Call the original onFeedback to save the data
-    onFeedback(feelsBetter);
-    
-    // Wait 3 seconds then redirect to dashboard
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 3000);
-=======
     try {
       // Create a journal entry with the post-game feedback
       const feelingText = feelsBetter ? "better" : "about the same";
@@ -63,7 +54,6 @@ const PostGameFeedback: React.FC<PostGameFeedbackProps> = ({
         navigate('/dashboard');
       }, 3000);
     }
->>>>>>> Stashed changes
   };
 
   if (isLoading) {
@@ -103,11 +93,7 @@ const PostGameFeedback: React.FC<PostGameFeedbackProps> = ({
             transition={{ delay: 0.4, duration: 0.3 }}
             className="text-2xl font-bold text-gray-900 mb-3"
           >
-<<<<<<< Updated upstream
-            Saving your feedback...
-=======
             Saving your reflection...
->>>>>>> Stashed changes
           </motion.h2>
 
           <motion.p
