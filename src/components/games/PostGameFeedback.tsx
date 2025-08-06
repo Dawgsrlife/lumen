@@ -2,17 +2,21 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui';
+import { apiService } from '../../services/api';
 import type { EmotionType } from '../../types';
 
 interface PostGameFeedbackProps {
   emotion: EmotionType;
   gameTitle: string;
+  gameId?: string;
   onFeedback: (feelsBetter: boolean) => void;
   onSkip?: () => void;
 }
 
 const PostGameFeedback: React.FC<PostGameFeedbackProps> = ({
+  emotion,
   gameTitle,
+  gameId = 'unknown',
   onFeedback,
   onSkip,
 }) => {
@@ -22,6 +26,7 @@ const PostGameFeedback: React.FC<PostGameFeedbackProps> = ({
   const handleSave = async (feelsBetter: boolean) => {
     setIsLoading(true);
     
+<<<<<<< Updated upstream
     // Call the original onFeedback to save the data
     onFeedback(feelsBetter);
     
@@ -29,6 +34,36 @@ const PostGameFeedback: React.FC<PostGameFeedbackProps> = ({
     setTimeout(() => {
       navigate('/dashboard');
     }, 3000);
+=======
+    try {
+      // Create a journal entry with the post-game feedback
+      const feelingText = feelsBetter ? "better" : "about the same";
+      const journalContent = `After playing ${gameTitle}, I feel ${feelingText}. This game was designed to help with ${emotion} and it was a meaningful experience in my wellness journey.`;
+      
+      await apiService.createJournalEntry({
+        title: `Post-Game Reflection: ${gameTitle}`,
+        content: journalContent,
+        mood: feelsBetter ? 7 : 5, // Higher mood if they feel better
+        tags: [emotion, 'game', 'wellness', gameTitle.toLowerCase().replace(/\s+/g, '-')],
+        isPrivate: false
+      });
+      
+      // Call the original onFeedback to maintain existing flow
+      onFeedback(feelsBetter);
+      
+      // Wait 3 seconds then redirect to dashboard
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 3000);
+    } catch (error) {
+      console.error('Error saving journal entry:', error);
+      // Even if save fails, continue with the original flow
+      onFeedback(feelsBetter);
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 3000);
+    }
+>>>>>>> Stashed changes
   };
 
   if (isLoading) {
@@ -68,7 +103,11 @@ const PostGameFeedback: React.FC<PostGameFeedbackProps> = ({
             transition={{ delay: 0.4, duration: 0.3 }}
             className="text-2xl font-bold text-gray-900 mb-3"
           >
+<<<<<<< Updated upstream
             Saving your feedback...
+=======
+            Saving your reflection...
+>>>>>>> Stashed changes
           </motion.h2>
 
           <motion.p

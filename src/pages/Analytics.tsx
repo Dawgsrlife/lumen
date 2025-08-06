@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useClerkUser } from '../hooks/useClerkUser';
+import { apiService } from '../services/api';
 import {
   LineChart,
   Area,
@@ -15,6 +16,8 @@ import {
 const Analytics: React.FC = () => {
   const { user } = useClerkUser();
   const [selectedTimeRange, setSelectedTimeRange] = useState<'7days' | 'month' | '3months' | 'alltime'>('7days');
+  const [totalCheckIns, setTotalCheckIns] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Simplified mock data for charts
   const moodData = [
@@ -26,6 +29,54 @@ const Analytics: React.FC = () => {
     { date: 'Sat', mood: 5 },
     { date: 'Sun', mood: 4 },
   ];
+
+  // Fetch total check-ins from journal entries
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      if (!user) return;
+      
+      try {
+        setIsLoading(true);
+        
+        // Calculate date range based on selected time range
+        let limit = 1000; // Default to fetch all entries
+        let startDate: string | undefined;
+        const now = new Date();
+        
+        switch (selectedTimeRange) {
+          case '7days':
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+            break;
+          case 'month':
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+            break;
+          case '3months':
+            startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString();
+            break;
+          case 'alltime':
+          default:
+            // No date filter for all time
+            break;
+        }
+        
+        // Fetch journal entries to count total check-ins
+        const journalResponse = await apiService.getJournalEntries({
+          limit,
+          startDate,
+          includePrivate: true
+        });
+        
+        setTotalCheckIns(journalResponse.entries.length);
+      } catch (error) {
+        console.error('Error fetching analytics data:', error);
+        // Keep default values on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, [user, selectedTimeRange]);
 
   if (!user) {
     return (
@@ -204,14 +255,29 @@ const Analytics: React.FC = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+            onClick={() => window.location.href = '/check-ins'}
           >
             <div className="text-5xl mb-4">📝</div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Total Check-ins</h3>
             <div className="text-4xl font-bold text-gray-900 mb-2">
-              28
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                </div>
+              ) : (
+                totalCheckIns
+              )}
             </div>
-            <p className="text-gray-600">This month</p>
+            <p className="text-gray-600 mb-2">
+              {selectedTimeRange === '7days' && 'Last 7 days'}
+              {selectedTimeRange === 'month' && 'Last month'}
+              {selectedTimeRange === '3months' && 'Last 3 months'}
+              {selectedTimeRange === 'alltime' && 'All time'}
+            </p>
+            <p className="text-sm text-purple-600 font-medium">
+              👆 Click to view details
+            </p>
           </motion.div>
 
           {/* Streak Card */}
