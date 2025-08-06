@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppContext } from '../context/AppContext';
+import { useAppContext } from '../context/hooks';
 import DashboardScreen from '../components/DashboardScreen';
 
 const Dashboard: React.FC = () => {

@@ -4,7 +4,8 @@ import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
 import { JournalEntryModel } from '../models/JournalEntry.js';
 import { UserModel } from '../models/User.js';
-import type { CreateEmotionRequest, EmotionEntry, ApiResponse } from '../types/index.js';
+import type { CreateEmotionRequest, EmotionEntry } from '../types/index.js';
+import type { Document } from 'mongoose';
 
 const router = Router();
 
@@ -58,7 +59,7 @@ const calculateStreak = async (clerkId: string): Promise<number> => {
 };
 
 // Helper function to update weekly data
-const updateWeeklyData = async (clerkId: string, user: any): Promise<boolean[]> => {
+const updateWeeklyData = async (clerkId: string, user: Document): Promise<boolean[]> => {
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
   
@@ -165,7 +166,7 @@ router.post('/',
       }
       
       // Update weekly data
-      const weeklyData = await updateWeeklyData(clerkId, user);
+      await updateWeeklyData(clerkId, user);
       
       // Calculate new streak
       const newStreak = await calculateStreak(clerkId);
@@ -244,7 +245,7 @@ router.get('/',
       const skip = (pageNum - 1) * limitNum;
 
       // Build query
-      const query: any = { clerkId };
+      const query: Record<string, unknown> = { clerkId };
       
       if (emotion) {
         query.emotion = emotion;

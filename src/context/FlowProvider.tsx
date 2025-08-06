@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useReducer, ReactNode } from 'react';
 
 // Flow states - Removed onboarding, simplified flow
 export type FlowStep = 
@@ -137,7 +137,8 @@ interface FlowContextType {
   skipToEmotionSelection: () => void;
 }
 
-const FlowContext = createContext<FlowContextType | undefined>(undefined);
+// eslint-disable-next-line react-refresh/only-export-components
+export const FlowContext = createContext<FlowContextType | undefined>(undefined);
 
 // Flow provider component
 interface FlowProviderProps {
@@ -209,11 +210,4 @@ export const FlowProvider: React.FC<FlowProviderProps> = ({ children }) => {
   );
 };
 
-// Hook to use flow context
-export const useFlow = (): FlowContextType => {
-  const context = useContext(FlowContext);
-  if (context === undefined) {
-    throw new Error('useFlow must be used within a FlowProvider');
-  }
-  return context;
-}; 
+ 

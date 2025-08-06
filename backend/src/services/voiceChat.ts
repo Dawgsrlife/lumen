@@ -4,11 +4,10 @@
  */
 
 import { GoogleGenAI, Modality } from '@google/genai';
-import { WebSocket } from 'ws';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
 import { GameSessionModel } from '../models/GameSession.js';
 import { JournalEntryModel } from '../models/JournalEntry.js';
-import type { EmotionEntry, GameSession } from '../types/index.js';
+import type { GameSession } from '../types/index.js';
 
 // Game context mapping
 const GAME_CONTEXTS = {
@@ -84,7 +83,7 @@ class VoiceChatService {
   ): Promise<VoiceChatSession> {
     
     // Get recent context from database
-    const recentEmotion = await EmotionEntryModel
+    await EmotionEntryModel
       .findOne({ clerkId, emotion })
       .sort({ createdAt: -1 })
       .limit(1);
@@ -200,9 +199,7 @@ Begin by acknowledging their current emotional state and recent activity, then g
    */
   private determineTherapeuticApproach(
     emotion: string, 
-    intensity: number,
-    recentGame: any,
-    recentJournals: any[]
+    intensity: number
   ) {
     let primaryConcern = '';
     let recommendedTechniques: string[] = [];
@@ -263,7 +260,7 @@ Begin by acknowledging their current emotional state and recent activity, then g
   /**
    * Create Gemini Live API session
    */
-  async createLiveSession(sessionId: string): Promise<any> {
+  async createLiveSession(sessionId: string): Promise<unknown> {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
       throw new Error('Session not found');
@@ -286,7 +283,7 @@ Begin by acknowledging their current emotional state and recent activity, then g
     // Use native audio model for best experience
     const model = "gemini-2.5-flash-preview-native-audio-dialog";
 
-    const responseQueue: any[] = [];
+    const responseQueue: unknown[] = [];
 
     const liveSession = await this.genAI.live.connect({
       model,
@@ -294,14 +291,14 @@ Begin by acknowledging their current emotional state and recent activity, then g
         onopen: () => {
           console.log(`Voice chat session ${sessionId} opened`);
         },
-        onmessage: (message: any) => {
+        onmessage: (message: unknown) => {
           responseQueue.push(message);
           this.handleLiveMessage(sessionId, message);
         },
-        onerror: (error: any) => {
+        onerror: (error: unknown) => {
           console.error(`Voice chat session ${sessionId} error:`, error);
         },
-        onclose: (reason: any) => {
+        onclose: (reason: unknown) => {
           console.log(`Voice chat session ${sessionId} closed:`, reason);
           this.endSession(sessionId);
         }
@@ -315,7 +312,7 @@ Begin by acknowledging their current emotional state and recent activity, then g
   /**
    * Handle incoming message from Gemini Live API
    */
-  private handleLiveMessage(sessionId: string, message: any) {
+  private handleLiveMessage(sessionId: string, message: unknown) {
     const session = this.activeSessions.get(sessionId);
     if (!session) return;
 
@@ -335,7 +332,7 @@ Begin by acknowledging their current emotional state and recent activity, then g
   /**
    * Send user audio to the live session
    */
-  async sendUserAudio(sessionId: string, audioData: string, mimeType: string = "audio/pcm;rate=16000") {
+  async sendUserAudio(sessionId: string, audioData: string) {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
       throw new Error('Session not found');

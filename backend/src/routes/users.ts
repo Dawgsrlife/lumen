@@ -3,11 +3,9 @@ import { body, validationResult } from 'express-validator';
 // JWT import removed - using Clerk authentication instead
 import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { UserModel } from '../models/User.js';
-import type { User, UserPreferences } from '../types/index.js';
+import type { UserPreferences } from '../types/index.js';
 
 const router = Router();
-
-const JWT_SECRET = process.env.JWT_SECRET!;
 
 // Validation middleware
 const validateUserUpdate = [

@@ -3,7 +3,6 @@ import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
 import { JournalEntryModel } from '../models/JournalEntry.js';
 import { GameSessionModel } from '../models/GameSession.js';
-import { UserModel } from '../models/User.js';
 import { aiService } from '../services/ai.js';
 import type { AIInsightRequest } from '../types/index.js';
 
@@ -233,7 +232,7 @@ router.get('/evidence-based-insights',
 );
 
 // Helper functions for clinical analytics
-function calculateEngagementStreak(emotions: any[], journals: any[], games: any[]): number {
+function calculateEngagementStreak(emotions: unknown[], journals: unknown[], games: unknown[]): number {
   const allActivities = [...emotions, ...journals, ...games];
   if (allActivities.length === 0) return 0;
 
@@ -256,14 +255,14 @@ function calculateEngagementStreak(emotions: any[], journals: any[], games: any[
   return streak;
 }
 
-function calculateTherapyAdherence(games: any[]): number {
+function calculateTherapyAdherence(games: unknown[]): number {
   if (games.length === 0) return 0;
   
   const completedSessions = games.filter(g => g.completionStatus === 'completed').length;
   return completedSessions / games.length;
 }
 
-function calculateMoodStability(emotions: any[]): number {
+function calculateMoodStability(emotions: unknown[]): number {
   if (emotions.length < 2) return 1;
   
   const intensities = emotions.map(e => e.intensity);
@@ -274,7 +273,7 @@ function calculateMoodStability(emotions: any[]): number {
   return Math.max(0, 1 - (variance / 25)); // 25 is max variance for 1-10 scale
 }
 
-function identifyRiskIndicators(emotions: any[], journals: any[]): string[] {
+function identifyRiskIndicators(emotions: unknown[], journals: unknown[]): string[] {
   const indicators = [];
   
   // Check for high-intensity negative emotions
@@ -299,7 +298,7 @@ function identifyRiskIndicators(emotions: any[], journals: any[]): string[] {
   return indicators.length > 0 ? indicators : ['Low risk profile'];
 }
 
-function analyzeInterventionsUsed(games: any[], journals: any[]): string[] {
+function analyzeInterventionsUsed(games: unknown[], journals: unknown[]): string[] {
   const interventions = [];
   
   // Game-based interventions
@@ -315,7 +314,7 @@ function analyzeInterventionsUsed(games: any[], journals: any[]): string[] {
   return interventions.length > 0 ? interventions : ['No interventions recorded'];
 }
 
-function calculateOverallProgress(emotions: any[], journals: any[], games: any[]): string {
+function calculateOverallProgress(emotions: unknown[], journals: unknown[], games: unknown[]): string {
   const totalActivities = emotions.length + journals.length + games.length;
   const recentActivities = emotions.length + journals.length + games.length;
   
@@ -326,7 +325,7 @@ function calculateOverallProgress(emotions: any[], journals: any[], games: any[]
   return 'Low engagement';
 }
 
-function generateClinicalRecommendations(emotions: any[], journals: any[], games: any[]): string[] {
+function generateClinicalRecommendations(emotions: unknown[], journals: unknown[], games: unknown[]): string[] {
   const recommendations = [];
   
   if (emotions.length === 0) {
@@ -348,7 +347,7 @@ function generateClinicalRecommendations(emotions: any[], journals: any[], games
   return recommendations;
 }
 
-function calculateEngagementRate(emotions: any[], journals: any[], games: any[], timeframe: string): number {
+function calculateEngagementRate(emotions: unknown[], journals: unknown[], games: unknown[]): number {
   const totalDays = timeframe === 'week' ? 7 : timeframe === 'month' ? 30 : 365;
   const uniqueDays = new Set([
     ...emotions.map(e => e.createdAt.toISOString().split('T')[0]),
@@ -359,7 +358,7 @@ function calculateEngagementRate(emotions: any[], journals: any[], games: any[],
   return Math.round((uniqueDays / totalDays) * 100);
 }
 
-function assessRiskProfile(emotions: any[], journals: any[]): string {
+function assessRiskProfile(emotions: unknown[]): string {
   const highRiskEmotions = emotions.filter(e => 
     e.intensity >= 8 && ['sad', 'anxiety', 'stress', 'fear', 'grief'].includes(e.emotion)
   ).length;
@@ -369,7 +368,7 @@ function assessRiskProfile(emotions: any[], journals: any[]): string {
   return 'Low';
 }
 
-function assessTreatmentEffectiveness(emotions: any[], journals: any[], games: any[]): string {
+function assessTreatmentEffectiveness(emotions: unknown[]): string {
   if (emotions.length < 2) return 'Insufficient data';
   
   const recentEmotions = emotions.slice(-5);
@@ -385,7 +384,7 @@ function assessTreatmentEffectiveness(emotions: any[], journals: any[], games: a
   return 'Stable';
 }
 
-function calculateAdherenceScore(games: any[], timeframe: string): number {
+function calculateAdherenceScore(games: unknown[]): number {
   if (games.length === 0) return 0;
   
   const completedGames = games.filter(g => g.completionStatus === 'completed').length;
@@ -393,7 +392,7 @@ function calculateAdherenceScore(games: any[], timeframe: string): number {
 }
 
 // Evidence-based analysis functions
-function analyzeCBTTechniques(journals: any[]): string[] {
+function analyzeCBTTechniques(journals: unknown[]): string[] {
   const techniques: string[] = [];
   
   journals.forEach(journal => {
@@ -406,7 +405,7 @@ function analyzeCBTTechniques(journals: any[]): string[] {
   return [...new Set(techniques)];
 }
 
-function analyzeMindfulnessPractices(games: any[]): string[] {
+function analyzeMindfulnessPractices(games: unknown[]): string[] {
   const practices: string[] = [];
   
   games.forEach(game => {
@@ -418,7 +417,7 @@ function analyzeMindfulnessPractices(games: any[]): string[] {
   return practices;
 }
 
-function analyzeDBTSkills(journals: any[], games: any[]): string[] {
+function analyzeDBTSkills(): string[] {
   const skills: string[] = [];
   
   journals.forEach(journal => {
@@ -431,7 +430,7 @@ function analyzeDBTSkills(journals: any[], games: any[]): string[] {
   return [...new Set(skills)];
 }
 
-function analyzeSleepPatterns(emotions: any[], journals: any[]): string[] {
+function analyzeSleepPatterns(): string[] {
   const patterns = [];
   
   // This would require time-based analysis
@@ -442,7 +441,7 @@ function analyzeSleepPatterns(emotions: any[], journals: any[]): string[] {
   return patterns;
 }
 
-function analyzeSocialConnections(journals: any[]): string[] {
+function analyzeSocialConnections(journals: unknown[]): string[] {
   const connections: string[] = [];
   
   journals.forEach(journal => {
@@ -455,7 +454,7 @@ function analyzeSocialConnections(journals: any[]): string[] {
   return connections.length > 0 ? connections : ['Consider increasing social connections'];
 }
 
-function analyzeStressManagement(emotions: any[], games: any[]): string[] {
+function analyzeStressManagement(emotions: unknown[], games: unknown[]): string[] {
   const management = [];
   
   const stressEmotions = emotions.filter(e => e.emotion === 'stress').length;
@@ -467,7 +466,7 @@ function analyzeStressManagement(emotions: any[], games: any[]): string[] {
   return management.length > 0 ? management : ['Consider stress management techniques'];
 }
 
-function generateEvidenceBasedRecommendations(emotions: any[], journals: any[], games: any[]): string[] {
+function generateEvidenceBasedRecommendations(emotions: unknown[], journals: unknown[], games: unknown[]): string[] {
   const recommendations = [];
   
   if (emotions.length === 0) {

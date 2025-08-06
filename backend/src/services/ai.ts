@@ -4,8 +4,7 @@ import type {
   JournalEntry, 
   GameSession, 
   AIInsightRequest, 
-  AIInsightResponse,
-  DailyEntry 
+  AIInsightResponse
 } from '../types/index.js';
 
 const GOOGLE_AI_API_KEY = process.env.GOOGLE_AI_API_KEY || 'test-key';

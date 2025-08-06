@@ -73,7 +73,7 @@ gameSessionSchema.index({ clerkId: 1, 'createdAt': 1 }, {
 
 // Virtual for date (YYYY-MM-DD format)
 gameSessionSchema.virtual('date').get(function() {
-  return (this as any).createdAt.toISOString().split('T')[0];
+  return (this.createdAt as Date).toISOString().split('T')[0];
 });
 
 // Virtual for duration in minutes (already in minutes)

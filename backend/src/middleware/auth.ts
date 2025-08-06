@@ -5,6 +5,7 @@ import type { AuthUser } from '../types/index.js';
 
 // Extend Express Request interface to include user
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: AuthUser;
@@ -130,7 +131,7 @@ export const optionalAuth = async (
     }
     
     next();
-  } catch (error) {
+  } catch {
     // Continue without authentication
     next();
   }

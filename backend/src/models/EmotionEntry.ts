@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import type { EmotionEntry, EmotionType, SurveyResponse, AIFeedback } from '../types/index.js';
+import type { EmotionEntry, SurveyResponse, AIFeedback } from '../types/index.js';
 
 export interface EmotionEntryDocument extends Omit<EmotionEntry, 'id'>, Document {}
 

@@ -216,6 +216,6 @@ export interface AuthUser {
 export interface AppError {
   code: string;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
   timestamp: Date;
 } 

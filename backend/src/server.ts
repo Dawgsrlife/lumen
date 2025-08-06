@@ -104,7 +104,7 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error & { status?: number }, req: express.Request, res: express.Response) => {
   console.error('Global error handler:', err);
   
   res.status(err.status || 500).json({

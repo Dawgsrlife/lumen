@@ -3,9 +3,8 @@ import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
 import { JournalEntryModel } from '../models/JournalEntry.js';
 import { GameSessionModel } from '../models/GameSession.js';
-import { UserModel } from '../models/User.js';
 import { aiService } from '../services/ai.js';
-import type { UserAnalytics, DailyEntry, AIInsightRequest, AIInsightResponse, EmotionType } from '../types/index.js';
+import type { UserAnalytics, DailyEntry, AIInsightRequest } from '../types/index.js';
 
 const router = Router();
 
@@ -93,7 +92,7 @@ router.get('/overview',
 
       // Add games to daily entries
       games.forEach(game => {
-        const date = (game as any).createdAt.toISOString().split('T')[0];
+        const date = (game.createdAt as Date).toISOString().split('T')[0];
         if (!dailyEntries[date]) {
           dailyEntries[date] = {
             date,
@@ -111,7 +110,7 @@ router.get('/overview',
         currentStreak,
         longestStreak,
         averageMood: Math.round(averageMood * 10) / 10,
-        mostFrequentEmotion: mostFrequentEmotion as any,
+        mostFrequentEmotion: mostFrequentEmotion as string,
         gamesPlayed: games.length,
         lastUpdated: new Date(),
         dailyEntries: Object.values(dailyEntries).sort((a, b) => b.date.localeCompare(a.date))
@@ -363,7 +362,7 @@ router.get('/trends',
 );
 
 // Helper functions
-function calculateStreak(emotions: any[]): number {
+function calculateStreak(emotions: unknown[]): number {
   if (emotions.length === 0) return 0;
 
   const sortedEmotions = emotions
@@ -385,7 +384,7 @@ function calculateStreak(emotions: any[]): number {
   return streak;
 }
 
-function calculateLongestStreak(emotions: any[]): number {
+function calculateLongestStreak(emotions: unknown[]): number {
   if (emotions.length === 0) return 0;
 
   const emotionDates = new Set(

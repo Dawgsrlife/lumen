@@ -320,7 +320,7 @@ router.get('/',
       const includePrivateBool = includePrivate === 'true';
 
       // Build query
-      const query: any = { clerkId };
+      const query: Record<string, unknown> = { clerkId };
       
       if (mood) {
         query.mood = mood;
@@ -394,7 +394,7 @@ router.get('/daily',
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - daysNum);
 
-      const query: any = {
+      const query: Record<string, unknown> = {
         clerkId,
         createdAt: { $gte: startDate }
       };

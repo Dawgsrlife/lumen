@@ -178,7 +178,7 @@ userSchema.methods.hasLoggedToday = function() {
 // Method to get current week's data
 userSchema.methods.getCurrentWeekData = function() {
   const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  // const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
   
   // Reset weekly data if it's a new week
   const lastEmotion = this.lastEmotionDate ? new Date(this.lastEmotionDate) : null;

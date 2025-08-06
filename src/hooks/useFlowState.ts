@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useAppContext } from '../context/AppContext';
-import { useFlow } from '../context/FlowProvider';
+import { useAppContext, useFlow } from '../context/hooks';
 import { useUserFlowState } from './useUserFlowState';
 import type { FlowStep } from '../context/FlowProvider';
 import type { EmotionType } from '../types';

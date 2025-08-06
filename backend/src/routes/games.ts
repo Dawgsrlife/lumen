@@ -4,7 +4,7 @@ import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { GameSessionModel } from '../models/GameSession.js';
 import { EmotionEntryModel } from '../models/EmotionEntry.js';
 import { UserModel } from '../models/User.js';
-import type { CreateGameSessionRequest, GameSession } from '../types/index.js';
+import type { CreateGameSessionRequest } from '../types/index.js';
 
 const router = Router();
 
@@ -137,7 +137,7 @@ router.get('/',
       const skip = (pageNum - 1) * limitNum;
 
       // Build query
-      const query: any = { clerkId };
+      const query: Record<string, unknown> = { clerkId };
       
       if (gameType) {
         query.gameType = gameType;

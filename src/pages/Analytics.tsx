@@ -39,7 +39,7 @@ const Analytics: React.FC = () => {
         setIsLoading(true);
         
         // Calculate date range based on selected time range
-        let limit = 1000; // Default to fetch all entries
+        const limit = 1000; // Default to fetch all entries
         let startDate: string | undefined;
         const now = new Date();
         

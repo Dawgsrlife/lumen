@@ -92,7 +92,7 @@ const FlowPage: React.FC = () => {
     if (user && isCheckingDailyStatus) {
       checkDailyStatus();
     }
-  }, [user]); // Remove navigate and flowState.actions from dependencies to prevent re-runs
+  }, [user, flowState.actions, isCheckingDailyStatus, navigate]);
 
   // Memoized background theme
   const backgroundTheme = useMemo(() => {

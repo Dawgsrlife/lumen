@@ -128,12 +128,12 @@ const UnityGame: React.FC<UnityGameProps> = ({
       });
 
       // Try different possible GameObject names
-      try {
-        sendUnityMessage('GameManager', 'ReceiveEmotionData', emotionPayload) ||
+      const emotionSent = sendUnityMessage('GameManager', 'ReceiveEmotionData', emotionPayload) ||
         sendUnityMessage('Main Camera', 'ReceiveEmotionData', emotionPayload) ||
         sendUnityMessage('Canvas', 'ReceiveEmotionData', emotionPayload);
-      } catch {
-        // Silently fail if Unity message sending fails
+      
+      if (!emotionSent) {
+        console.warn('Failed to send emotion data to Unity game');
       }
     }
   }, [isLoaded, emotionData, sendUnityMessage]);
@@ -142,12 +142,12 @@ const UnityGame: React.FC<UnityGameProps> = ({
   useEffect(() => {
     if (isLoaded && gameName) {
       // Try different possible GameObject names and methods
-      try {
-        sendUnityMessage('GameManager', 'LoadGame', gameName) ||
+      const gameSent = sendUnityMessage('GameManager', 'LoadGame', gameName) ||
         sendUnityMessage('GameController', 'LoadGame', gameName) ||
         sendUnityMessage('Main Camera', 'LoadGame', gameName);
-      } catch {
-        // Silently fail if Unity message sending fails
+      
+      if (!gameSent) {
+        console.warn('Failed to send game name to Unity game');
       }
     }
   }, [isLoaded, gameName, sendUnityMessage]);
@@ -162,12 +162,12 @@ const UnityGame: React.FC<UnityGameProps> = ({
     });
 
     // Try to send start message to various possible GameObjects
-    try {
-      sendUnityMessage('GameManager', 'StartGame', gameData) ||
+    const startSent = sendUnityMessage('GameManager', 'StartGame', gameData) ||
       sendUnityMessage('GameController', 'StartGame', gameData) ||
       sendUnityMessage('Main Camera', 'StartGame', gameData);
-    } catch {
-      // Silently fail if Unity message sending fails
+    
+    if (!startSent) {
+      console.warn('Failed to send start message to Unity game');
     }
   };
 
@@ -175,12 +175,12 @@ const UnityGame: React.FC<UnityGameProps> = ({
     if (!isLoaded) return;
 
     // Try to send stop message to various possible GameObjects
-    try {
-      sendUnityMessage('GameManager', 'EndGame') ||
+    const stopSent = sendUnityMessage('GameManager', 'EndGame') ||
       sendUnityMessage('GameController', 'EndGame') ||
       sendUnityMessage('Main Camera', 'EndGame');
-    } catch {
-      // Silently fail if Unity message sending fails
+    
+    if (!stopSent) {
+      console.warn('Failed to send stop message to Unity game');
     }
   };
 

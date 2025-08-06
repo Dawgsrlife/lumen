@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import { ClerkProvider } from '@clerk/clerk-react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { LoadingSpinner } from './components/ui';
-import { AppProvider, useAppContext } from './context/AppContext';
-import { FlowProvider, useFlow } from './context/FlowProvider';
+import { AppProvider } from './context/AppContext';
+import { FlowProvider } from './context/FlowProvider';
+import { useAppContext, useFlow } from './context/hooks';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import LoginRedirectHandler from './components/auth/LoginRedirectHandler';
 import { Header, Footer } from './components/layout';

@@ -4,12 +4,10 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { WebSocketServer, WebSocket } from 'ws';
+import { WebSocketServer } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import { authenticateToken, requireAuth } from '../middleware/auth.js';
 import { voiceChatService } from '../services/voiceChat.js';
-import { EmotionEntryModel } from '../models/EmotionEntry.js';
-import type { VoiceChatSession } from '../services/voiceChat.js';
 
 const router = Router();
 
@@ -18,7 +16,7 @@ const activeConnections = new Map<string, {
   ws: WebSocket;
   sessionId: string;
   clerkId: string;
-  liveSession?: any;
+  liveSession?: unknown;
 }>();
 
 /**
@@ -192,13 +190,13 @@ router.post('/end/:sessionId',
 /**
  * WebSocket handler for voice chat
  */
-export function setupVoiceChatWebSocket(server: any) {
+export function setupVoiceChatWebSocket(server: unknown) {
   const wss = new WebSocketServer({ 
     server,
     path: '/ws/voice-chat'
   });
 
-  wss.on('connection', async (ws: WebSocket, req: any) => {
+  wss.on('connection', async (ws: WebSocket, req: unknown) => {
     try {
       // Extract session ID from URL path
       const urlParts = req.url.split('/');
@@ -285,7 +283,7 @@ export function setupVoiceChatWebSocket(server: any) {
       });
 
       // Handle Live API responses
-      liveSession.callbacks.onmessage = (liveMessage: any) => {
+      liveSession.callbacks.onmessage = (liveMessage: unknown) => {
         try {
           // Forward response to client
           ws.send(JSON.stringify({

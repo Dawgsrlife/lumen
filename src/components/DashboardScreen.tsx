@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionType } from '../types';
 import { LumenMascot } from './ui';
-import { useFlow } from '../context/FlowProvider';
+import { useFlow } from '../context/hooks';
 
 // Emotion data with premium styling
 const emotionData: Record<EmotionType, { 

@@ -16,7 +16,6 @@ interface PostGameFeedbackProps {
 const PostGameFeedback: React.FC<PostGameFeedbackProps> = ({
   emotion,
   gameTitle,
-  gameId = 'unknown',
   onFeedback,
   onSkip,
 }) => {

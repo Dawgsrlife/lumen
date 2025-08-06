@@ -172,7 +172,7 @@ const Header: React.FC = () => {
         }
       ]);
     }
-  }, [isAuthenticated, getNotifications, user?.id]);
+  }, [isAuthenticated, user?.id]);
 
   // Handle notification click
   const handleNotificationClick = async (notification: Notification) => {

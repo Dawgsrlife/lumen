@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import type { JournalEntry, EmotionType } from '../types/index.js';
+import type { JournalEntry } from '../types/index.js';
 
 export interface JournalEntryDocument extends Omit<JournalEntry, 'id'>, Document {}
 

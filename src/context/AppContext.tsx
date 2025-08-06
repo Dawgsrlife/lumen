@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useReducer, useEffect } from 'react';
 import { useClerkUser } from '../hooks/useClerkUser';
 import type { EmotionType } from '../types';
 
@@ -117,7 +117,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
 }
 
 // Context
-const AppContext = createContext<{
+// eslint-disable-next-line react-refresh/only-export-components
+export const AppContext = createContext<{
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
   logEmotion: (emotion: EmotionType) => Promise<void>;
@@ -337,11 +338,4 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 };
 
-// Hook to use the context
-export const useAppContext = () => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
-  }
-  return context;
-}; 
+ 
