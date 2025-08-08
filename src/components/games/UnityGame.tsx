@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Unity, useUnityContext } from "react-unity-webgl";
-import { Button, LoadingSpinner } from "../ui";
+import { LoadingSpinner } from "../ui";
 import type { UnityGameData, UnityReward } from "../../services/unity";
 
 interface UnityGameProps {
@@ -20,6 +20,67 @@ interface UnityGameProps {
   className?: string;
 }
 
+// Game theme configurations for sophisticated styling
+const gameThemes: Record<
+  string,
+  {
+    gradient: string;
+    accentColor: string;
+    bgPattern: string;
+    icon: string;
+    completionMessage: string;
+  }
+> = {
+  colorbloom: {
+    gradient: "from-pink-400 via-rose-300 to-orange-300",
+    accentColor: "text-rose-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_30%_20%,rgba(251,113,133,0.1),transparent_50%)]",
+    icon: "🌸",
+    completionMessage: "Beautiful blooms flourish from your care",
+  },
+  rythmgrow: {
+    gradient: "from-green-400 via-emerald-300 to-teal-300",
+    accentColor: "text-emerald-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_70%_30%,rgba(52,211,153,0.1),transparent_50%)]",
+    icon: "🌳",
+    completionMessage: "Your rhythm nurtures growth and vitality",
+  },
+  boxbreathing: {
+    gradient: "from-blue-400 via-cyan-300 to-sky-300",
+    accentColor: "text-blue-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]",
+    icon: "🫁",
+    completionMessage: "Peace flows through your mindful breathing",
+  },
+  memorylantern: {
+    gradient: "from-amber-400 via-yellow-300 to-orange-300",
+    accentColor: "text-amber-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_20%_80%,rgba(245,158,11,0.1),transparent_50%)]",
+    icon: "🏮",
+    completionMessage: "Your memories shine with loving light",
+  },
+  balancingact: {
+    gradient: "from-slate-400 via-gray-300 to-stone-300",
+    accentColor: "text-slate-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_60%_40%,rgba(100,116,139,0.1),transparent_50%)]",
+    icon: "🪨",
+    completionMessage: "Balance restored through patient practice",
+  },
+  default: {
+    gradient: "from-indigo-400 via-purple-300 to-pink-300",
+    accentColor: "text-indigo-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_40%_60%,rgba(129,140,248,0.1),transparent_50%)]",
+    icon: "✨",
+    completionMessage: "Journey completed with mindful presence",
+  },
+};
+
 const UnityGame: React.FC<UnityGameProps> = ({
   gameId,
   gameTitle,
@@ -30,6 +91,11 @@ const UnityGame: React.FC<UnityGameProps> = ({
   onRewardEarned,
 }) => {
   const [gameData, setGameData] = useState<UnityGameData | null>(null);
+  const [showCompletionCelebration, setShowCompletionCelebration] =
+    useState(false);
+
+  // Get theme for current game
+  const theme = gameThemes[gameName || "default"] || gameThemes.default;
 
   // Initialize Unity context with proper URLs and game parameter
   const {
@@ -188,166 +254,460 @@ const UnityGame: React.FC<UnityGameProps> = ({
 
   return (
     <div className="w-full">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        {/* Game Canvas - More compact */}
-        <div className="relative bg-gray-900 overflow-hidden">
-          <Unity
-            unityProvider={unityProvider}
-            style={{
-              width: "100%",
-              height: "500px", // Reduced from 720px
-              maxWidth: "100%",
-              aspectRatio: "16/10", // More widescreen friendly
-              backgroundColor: "#000000",
-            }}
-          />
+      {/* Sophisticated Game Container with Dynamic Theming */}
+      <motion.div
+        className="relative bg-gradient-to-br from-white/95 via-white/90 to-white/85 backdrop-blur-2xl rounded-[2.5rem] border border-white/50 shadow-2xl shadow-slate-900/10 overflow-hidden"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        {/* Dynamic background pattern based on game theme */}
+        <div className={`absolute inset-0 ${theme.bgPattern}`} />
 
-          {/* Loading Overlay */}
-          {!isLoaded && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <div className="text-center">
-                <LoadingSpinner size="lg" />
-                <p className="text-white mt-4">
-                  Loading {gameTitle}... {Math.round(loadingProgression * 100)}%
-                </p>
-              </div>
-            </div>
-          )}
+        {/* Subtle gradient overlay */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${theme.gradient} opacity-5`}
+        />
 
-          {/* Error Overlay */}
-          {error && (
-            <div className="absolute inset-0 bg-red-900/50 flex items-center justify-center">
-              <div className="text-center text-white p-4">
-                <div className="text-2xl mb-2">⚠️</div>
-                <p className="font-semibold">Unity Loading Error</p>
-                <p className="text-sm mt-2 max-w-md">
-                  Unable to load the game. Please try refreshing the page.
-                </p>
-                <Button
-                  onClick={() => {
-                    setError(null);
-                    window.location.reload();
-                  }}
-                  className="mt-4"
-                  variant="outline"
-                >
-                  Retry
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Game Controls Overlay */}
-          {isLoaded && (
-            <div className="absolute top-4 right-4 flex gap-2">
-              <Button
-                onClick={handleFullscreen}
-                size="sm"
-                variant="outline"
-                className="bg-black/50 text-white border-white/20 hover:bg-black/70"
-              >
-                ⛶ Fullscreen
-              </Button>
-              <Button
-                onClick={() => {
-                  handleStopGame();
-                  if (onGameComplete) {
-                    onGameComplete({
-                      gameId: gameId,
-                      score: 0,
-                      duration: 0,
-                      achievements: [],
-                    });
-                  }
-                }}
-                size="sm"
-                variant="outline"
-                className="bg-red-600/50 text-white border-red-400/20 hover:bg-red-600/70"
-              >
-                Stop
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Game Controls */}
-        {isLoaded && (
-          <div className="p-4 bg-gray-50 border-t border-gray-200">
-            <div className="flex justify-center">
-              <div
-                className="relative overflow-hidden rounded-lg inline-block"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)",
-                }}
-              >
-                <Button
-                  onClick={() =>
-                    onGameComplete &&
-                    onGameComplete({
-                      gameId,
-                      score: gameData?.score || 0,
-                      duration: 0,
-                      achievements: gameData?.achievements || [],
-                    })
-                  }
-                  size="lg"
-                  className="bg-transparent text-white font-semibold border-0 shadow-lg hover:shadow-xl cursor-pointer relative z-10"
-                >
-                  Finish
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Game Results */}
-        {gameData && (
+        {/* Premium Game Header */}
+        <motion.div
+          className="relative p-8 text-center border-b border-white/30"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        >
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-4 bg-blue-50 border-t border-blue-200"
+            className="text-4xl mb-4"
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           >
-            <h4 className="font-semibold text-gray-900 mb-3">Game Results</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Score:</span>
-                <span className="ml-2 font-bold text-blue-600">
-                  {gameData.score}
-                </span>
+            {theme.icon}
+          </motion.div>
+
+          <h1
+            className={`text-3xl font-light mb-2 tracking-wide ${theme.accentColor}`}
+            style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+          >
+            {gameTitle}
+          </h1>
+
+          <div className="w-16 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto" />
+        </motion.div>
+
+        {/* Enhanced Game Canvas Container */}
+        <div className="relative">
+          <motion.div
+            className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
+            <Unity
+              unityProvider={unityProvider}
+              style={{
+                width: "100%",
+                height: "600px",
+                maxWidth: "100%",
+                aspectRatio: "16/9",
+                backgroundColor: "#0f172a",
+              }}
+            />
+
+            {/* Sophisticated Loading Overlay */}
+            <AnimatePresence>
+              {!isLoaded && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-sm flex items-center justify-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="text-center max-w-md px-8">
+                    <motion.div
+                      className="relative mb-8"
+                      animate={{
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 180, 360],
+                      }}
+                      transition={{
+                        duration: 2.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <LoadingSpinner size="lg" />
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-r ${theme.gradient} opacity-20 rounded-full blur-xl scale-150`}
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <h3
+                        className="text-2xl font-light text-white mb-4 tracking-wide"
+                        style={{
+                          fontFamily: "Playfair Display, Georgia, serif",
+                        }}
+                      >
+                        Preparing {gameTitle}
+                      </h3>
+
+                      <div className="flex items-center justify-center gap-4 mb-6">
+                        <div className="w-48 h-2 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur-sm">
+                          <motion.div
+                            className={`h-full bg-gradient-to-r ${theme.gradient} rounded-full`}
+                            style={{ width: `${loadingProgression * 100}%` }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        </div>
+                        <span className="text-slate-300 text-sm font-medium min-w-[3rem]">
+                          {Math.round(loadingProgression * 100)}%
+                        </span>
+                      </div>
+
+                      <p className="text-slate-400 text-sm font-light leading-relaxed">
+                        Creating your mindful sanctuary...
+                      </p>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Enhanced Error Overlay */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-br from-red-900/95 via-red-800/95 to-red-900/95 backdrop-blur-sm flex items-center justify-center"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="text-center text-white p-8 max-w-md">
+                    <motion.div
+                      className="text-6xl mb-6"
+                      animate={{
+                        scale: [1, 1.1, 1],
+                        rotate: [0, -5, 5, 0],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      ⚠️
+                    </motion.div>
+                    <h3
+                      className="text-2xl font-light mb-4 tracking-wide"
+                      style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                    >
+                      Connection Lost
+                    </h3>
+                    <p className="text-red-200 mb-8 leading-relaxed font-light">
+                      We're having trouble connecting to your mindful
+                      experience. This might be a temporary network issue.
+                    </p>
+                    <motion.button
+                      onClick={() => {
+                        setError(null);
+                        window.location.reload();
+                      }}
+                      className="px-8 py-3 bg-white/20 backdrop-blur-sm text-white rounded-2xl font-medium border border-white/30 hover:bg-white/30 transition-all duration-300 cursor-pointer shadow-lg"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Try Again
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Premium Game Controls Overlay */}
+            {isLoaded && (
+              <motion.div
+                className="absolute top-6 right-6 flex gap-3"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                <motion.button
+                  onClick={handleFullscreen}
+                  className="px-4 py-2 bg-black/60 backdrop-blur-sm text-white rounded-2xl text-sm font-medium border border-white/20 hover:bg-black/80 transition-all duration-300 cursor-pointer shadow-lg"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="mr-2">⛶</span>
+                  Fullscreen
+                </motion.button>
+
+                <motion.button
+                  onClick={() => {
+                    handleStopGame();
+                    if (onGameComplete) {
+                      setShowCompletionCelebration(true);
+                      setTimeout(() => {
+                        // Add a fade out transition before completing
+                        setShowCompletionCelebration(false);
+                        setTimeout(() => {
+                          onGameComplete({
+                            gameId: gameId,
+                            score: gameData?.score || 0,
+                            duration: 0,
+                            achievements: [],
+                          });
+                        }, 500); // Small delay for smooth transition
+                      }, 3000); // Reduced from 3500 to 3000 for better flow
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-600/60 backdrop-blur-sm text-white rounded-2xl text-sm font-medium border border-red-400/20 hover:bg-red-600/80 transition-all duration-300 cursor-pointer shadow-lg"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Complete Journey
+                </motion.button>
+              </motion.div>
+            )}
+          </motion.div>
+
+          {/* Elegant Game Completion Section */}
+          {isLoaded && (
+            <motion.div
+              className="relative p-10 bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.0, duration: 0.8 }}
+            >
+              <div className="text-center">
+                <motion.button
+                  onClick={() => {
+                    setShowCompletionCelebration(true);
+                    setTimeout(() => {
+                      // Add a fade out transition before completing
+                      setShowCompletionCelebration(false);
+                      setTimeout(() => {
+                        onGameComplete?.({
+                          gameId,
+                          score: gameData?.score || 0,
+                          duration: 0,
+                          achievements: gameData?.achievements || [],
+                        });
+                      }, 500); // Small delay for smooth transition
+                    }, 3000); // Reduced from 3500 to 3000 for better flow
+                  }}
+                  className="group relative overflow-hidden px-12 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl font-medium text-lg shadow-xl shadow-slate-900/25 hover:shadow-2xl hover:shadow-slate-900/40 transition-all duration-500 cursor-pointer"
+                  whileHover={{
+                    scale: 1.02,
+                    y: -4,
+                    transition: { duration: 0.2 },
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-r ${theme.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}
+                  />
+
+                  <div className="relative flex items-center gap-4">
+                    <motion.span
+                      className="text-2xl"
+                      animate={{
+                        rotate: [0, 10, -10, 0],
+                        scale: [1, 1.1, 1],
+                      }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 3,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      {theme.icon}
+                    </motion.span>
+                    <span className="tracking-wide">Complete Experience</span>
+                    <motion.div
+                      className="text-xl"
+                      animate={{ x: [0, 6, 0] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                    >
+                      ✨
+                    </motion.div>
+                  </div>
+                </motion.button>
+
+                <motion.p
+                  className="mt-6 text-slate-600 font-light text-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2 }}
+                >
+                  Take your time and enjoy the mindful experience
+                </motion.p>
               </div>
-              <div>
-                <span className="text-gray-600">Duration:</span>
-                <span className="ml-2">
-                  {Math.round(gameData.duration / 60)}m {gameData.duration % 60}
-                  s
-                </span>
-              </div>
-              <div className="col-span-2">
-                <span className="text-gray-600">Achievements:</span>
-                <div className="mt-1">
+            </motion.div>
+          )}
+
+          {/* Completion Celebration Modal */}
+          <AnimatePresence>
+            {showCompletionCelebration && (
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-white/95 via-white/90 to-white/85 backdrop-blur-2xl flex items-center justify-center"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="text-center p-8 max-w-md">
+                  <motion.div
+                    className="text-8xl mb-6"
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", bounce: 0.6 }}
+                  >
+                    {theme.icon}
+                  </motion.div>
+
+                  <motion.h3
+                    className={`text-2xl font-light mb-4 tracking-wide ${theme.accentColor}`}
+                    style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    Journey Complete
+                  </motion.h3>
+
+                  <motion.p
+                    className="text-slate-700 leading-relaxed font-light"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    {theme.completionMessage}
+                  </motion.p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Premium Game Results Display */}
+          {gameData && (
+            <motion.div
+              className={`relative p-10 bg-gradient-to-br ${theme.gradient} bg-opacity-10 backdrop-blur-sm border-t border-white/50`}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+              {/* Decorative background */}
+              <div className={`absolute inset-0 ${theme.bgPattern}`} />
+
+              <div className="relative">
+                <motion.div
+                  className="flex items-center gap-4 mb-8"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div
+                    className={`w-14 h-14 bg-gradient-to-br ${theme.gradient} rounded-2xl flex items-center justify-center shadow-lg`}
+                  >
+                    <span className="text-2xl">{theme.icon}</span>
+                  </div>
+                  <h3
+                    className={`text-3xl font-light tracking-wide ${theme.accentColor}`}
+                    style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                  >
+                    Experience Results
+                  </h3>
+                </motion.div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                  <motion.div
+                    className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/50 shadow-sm"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-3xl">⭐</span>
+                      <span className="text-slate-600 font-medium text-lg">
+                        Mindfulness Score
+                      </span>
+                    </div>
+                    <div className={`text-4xl font-bold ${theme.accentColor}`}>
+                      {gameData.score}
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/50 shadow-sm"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-3xl">⏱️</span>
+                      <span className="text-slate-600 font-medium text-lg">
+                        Time Spent
+                      </span>
+                    </div>
+                    <div className="text-4xl font-bold text-slate-700">
+                      {Math.round(gameData.duration / 60)}m{" "}
+                      {gameData.duration % 60}s
+                    </div>
+                  </motion.div>
+                </div>
+
+                <motion.div
+                  className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/50 shadow-sm"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-3xl">🏆</span>
+                    <span className="text-slate-600 font-medium text-lg">
+                      Mindful Achievements
+                    </span>
+                  </div>
+
                   {gameData.achievements.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-3">
                       {gameData.achievements.map((achievement, index) => (
-                        <span
+                        <motion.span
                           key={index}
-                          className="px-2 py-1 bg-blue-500/20 text-blue-600 text-xs rounded-full"
+                          className={`px-6 py-3 bg-gradient-to-r ${theme.gradient} bg-opacity-20 ${theme.accentColor} rounded-2xl text-sm font-medium border border-white/50 shadow-sm`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.6 + index * 0.1 }}
+                          whileHover={{ scale: 1.05, y: -2 }}
                         >
                           {achievement}
-                        </span>
+                        </motion.span>
                       ))}
                     </div>
                   ) : (
-                    <span className="text-gray-500 text-xs">
-                      No achievements earned
-                    </span>
+                    <div className="text-slate-500 text-sm italic font-light">
+                      Your mindful presence is achievement enough
+                    </div>
                   )}
-                </div>
+                </motion.div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </div>
+            </motion.div>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 };

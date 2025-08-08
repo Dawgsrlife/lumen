@@ -78,11 +78,28 @@ const Header: React.FC = () => {
     setIsSigningOut(true);
     try {
       console.log("📤 Header: Calling Clerk signOut...");
-      await signOut();
-      console.log("✅ Header: Sign out successful, navigating to landing...");
-      navigate("/landing");
+
+      // Clear session storage to ensure welcome screen shows on next login
+      if (user?.id) {
+        const welcomeShownKey = `lumen-welcome-shown-${user.id}`;
+        sessionStorage.removeItem(welcomeShownKey);
+        console.log(
+          "🗑️ Header: Cleared welcome session storage for fresh login"
+        );
+      }
+
+      // Use signOut with explicit redirect to landing page
+      await signOut({
+        redirectUrl: window.location.origin + "/landing",
+      });
+      console.log("✅ Header: Sign out successful, redirecting to landing...");
+
+      // Force navigation to landing page (backup in case Clerk redirect doesn't work)
+      window.location.href = "/landing";
     } catch (error) {
       console.error("❌ Header: Sign out error:", error);
+      // Even if sign out fails, redirect to landing
+      window.location.href = "/landing";
     } finally {
       setIsSigningOut(false);
       setIsMenuOpen(false);

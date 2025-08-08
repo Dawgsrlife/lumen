@@ -1,6 +1,5 @@
 import { useClerk } from "@clerk/clerk-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   User,
@@ -16,16 +15,36 @@ import { useClerkUser } from "../../hooks/useClerkUser";
 export const UserProfile: React.FC = () => {
   const { user } = useClerkUser();
   const { signOut } = useClerk();
-  const navigate = useNavigate();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
-      await signOut();
-      navigate("/landing");
+      console.log("🔄 UserProfile: Starting sign out process...");
+
+      // Clear session storage to ensure welcome screen shows on next login
+      if (user?.id) {
+        const welcomeShownKey = `lumen-welcome-shown-${user.id}`;
+        sessionStorage.removeItem(welcomeShownKey);
+        console.log(
+          "🗑️ UserProfile: Cleared welcome session storage for fresh login"
+        );
+      }
+
+      // Use signOut with explicit redirect to landing page
+      await signOut({
+        redirectUrl: window.location.origin + "/landing",
+      });
+      console.log(
+        "✅ UserProfile: Sign out successful, redirecting to landing..."
+      );
+
+      // Force navigation to landing page (backup in case Clerk redirect doesn't work)
+      window.location.href = "/landing";
     } catch (error) {
-      console.error("Sign out error:", error);
+      console.error("❌ UserProfile: Sign out error:", error);
+      // Even if sign out fails, redirect to landing
+      window.location.href = "/landing";
     } finally {
       setIsSigningOut(false);
     }
@@ -104,7 +123,7 @@ export const UserProfile: React.FC = () => {
                 <div className="flex items-center justify-center gap-2 min-h-[20px]">
                   <Mail className="w-4 h-4 flex-shrink-0" />
                   <span
-                    className="truncate max-w-[600px]"
+                    className="truncate max-w-[750px]"
                     title={user.primaryEmailAddress?.emailAddress}
                   >
                     {user.primaryEmailAddress?.emailAddress}
@@ -191,7 +210,7 @@ export const UserProfile: React.FC = () => {
               <motion.button
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="w-full flex items-center justify-center gap-3 bg-gray-900 text-white py-4 px-6 rounded-xl hover:bg-gray-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                className="w-full flex items-center justify-center gap-3 bg-gray-900 text-white py-4 px-6 rounded-xl hover:bg-gray-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
                 whileHover={{ scale: isSigningOut ? 1 : 1.02 }}
                 whileTap={{ scale: isSigningOut ? 1 : 0.98 }}
               >

@@ -311,7 +311,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     initializeUserSession();
   }, [clerkUser]);
 
-  // Enhanced game completion with better state management
+  // Enhanced game completion with data refresh trigger
   const completeGame = async () => {
     console.log("AppContext: Completing game");
 
@@ -324,14 +324,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       dispatch({ type: "SET_USER", payload: updatedUser });
       dispatch({ type: "SET_CURRENT_VIEW", payload: "dashboard" });
 
-      // Try to update streak if we have API access
+      // Try to update streak and trigger data refresh
       try {
-        // In a real app, we'd update the streak based on consecutive days
-        // For now, we'll just increment the local streak
+        // Since game sessions might not be implemented yet,
+        // we'll rely on the emotion entries and journal entries
+        // that are created during the flow
+
+        // Update local streak (will be synced with real data when dashboard loads)
         const newStreak = state.user!.currentStreak + 1;
         dispatch({ type: "UPDATE_STREAK", payload: newStreak });
+
+        console.log(
+          "AppContext: Game completion processed, dashboard will refresh with real data"
+        );
       } catch (error) {
-        console.warn("AppContext: Failed to update streak in API:", error);
+        console.warn("AppContext: Error during game completion:", error);
+
+        // Still update local streak even if there are issues
+        const newStreak = state.user!.currentStreak + 1;
+        dispatch({ type: "UPDATE_STREAK", payload: newStreak });
       }
     } catch (error) {
       console.error("AppContext: Failed to complete game:", error);

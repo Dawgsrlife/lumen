@@ -182,112 +182,223 @@ const FlowGameSection: React.FC<FlowGameSectionProps> = ({
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut" as const,
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut" as const,
+      },
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Header with proper top margin */}
-      <div className="pt-8 pb-4 px-6">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            className="text-center mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-              {instructions?.emoji} {gameConfig.title}
-            </h1>
-            <p className="text-gray-600">{gameConfig.description}</p>
-          </motion.div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+      {/* Sophisticated background pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.08),transparent_70%),radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.1),transparent_50%),radial-gradient(circle_at_90%_10%,rgba(120,119,198,0.05),transparent_50%)]" />
 
-      {/* Game Instructions */}
-      {instructions && showInstructions && (
-        <motion.div
-          className="px-6 pb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  How to Play
-                </h3>
-                <button
-                  onClick={() => setShowInstructions(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-                >
-                  ✕
-                </button>
+      <motion.div
+        className="relative"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Elegant Header Section */}
+        <motion.div className="pt-16 pb-8 px-8" variants={itemVariants}>
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Game Icon with Enhanced Animation */}
+            <motion.div
+              className="relative mb-8"
+              initial={{ opacity: 0, scale: 0.3, rotate: -15 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                rotate: 0,
+              }}
+              transition={{
+                duration: 1.4,
+                ease: "backOut",
+                type: "spring",
+                stiffness: 80,
+                damping: 12,
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-200/30 to-purple-200/30 rounded-full blur-3xl scale-150" />
+              <div className="relative text-8xl mb-6 filter drop-shadow-lg">
+                {instructions?.emoji}
               </div>
+            </motion.div>
 
-              <div className="space-y-4 text-sm">
-                <div>
-                  <span className="font-medium text-gray-900">Mechanic:</span>
-                  <span className="text-gray-700 ml-2">
-                    {instructions.mechanic}
-                  </span>
-                </div>
+            {/* Game Title with Premium Typography */}
+            <motion.h1
+              className="text-4xl md:text-6xl font-extralight text-slate-900 mb-6 tracking-tight leading-none"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+              variants={itemVariants}
+            >
+              {gameConfig.title}
+            </motion.h1>
 
-                <div>
-                  <span className="font-medium text-gray-900">Addresses:</span>
-                  <span className="text-gray-700 ml-2">
-                    {instructions.emotion}
-                  </span>
-                </div>
+            {/* Decorative divider */}
+            <motion.div
+              className="flex justify-center mb-8"
+              variants={itemVariants}
+            >
+              <motion.div
+                className="w-32 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.8, duration: 1.2 }}
+              />
+            </motion.div>
 
-                <div>
-                  <span className="font-medium text-gray-900">
-                    How it helps:
-                  </span>
-                  <ul className="mt-2 space-y-1 ml-4">
-                    {instructions.benefits.map((benefit, index) => (
-                      <li
-                        key={index}
-                        className="text-gray-700 text-xs leading-relaxed"
-                      >
-                        • {benefit}
-                      </li>
-                    ))}
-                  </ul>
+            {/* Game Description */}
+            <motion.p
+              className="text-xl md:text-2xl text-slate-600 font-light leading-relaxed max-w-3xl mx-auto tracking-wide"
+              variants={itemVariants}
+            >
+              {gameConfig.description}
+            </motion.p>
+          </div>
+        </motion.div>
+
+        {/* Premium Game Instructions Card */}
+        {instructions && showInstructions && (
+          <motion.div className="px-8 pb-8" variants={itemVariants}>
+            <div className="max-w-4xl mx-auto">
+              <div className="relative">
+                {/* Glassmorphism background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-xl rounded-[2rem] border border-white/50 shadow-2xl shadow-slate-900/5" />
+
+                <div className="relative p-8 md:p-10">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+                        <span className="text-2xl">📖</span>
+                      </div>
+                      <h2 className="text-2xl font-medium text-slate-900 tracking-wide">
+                        How to Play
+                      </h2>
+                    </div>
+                    <motion.button
+                      onClick={() => setShowInstructions(false)}
+                      className="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-700 transition-all duration-300"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      ✕
+                    </motion.button>
+                  </div>
+
+                  {/* Instructions Grid */}
+                  <div className="grid md:grid-cols-1 gap-8">
+                    {/* Mechanic */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm">⚡</span>
+                        </div>
+                        <h3 className="font-semibold text-slate-900 text-lg">
+                          Mechanic
+                        </h3>
+                      </div>
+                      <p className="text-slate-700 leading-relaxed pl-11">
+                        {instructions.mechanic}
+                      </p>
+                    </div>
+
+                    {/* Addresses */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm">🎯</span>
+                        </div>
+                        <h3 className="font-semibold text-slate-900 text-lg">
+                          Addresses
+                        </h3>
+                      </div>
+                      <p className="text-slate-700 leading-relaxed pl-11">
+                        {instructions.emotion}
+                      </p>
+                    </div>
+
+                    {/* Benefits */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm">✨</span>
+                        </div>
+                        <h3 className="font-semibold text-slate-900 text-lg">
+                          How it helps
+                        </h3>
+                      </div>
+                      <div className="pl-11 space-y-3">
+                        {instructions.benefits.map((benefit, index) => (
+                          <motion.div
+                            key={index}
+                            className="flex items-start gap-3 text-slate-700 leading-relaxed"
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 + index * 0.1 }}
+                          >
+                            <div className="w-2 h-2 bg-slate-400 rounded-full mt-2 flex-shrink-0" />
+                            <p>{benefit}</p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Premium Unity Game Container */}
+        <motion.div className="px-8 pb-16" variants={itemVariants}>
+          <div className="max-w-6xl mx-auto">
+            <div className="relative">
+              {/* Enhanced container with subtle shadow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/90 to-white/60 backdrop-blur-sm rounded-[2rem] border border-white/50 shadow-2xl shadow-slate-900/8" />
+
+              <div className="relative p-2">
+                <UnityGame
+                  gameId={gameConfig.gameId}
+                  gameTitle={gameConfig.title}
+                  description={gameConfig.description}
+                  buildUrl="/unity-builds/lumen-minigames"
+                  gameName={gameConfig.gameName}
+                  emotionData={{
+                    emotion: emotion,
+                    intensity: 5,
+                    context: {
+                      source: "flow",
+                      timestamp: new Date().toISOString(),
+                    },
+                  }}
+                  onGameComplete={onGameComplete}
+                  onRewardEarned={onRewardEarned}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
         </motion.div>
-      )}
-
-      {/* Unity Game - Scaled appropriately */}
-      <div className="px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-          >
-            <UnityGame
-              gameId={gameConfig.gameId}
-              gameTitle={gameConfig.title}
-              description={gameConfig.description}
-              buildUrl="/unity-builds/lumen-minigames"
-              gameName={gameConfig.gameName}
-              emotionData={{
-                emotion: emotion,
-                intensity: 5,
-                context: {
-                  source: "flow",
-                  timestamp: new Date().toISOString(),
-                },
-              }}
-              onGameComplete={onGameComplete}
-              onRewardEarned={onRewardEarned}
-              className="w-full"
-            />
-          </motion.div>
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

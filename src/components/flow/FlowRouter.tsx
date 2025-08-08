@@ -1,114 +1,53 @@
 import React, { useEffect } from "react";
-import WelcomeScreen from "../WelcomeScreen";
+import { useFlow } from "../../context/hooks";
+import WelcomePage from "../../pages/WelcomePage";
 import EmotionSelectionScreen from "../EmotionSelectionScreen";
 import GamePromptScreen from "../GamePromptScreen";
 import FlowGameSection from "./FlowGameSection";
 import JournalingStep from "../JournalingStep";
-import { useFlowState } from "../../hooks/useFlowState";
-import { LumenMascot } from "../ui";
+import DashboardScreen from "../DashboardScreen";
 import type { EmotionType } from "../../types";
-import type { UnityGameData } from "../../services/unity";
 
 interface FlowRouterProps {
-  onComplete?: () => void;
+  onComplete: () => void;
 }
 
 const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
-  const flowState = useFlowState(); // Use the unified hook
+  const { state: flowState, setEmotion, nextStep } = useFlow();
 
-  // Debug logging for step changes
+  // Handle dashboard step completion
   useEffect(() => {
-    console.log("FlowRouter: Step changed to:", flowState.currentStep);
-  }, [flowState.currentStep]);
-
-  const handleWelcomeComplete = () => {
-    console.log("Welcome completed, advancing to emotion selection");
-    flowState.actions.setCurrentStep("emotion-selection");
-  };
-
-  const handleEmotionSelected = (emotion: EmotionType) => {
-    console.log("Emotion selected:", emotion);
-    flowState.actions.selectEmotion(emotion);
-    // Don't auto-advance to game - go to game-prompt first
-    flowState.actions.setCurrentStep("game-prompt");
-  };
-
-  const handleGamePromptContinue = () => {
-    console.log("Game prompt continue");
-
-    // Update URL with game parameter based on selected emotion
-    const emotionToGameName: Record<string, string> = {
-      frustration: "boxbreathing",
-      stress: "balancingact",
-      anxiety: "boxbreathing",
-      sad: "colorbloom",
-      grief: "memorylantern",
-      lethargy: "rythmgrow",
-      anger: "boxbreathing",
-      happy: "colorbloom",
-      loneliness: "memorylantern",
-      fear: "boxbreathing",
-    };
-
-    const selectedEmotion = flowState.selectedEmotion;
-    const gameName = selectedEmotion
-      ? emotionToGameName[selectedEmotion]
-      : null;
-
-    if (gameName) {
-      // Update URL without page refresh
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("game", gameName);
-      window.history.replaceState({}, "", newUrl.toString());
-      console.log("Updated URL with game parameter:", gameName);
-    }
-
-    flowState.actions.setCurrentStep("game");
-  };
-
-  const handleGameComplete = (data: UnityGameData) => {
-    console.log("Game completed");
-
-    // Remove game parameter from URL when moving to journaling
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.delete("game");
-    window.history.replaceState({}, "", newUrl.toString());
-
-    flowState.actions.completeGame(data);
-    flowState.actions.setCurrentStep("journaling");
-  };
-
-  const handleJournalingComplete = () => {
-    console.log("Journaling completed");
-    // Save journal entry and complete flow
-    flowState.actions.completeFlow();
-    if (onComplete) {
+    if (flowState.currentStep === "dashboard") {
       onComplete();
     }
-  };
+  }, [flowState.currentStep, onComplete]);
 
-  const renderStep = () => {
-    console.log("Rendering step:", flowState.currentStep);
-
+  const renderCurrentStep = () => {
     switch (flowState.currentStep) {
       case "welcome":
-        return <WelcomeScreen onComplete={handleWelcomeComplete} />;
+        return <WelcomePage />;
 
       case "emotion-selection":
         return (
           <EmotionSelectionScreen
-            onEmotionSelect={handleEmotionSelected} // ✅ CORRECT prop name
+            onEmotionSelect={(emotion: EmotionType) => {
+              setEmotion(emotion);
+              nextStep();
+            }}
           />
         );
 
       case "game-prompt":
         return (
           <GamePromptScreen
-            selectedEmotion={flowState.selectedEmotion || "happy"}
-            onPlayGame={handleGamePromptContinue}
+            selectedEmotion={
+              (flowState.selectedEmotion as EmotionType) ||
+              ("happy" as EmotionType)
+            }
+            onPlayGame={() => nextStep()}
             onSkipGame={() => {
-              flowState.actions.completeFlow();
-              if (onComplete) onComplete();
+              // Skip to journaling or next appropriate step
+              nextStep();
             }}
           />
         );
@@ -116,58 +55,70 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
       case "game":
         return (
           <FlowGameSection
-            emotion={flowState.selectedEmotion || "happy"}
-            onGameComplete={handleGameComplete}
-            onRewardEarned={(reward) => console.log("Reward earned:", reward)}
-            onSkip={() => {
-              flowState.actions.setCurrentStep("journaling");
-            }}
-          />
-        );
-
-      case "journaling":
-        return (
-          <JournalingStep
-            selectedEmotion={flowState.selectedEmotion || "happy"}
-            gameCompleted={
-              typeof flowState.gameData?.gameId === "string"
-                ? flowState.gameData.gameId
-                : undefined
+            emotion={
+              (flowState.selectedEmotion as EmotionType) ||
+              ("happy" as EmotionType)
             }
-            onComplete={handleJournalingComplete}
-            onSkip={() => {
-              flowState.actions.completeFlow();
-              if (onComplete) onComplete();
-            }}
+            onGameComplete={() => nextStep()}
+            onRewardEarned={() => {}}
+            onSkip={() => nextStep()}
           />
         );
 
-      default:
+      case "game-completion":
+        // Handle game completion - could show results or move to next step
         return (
-          <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
+          <div className="min-h-screen flex items-center justify-center">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                Unknown Step: {flowState.currentStep}
-              </h1>
+              <h2 className="text-2xl font-bold mb-4">Game Completed!</h2>
               <button
-                onClick={() => flowState.actions.setCurrentStep("welcome")}
-                className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
+                onClick={() => nextStep()}
+                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
               >
-                Restart Flow
+                Continue
               </button>
             </div>
           </div>
         );
+
+      case "feedback":
+        // Handle feedback step
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">Feedback Step</h2>
+              <button
+                onClick={() => nextStep()}
+                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        );
+
+      case "journaling":
+        return <JournalingStep onComplete={() => nextStep()} />;
+
+      case "dashboard":
+        return (
+          <DashboardScreen
+            selectedEmotion={
+              (flowState.selectedEmotion as EmotionType) ||
+              ("happy" as EmotionType)
+            }
+            currentStreak={1}
+            weeklyData={[]}
+          />
+        );
+
+      default:
+        console.warn(`Unknown flow step: ${flowState.currentStep}`);
+        return <WelcomePage />;
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {flowState.currentStep !== "welcome" &&
-        flowState.currentStep !== "game" && <LumenMascot currentPage="/flow" />}
-      {renderStep()}
-    </div>
-  );
+  return <div className="flow-router">{renderCurrentStep()}</div>;
 };
 
 export default FlowRouter;

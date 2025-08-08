@@ -1,15 +1,15 @@
-import { useAuth } from '@clerk/clerk-react';
-import type { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from "@clerk/clerk-react";
+import type { ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 
 interface ProtectedRouteProps {
   children: ReactNode;
   fallbackPath?: string;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  fallbackPath = '/sign-in' 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  fallbackPath = "/landing",
 }) => {
   const { isSignedIn, isLoaded } = useAuth();
   const location = useLocation();
@@ -34,4 +34,4 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Render children if authenticated
   return <>{children}</>;
-}; 
+};

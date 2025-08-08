@@ -77,13 +77,26 @@ const FlowPage: React.FC = () => {
           return;
         }
 
-        // Check if this is a fresh login session (no welcome shown yet)
+        // Check if this is a fresh login session
         const welcomeShownKey = `lumen-welcome-shown-${user.id}`;
         const welcomeAlreadyShown = sessionStorage.getItem(welcomeShownKey);
 
-        if (!welcomeAlreadyShown) {
-          // First time in this session - show welcome
-          console.log("First flow in session, starting with welcome screen");
+        // Also check URL params to detect fresh login from Clerk
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasAuthParams =
+          urlParams.has("__clerk_db_jwt") ||
+          urlParams.has("__session") ||
+          window.location.pathname.includes("sso-callback");
+
+        // Force welcome screen for fresh logins or if not shown in this session
+        if (!welcomeAlreadyShown || hasAuthParams) {
+          console.log(
+            "Fresh login or first flow in session - showing welcome screen"
+          );
+          if (hasAuthParams) {
+            // Clear the welcome storage for fresh login to ensure welcome shows
+            sessionStorage.removeItem(welcomeShownKey);
+          }
           flowState.actions.setCurrentStep("welcome");
         } else {
           // Subsequent flows in same session - skip welcome
@@ -94,12 +107,14 @@ const FlowPage: React.FC = () => {
         }
       } catch (error) {
         console.error("Error checking daily status:", error);
-        // On API error, check session storage for welcome
+        // On API error, show welcome for fresh sessions
         const welcomeShownKey = `lumen-welcome-shown-${user.id}`;
         const welcomeAlreadyShown = sessionStorage.getItem(welcomeShownKey);
 
         if (!welcomeAlreadyShown) {
-          console.log("API unavailable, defaulting to welcome screen");
+          console.log(
+            "API unavailable, defaulting to welcome screen for fresh session"
+          );
           flowState.actions.setCurrentStep("welcome");
         } else {
           console.log("API unavailable, skipping to emotion selection");
