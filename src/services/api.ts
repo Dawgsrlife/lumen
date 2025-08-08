@@ -63,17 +63,29 @@ class ApiService {
     this.api.interceptors.response.use(
       (response) => response,
       (error) => {
+        // Handle CORS errors specifically
+        if (error.message && error.message.includes('CORS')) {
+          console.warn("CORS error detected, API may not be available:", error.message);
+          return Promise.reject(new Error("API_UNAVAILABLE"));
+        }
+
         if (error.response?.status === 401) {
           // Handle unauthorized - redirect to login
           this.clearToken();
           window.location.href = "/login";
         }
 
-        // Log network errors but don't throw
-        if (error.code === "ERR_NETWORK" || error.code === "ECONNABORTED") {
-          console.warn("API unavailable, using fallback behavior");
+        // Log network errors but don't throw for certain endpoints
+        if (error.code === "ERR_NETWORK" || 
+            error.code === "ECONNABORTED" || 
+            error.code === "ERR_FAILED" ||
+            !error.response) {
+          console.warn("API unavailable, using fallback behavior:", error.code || error.message);
+          
           // Return a mock response for critical endpoints
-          return Promise.resolve({
+          const mockResponse = {
+            status: 200,
+            statusText: 'OK',
             data: {
               success: true,
               data: {
@@ -86,9 +98,34 @@ class ApiService {
                   currentEmotion: null,
                   hasPlayedGameToday: false,
                 },
+                totalEntries: 0,
+                averageMood: 5,
+                emotionDistribution: {},
+                streakData: { current: 0, longest: 0 },
+                weeklyProgress: [],
+                gamesPlayed: 0,
+                achievementsUnlocked: [],
+                weeklyStats: {
+                  averageMood: 5,
+                  totalEntries: 0,
+                  moodTrend: [],
+                  topEmotions: [],
+                },
+                monthlyStats: {
+                  averageMood: 5,
+                  totalEntries: 0,
+                  streakData: { current: 0, longest: 0 },
+                  gameActivity: { gamesPlayed: 0, averageScore: 0 },
+                },
+                insights: [],
+                lastUpdated: new Date(),
               },
             },
-          });
+            headers: {},
+            config: error.config,
+          };
+          
+          return Promise.resolve(mockResponse);
         }
 
         return Promise.reject(error);

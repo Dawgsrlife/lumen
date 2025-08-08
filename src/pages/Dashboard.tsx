@@ -22,28 +22,109 @@ const Dashboard: React.FC = () => {
   // Fetch real dashboard data from the database
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!state.user || !isSignedIn) return;
+      if (!state.user || !isSignedIn) {
+        console.log("Dashboard: No user or not signed in, using defaults");
+        setAnalytics({
+          userId: "demo-user",
+          totalEntries: 0,
+          averageMood: 5,
+          emotionDistribution: {
+            happy: 0,
+            sad: 0,
+            loneliness: 0,
+            anxiety: 0,
+            frustration: 0,
+            stress: 0,
+            lethargy: 0,
+            fear: 0,
+            grief: 0,
+          },
+          streakData: { current: 0, longest: 0 },
+          weeklyProgress: [],
+          gamesPlayed: 0,
+          achievementsUnlocked: [],
+          weeklyStats: {
+            averageMood: 5,
+            totalEntries: 0,
+            moodTrend: [],
+            topEmotions: [],
+          },
+          monthlyStats: {
+            averageMood: 5,
+            totalEntries: 0,
+            streakData: { current: 0, longest: 0 },
+            gameActivity: { gamesPlayed: 0, averageScore: 0 },
+          },
+          insights: [],
+          lastUpdated: new Date(),
+        });
+        setIsLoadingAnalytics(false);
+        return;
+      }
 
       try {
         setIsLoadingAnalytics(true);
 
-        // Ensure we have a valid token
-        const token = await getToken();
-        if (token) {
-          apiService.setToken(token);
+        // Try to get token and set up API, but don't fail if it doesn't work
+        try {
+          const token = await getToken();
+          if (token) {
+            apiService.setToken(token);
+          }
+        } catch (tokenError) {
+          console.warn("Dashboard: Could not get auth token", tokenError);
         }
 
-        // Fetch user analytics data for the last 7 days
-        const analyticsData = await apiService.getAnalyticsOverview(7);
-        setAnalytics(analyticsData);
-
-        console.log("Dashboard: Analytics loaded", analyticsData);
+        // Try to fetch analytics data, but use fallback if it fails
+        try {
+          const analyticsData = await apiService.getAnalyticsOverview(7);
+          setAnalytics(analyticsData);
+          console.log("Dashboard: Analytics loaded", analyticsData);
+        } catch (apiError) {
+          console.warn("Dashboard: API request failed, using defaults", apiError);
+          
+          // Use default values that work with the current user
+          setAnalytics({
+            userId: state.user.userId,
+            totalEntries: 0,
+            averageMood: 5,
+            emotionDistribution: {
+              happy: 0,
+              sad: 0,
+              loneliness: 0,
+              anxiety: 0,
+              frustration: 0,
+              stress: 0,
+              lethargy: 0,
+              fear: 0,
+              grief: 0,
+            },
+            streakData: { current: 0, longest: 0 },
+            weeklyProgress: [],
+            gamesPlayed: 0,
+            achievementsUnlocked: [],
+            weeklyStats: {
+              averageMood: 5,
+              totalEntries: 0,
+              moodTrend: [],
+              topEmotions: [],
+            },
+            monthlyStats: {
+              averageMood: 5,
+              totalEntries: 0,
+              streakData: { current: 0, longest: 0 },
+              gameActivity: { gamesPlayed: 0, averageScore: 0 },
+            },
+            insights: [],
+            lastUpdated: new Date(),
+          });
+        }
       } catch (error) {
         console.error("Dashboard: Failed to load analytics", error);
 
         // If API is unavailable, use default values but still show the dashboard
         setAnalytics({
-          userId: state.user.userId,
+          userId: state.user?.userId || "demo-user",
           totalEntries: 0,
           averageMood: 5,
           emotionDistribution: {
@@ -126,7 +207,7 @@ const Dashboard: React.FC = () => {
   }, [state.user, isSignedIn, getToken, isLoadingAnalytics]);
 
   // Show loading state while analytics are being fetched
-  if (state.isLoading || !state.user || isLoadingAnalytics) {
+  if (state.isLoading || isLoadingAnalytics) {
     return (
       <DashboardScreen
         selectedEmotion="happy"
@@ -139,8 +220,9 @@ const Dashboard: React.FC = () => {
   // If we have analytics data, use it; otherwise fall back to defaults
   if (analytics) {
     // Determine current emotion based on recent emotion distribution
-    const topEmotions = Object.entries(analytics.emotionDistribution).sort(
-      ([, a], [, b]) => b - a
+    const emotionDistribution = analytics.emotionDistribution || {};
+    const topEmotions = Object.entries(emotionDistribution).sort(
+      ([, a], [, b]) => (b || 0) - (a || 0)
     );
 
     // Validate that the emotion is a valid EmotionType
@@ -161,10 +243,11 @@ const Dashboard: React.FC = () => {
     ) as EmotionType;
 
     // Convert weekly progress to boolean array (true if there was activity that day)
-    const weeklyData =
-      analytics.weeklyStats?.moodTrend?.length > 0
-        ? analytics.weeklyStats.moodTrend.map((trend) => trend.entryCount > 0)
-        : [false, false, false, false, false, false, false];
+    const weeklyStats = analytics.weeklyStats || {};
+    const moodTrend = weeklyStats.moodTrend || [];
+    const weeklyData = moodTrend.length > 0
+      ? moodTrend.map((trend) => (trend && trend.entryCount > 0))
+      : [false, false, false, false, false, false, false];
 
     // Ensure we have exactly 7 days of data
     const paddedWeeklyData = [...weeklyData];
@@ -174,7 +257,8 @@ const Dashboard: React.FC = () => {
     const last7Days = paddedWeeklyData.slice(-7);
 
     // Ensure streak data exists and is valid
-    const currentStreak = analytics.streakData?.current ?? 0;
+    const streakData = analytics.streakData || {};
+    const currentStreak = typeof streakData.current === 'number' ? streakData.current : 0;
 
     console.log("Dashboard: Rendering with real data", {
       emotion: mostRecentEmotion,

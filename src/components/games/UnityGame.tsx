@@ -105,7 +105,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
     sendMessage,
     requestFullscreen,
   } = useUnityContext({
-    loaderUrl: `${buildUrl}/Builds.loader.js`,
+    loaderUrl: `${buildUrl}/Builds.loader.js${gameName ? `?game=${gameName}` : ""}`,
     dataUrl: `${buildUrl}/Builds.data.br`,
     frameworkUrl: `${buildUrl}/Builds.framework.js.br`,
     codeUrl: `${buildUrl}/Builds.wasm.br`,

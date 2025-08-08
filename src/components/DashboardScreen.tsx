@@ -410,25 +410,32 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   currentStreak,
   weeklyData,
 }) => {
-  // Debug logging
+  // Debug logging with comprehensive checks
   console.log("DashboardScreen props:", {
     selectedEmotion,
     currentStreak,
     weeklyData,
+    typeOfSelectedEmotion: typeof selectedEmotion,
+    typeOfCurrentStreak: typeof currentStreak,
+    isArrayWeeklyData: Array.isArray(weeklyData),
   });
 
-  // Safety check for emotion data
-  const emotion = emotionData[selectedEmotion] || emotionData.happy;
+  // Safety check for emotion data with fallback
+  const safeSelectedEmotion = selectedEmotion && typeof selectedEmotion === 'string' 
+    ? selectedEmotion as EmotionType 
+    : 'happy';
+  const emotion = emotionData[safeSelectedEmotion] || emotionData.happy;
   const dailyMessage = getDailyMessage();
 
-  // Safety check for weeklyData
-  const safeWeeklyData = Array.isArray(weeklyData)
-    ? weeklyData
+  // Safety check for weeklyData with comprehensive validation
+  const safeWeeklyData = Array.isArray(weeklyData) && weeklyData.length === 7
+    ? weeklyData.map(day => Boolean(day))
     : [false, false, false, false, false, false, false];
 
-  // Safety check for currentStreak
-  const safeCurrentStreak =
-    typeof currentStreak === "number" ? currentStreak : 0;
+  // Safety check for currentStreak with number validation
+  const safeCurrentStreak = typeof currentStreak === "number" && !isNaN(currentStreak) 
+    ? Math.max(0, currentStreak) 
+    : 0;
 
   console.log("DashboardScreen safe values:", {
     emotion: emotion?.label,
