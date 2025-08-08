@@ -30,9 +30,6 @@ export const useFlowManager = (): FlowManager => {
     
 
 
-    // Set manual flow state
-    setManualFlow(isManualFlow);
-    
     // Return the initial step
     return isManualFlow ? 'emotion-selection' : 'welcome';
   }, [userFlowState.isLoading, isManualFlow]);

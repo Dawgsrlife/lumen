@@ -9,8 +9,25 @@ const LoginRedirectHandler: React.FC = () => {
   const { user } = useUser();
   const [isCheckingDailyStatus, setIsCheckingDailyStatus] = useState(false);
   const [hasLoggedToday, setHasLoggedToday] = useState(false);
+  const [shouldShowWelcome, setShouldShowWelcome] = useState(false);
 
   console.log('LoginRedirectHandler: Auth state', { isSignedIn, isLoaded });
+
+  // Check if user should see welcome screen (new login)
+  useEffect(() => {
+    if (!isSignedIn || !user) return;
+
+    // Check if this is a new login session (no welcome shown in localStorage for this user)
+    const welcomeShownKey = `lumen-welcome-shown-${user.id}`;
+    const welcomeShown = localStorage.getItem(welcomeShownKey);
+    
+    if (!welcomeShown) {
+      console.log('LoginRedirectHandler: First login detected, showing welcome screen');
+      setShouldShowWelcome(true);
+      // Mark welcome as shown for this user
+      localStorage.setItem(welcomeShownKey, 'true');
+    }
+  }, [isSignedIn, user]);
 
   // Check daily status when user is signed in
   useEffect(() => {
@@ -35,10 +52,10 @@ const LoginRedirectHandler: React.FC = () => {
       }
     };
 
-    if (isSignedIn && user) {
+    if (isSignedIn && user && !shouldShowWelcome) {
       checkDailyStatus();
     }
-  }, [isSignedIn, user]);
+  }, [isSignedIn, user, shouldShowWelcome]);
 
   // Show loading while Clerk is initializing or checking daily status
   if (!isLoaded || isCheckingDailyStatus) {
@@ -58,6 +75,12 @@ const LoginRedirectHandler: React.FC = () => {
   if (!isSignedIn) {
     console.log('LoginRedirectHandler: User not signed in, redirecting to landing');
     return <Navigate to="/landing" replace />;
+  }
+
+  // If should show welcome screen (new login), redirect to welcome
+  if (shouldShowWelcome) {
+    console.log('LoginRedirectHandler: New login detected, redirecting to welcome');
+    return <Navigate to="/welcome" replace />;
   }
 
   // If user has already logged today, go to dashboard

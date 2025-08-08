@@ -71,7 +71,7 @@ class StorageService {
     this.setStoredData(existingData);
 
     // Update user stats
-    this.updateUserStats(entry.userId);
+    this.updateUserStats();
 
     return emotionEntry;
   }
@@ -146,7 +146,7 @@ class StorageService {
 
     // Calculate weekly average
     const weeklyTrends = await this.getWeeklyTrends(userId);
-    const weeklyAverage = weeklyTrends.averageIntensity;
+    const weeklyAverage = (weeklyTrends as { averageIntensity: number }).averageIntensity || 0;
 
     return {
       totalEntries,

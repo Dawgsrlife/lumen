@@ -23,7 +23,7 @@ export const UserProfile: React.FC = () => {
     setIsSigningOut(true);
     try {
       await signOut();
-      navigate("/");
+      navigate("/landing");
     } catch (error) {
       console.error("Sign out error:", error);
     } finally {

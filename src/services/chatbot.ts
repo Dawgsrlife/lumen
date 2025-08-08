@@ -32,7 +32,8 @@ export interface ChatContext {
 
 export class ChatbotService {
   private static instance: ChatbotService;
-  private model: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private model: any; // Using any for Gemini model to avoid TypeScript issues
 
   private constructor() {
     this.model = genAI.getGenerativeModel({

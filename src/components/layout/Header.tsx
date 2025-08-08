@@ -79,8 +79,8 @@ const Header: React.FC = () => {
     try {
       console.log("📤 Header: Calling Clerk signOut...");
       await signOut();
-      console.log("✅ Header: Sign out successful, navigating to home...");
-      navigate("/");
+      console.log("✅ Header: Sign out successful, navigating to landing...");
+      navigate("/landing");
     } catch (error) {
       console.error("❌ Header: Sign out error:", error);
     } finally {

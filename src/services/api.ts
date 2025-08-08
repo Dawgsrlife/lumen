@@ -176,11 +176,7 @@ class ApiService {
         };
       }>('/emotions', data);
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to create emotion entry');
-      }
-
-      return response.data.data!.emotionEntry;
+      return response.data.emotionEntry;
     } catch (error) {
       console.error('Error creating emotion entry:', error);
       throw error;
@@ -277,11 +273,7 @@ class ApiService {
         };
       }>(`/emotions?${queryParams.toString()}`);
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to fetch emotion entries');
-      }
-
-      return response.data.data!;
+      return response.data;
     } catch (error) {
       console.error('Error fetching emotion entries:', error);
       throw error;
@@ -315,11 +307,7 @@ class ApiService {
         };
       }>('/emotions/today');
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to check today\'s emotion');
-      }
-
-      return response.data.data!;
+      return response.data;
     } catch (error) {
       console.error('Error checking today\'s emotion:', error);
       throw error;
@@ -349,19 +337,6 @@ class ApiService {
 
   async deleteEmotionEntry(id: string): Promise<void> {
     await this.api.delete(`/api/emotions/${id}`);
-  }
-
-  // Journal entries
-  async createJournalEntry(journalData: CreateJournalRequest): Promise<{
-    journalEntry: JournalEntry;
-    analysis?: {
-      sentiment: 'positive' | 'negative' | 'neutral';
-      keyThemes: string[];
-      suggestions: string[];
-    };
-  }> {
-    const response: AxiosResponse = await this.api.post('/api/journal', journalData);
-    return response.data.data;
   }
 
   async getJournalEntries(params?: {

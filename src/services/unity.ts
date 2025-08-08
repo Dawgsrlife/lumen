@@ -48,7 +48,9 @@ class UnityService {
   // Send message to Unity
   public sendMessageToUnity(gameObject: string, method: string, data?: unknown): void {
     if (this.unityInstance) {
-      this.unityInstance.SendMessage(gameObject, method, data);
+      // Unity instance has SendMessage method
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.unityInstance as any).SendMessage(gameObject, method, data);
     } else {
       console.warn('Unity instance not initialized');
     }
@@ -114,7 +116,7 @@ class UnityService {
   // Global message handler for Unity WebGL
   public setupGlobalMessageHandler(): void {
     // This will be called by Unity WebGL
-    (window as Record<string, unknown>).receiveMessageFromUnity = (message: UnityMessage) => {
+    (window as unknown as Record<string, unknown>).receiveMessageFromUnity = (message: UnityMessage) => {
       this.handleUnityMessage(message);
     };
   }
@@ -130,7 +132,7 @@ export const unityService = UnityService.getInstance();
 
 // Global message handler for Unity WebGL
 if (typeof window !== 'undefined') {
-  (window as Record<string, unknown>).receiveMessageFromUnity = (message: UnityMessage) => {
+  (window as unknown as Record<string, unknown>).receiveMessageFromUnity = (message: UnityMessage) => {
     unityService.handleUnityMessage(message);
   };
 } 

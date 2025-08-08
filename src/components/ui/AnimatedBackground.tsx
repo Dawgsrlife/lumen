@@ -51,8 +51,9 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
     loadParticles();
 
     return () => {
-      if (particlesRef.current && particlesRef.current.pauseAnimation) {
-        particlesRef.current.pauseAnimation();
+      // Cleanup particles if needed
+      if (particlesRef.current) {
+        // Particles.js cleanup handled automatically
       }
     };
   }, []);

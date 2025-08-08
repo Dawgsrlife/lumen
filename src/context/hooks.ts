@@ -22,6 +22,4 @@ export const useFlow = (): FlowContextType => {
 
 // Convenience hooks
 export const useUser = () => useAppContext().state.user;
-export const useAuth = () => useAppContext().state.auth;
-export const useTheme = () => useAppContext().state.theme;
 export const useError = () => useAppContext().state.error;

@@ -29,7 +29,7 @@ type AppAction =
   | { type: 'SET_USER'; payload: UserSession }
   | { type: 'SET_CURRENT_VIEW'; payload: AppState['currentView'] }
   | { type: 'SET_SHOW_HEADER'; payload: boolean }
-  | { type: 'SET_CURRENT_EMOTION'; payload: EmotionType }
+  | { type: 'SET_CURRENT_EMOTION'; payload: EmotionType | null }
   | { type: 'COMPLETE_GAME' }
   | { type: 'RESET_TO_EMOTION_SELECTION' }
   | { type: 'UPDATE_STREAK'; payload: number }
@@ -227,7 +227,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (todayData.userData) {
           userSession.currentStreak = todayData.userData.currentStreak;
           userSession.weeklyData = todayData.userData.weeklyData;
-          userSession.currentEmotion = todayData.userData.currentEmotion as EmotionType;
+          userSession.currentEmotion = todayData.userData.currentEmotion as EmotionType | null;
           userSession.hasPlayedGameToday = todayData.userData.hasPlayedGameToday;
         }
 

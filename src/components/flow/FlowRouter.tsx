@@ -129,7 +129,11 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
         return (
           <JournalingStep
             selectedEmotion={flowState.selectedEmotion || "happy"}
-            gameCompleted={flowState.gameData?.gameId || undefined}
+            gameCompleted={
+              typeof flowState.gameData?.gameId === 'string' 
+                ? flowState.gameData.gameId 
+                : undefined
+            }
             onComplete={handleJournalingComplete}
             onSkip={() => {
               flowState.actions.completeFlow();

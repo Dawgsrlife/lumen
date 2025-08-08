@@ -26,7 +26,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     "there";
 
   // Check if welcome has already been shown in this session
-  const welcomeShownKey = `lumen-welcome-shown-${user?.id || "anonymous"}`;
+  const welcomeShownKey = `lumen-welcome-session-${user?.id || "anonymous"}`;
 
   useEffect(() => {
     console.log("WelcomeScreen mounted, hasAnimated:", hasAnimated);

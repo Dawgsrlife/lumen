@@ -393,7 +393,7 @@ class DatabaseService {
       emotionEntryId,
       feedback,
       createdAt: new Date()
-    } as unknown);
+    });
   }
 
   // Database Health Check

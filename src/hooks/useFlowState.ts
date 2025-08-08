@@ -7,13 +7,13 @@ import type { UnityGameData, UnityReward } from '../services/unity';
 
 export interface FlowState {
   // App state
-  user: Record<string, unknown>;
+  user: Record<string, unknown> | null;
   isLoading: boolean;
   
   // Flow state
   currentStep: FlowStep;
   selectedEmotion: EmotionType | null;
-  gameData: UnityGameData | null;
+  gameData: Record<string, unknown> | null;
   gameRewards: UnityReward[];
   
   // User flow state
@@ -40,7 +40,7 @@ export const useFlowState = (): FlowState & { actions: FlowActions } => {
   // Memoized state
   const state = useMemo((): FlowState => ({
     // App state
-    user: appState.user,
+    user: appState.user as Record<string, unknown> | null,
     isLoading: appState.isLoading || userFlowState.isLoading,
     
     // Flow state
@@ -70,7 +70,7 @@ export const useFlowState = (): FlowState & { actions: FlowActions } => {
   }, [setEmotion, logEmotion, markEmotionLogged]);
 
   const handleCompleteGame = useCallback((data: UnityGameData) => {
-    setGameData(data);
+    setGameData(data as unknown as Record<string, unknown>);
     completeGame();
     dispatch({ type: 'SET_CURRENT_STEP', payload: 'feedback' });
   }, [setGameData, completeGame, dispatch]);
