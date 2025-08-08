@@ -142,11 +142,27 @@ const Dashboard: React.FC = () => {
     const topEmotions = Object.entries(analytics.emotionDistribution).sort(
       ([, a], [, b]) => b - a
     );
-    const mostRecentEmotion = (topEmotions[0]?.[0] as EmotionType) || "happy";
+
+    // Validate that the emotion is a valid EmotionType
+    const validEmotions = [
+      "happy",
+      "sad",
+      "loneliness",
+      "anxiety",
+      "frustration",
+      "stress",
+      "lethargy",
+      "fear",
+      "grief",
+    ];
+    const candidateEmotion = topEmotions[0]?.[0];
+    const mostRecentEmotion = (
+      validEmotions.includes(candidateEmotion) ? candidateEmotion : "happy"
+    ) as EmotionType;
 
     // Convert weekly progress to boolean array (true if there was activity that day)
     const weeklyData =
-      analytics.weeklyStats.moodTrend.length > 0
+      analytics.weeklyStats?.moodTrend?.length > 0
         ? analytics.weeklyStats.moodTrend.map((trend) => trend.entryCount > 0)
         : [false, false, false, false, false, false, false];
 
@@ -157,9 +173,12 @@ const Dashboard: React.FC = () => {
     }
     const last7Days = paddedWeeklyData.slice(-7);
 
+    // Ensure streak data exists and is valid
+    const currentStreak = analytics.streakData?.current ?? 0;
+
     console.log("Dashboard: Rendering with real data", {
       emotion: mostRecentEmotion,
-      streak: analytics.streakData.current,
+      streak: currentStreak,
       weeklyData: last7Days,
       totalEntries: analytics.totalEntries,
     });
@@ -167,7 +186,7 @@ const Dashboard: React.FC = () => {
     return (
       <DashboardScreen
         selectedEmotion={mostRecentEmotion}
-        currentStreak={analytics.streakData.current}
+        currentStreak={currentStreak}
         weeklyData={last7Days}
       />
     );

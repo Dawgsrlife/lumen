@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
-import { useFlow } from "../../context/hooks";
-import WelcomePage from "../../pages/WelcomePage";
+import React from "react";
+import { AnimatePresence } from "framer-motion";
+import { useFlowState } from "../../hooks/useFlowState";
+import WelcomeScreen from "../WelcomeScreen";
 import EmotionSelectionScreen from "../EmotionSelectionScreen";
 import GamePromptScreen from "../GamePromptScreen";
-import FlowGameSection from "./FlowGameSection";
 import JournalingStep from "../JournalingStep";
-import DashboardScreen from "../DashboardScreen";
+import FlowGameSection from "./FlowGameSection";
 import type { EmotionType } from "../../types";
 
 interface FlowRouterProps {
@@ -13,112 +13,96 @@ interface FlowRouterProps {
 }
 
 const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
-  const { state: flowState, setEmotion, nextStep } = useFlow();
+  const flowState = useFlowState();
 
-  // Handle dashboard step completion
-  useEffect(() => {
-    if (flowState.currentStep === "dashboard") {
-      onComplete();
-    }
-  }, [flowState.currentStep, onComplete]);
+  console.log("FlowRouter: Current step:", flowState.currentStep);
+
+  const handleEmotionSelect = (emotion: EmotionType) => {
+    flowState.actions.selectEmotion(emotion);
+    flowState.actions.setCurrentStep("game-prompt");
+  };
+
+  const handlePlayGame = () => {
+    flowState.actions.setCurrentStep("game");
+  };
+
+  const handleSkipGame = () => {
+    flowState.actions.setCurrentStep("journaling");
+  };
+
+  const handleGameComplete = () => {
+    flowState.actions.setCurrentStep("journaling");
+  };
 
   const renderCurrentStep = () => {
     switch (flowState.currentStep) {
       case "welcome":
-        return <WelcomePage />;
+        return <WelcomeScreen key="welcome" />;
 
       case "emotion-selection":
         return (
           <EmotionSelectionScreen
-            onEmotionSelect={(emotion: EmotionType) => {
-              setEmotion(emotion);
-              nextStep();
-            }}
+            key="emotion-selection"
+            onEmotionSelect={handleEmotionSelect}
           />
         );
 
       case "game-prompt":
+        if (!flowState.selectedEmotion) {
+          // Fallback to emotion selection if no emotion selected
+          return (
+            <EmotionSelectionScreen
+              key="emotion-selection-fallback"
+              onEmotionSelect={handleEmotionSelect}
+            />
+          );
+        }
         return (
           <GamePromptScreen
-            selectedEmotion={
-              (flowState.selectedEmotion as EmotionType) ||
-              ("happy" as EmotionType)
-            }
-            onPlayGame={() => nextStep()}
-            onSkipGame={() => {
-              // Skip to journaling or next appropriate step
-              nextStep();
-            }}
+            key="game-prompt"
+            selectedEmotion={flowState.selectedEmotion}
+            onPlayGame={handlePlayGame}
+            onSkipGame={handleSkipGame}
           />
         );
 
       case "game":
+        if (!flowState.selectedEmotion) {
+          // Fallback to emotion selection if no emotion selected
+          return (
+            <EmotionSelectionScreen
+              key="emotion-selection-fallback"
+              onEmotionSelect={handleEmotionSelect}
+            />
+          );
+        }
         return (
           <FlowGameSection
-            emotion={
-              (flowState.selectedEmotion as EmotionType) ||
-              ("happy" as EmotionType)
-            }
-            onGameComplete={() => nextStep()}
+            key="game"
+            emotion={flowState.selectedEmotion}
+            onGameComplete={handleGameComplete}
             onRewardEarned={() => {}}
-            onSkip={() => nextStep()}
+            onSkip={handleSkipGame}
           />
-        );
-
-      case "game-completion":
-        // Handle game completion - could show results or move to next step
-        return (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Game Completed!</h2>
-              <button
-                onClick={() => nextStep()}
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              >
-                Continue
-              </button>
-            </div>
-          </div>
-        );
-
-      case "feedback":
-        // Handle feedback step
-        return (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Feedback Step</h2>
-              <button
-                onClick={() => nextStep()}
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              >
-                Continue
-              </button>
-            </div>
-          </div>
         );
 
       case "journaling":
-        return <JournalingStep onComplete={() => nextStep()} />;
+        return <JournalingStep key="journaling" onComplete={onComplete} />;
 
-      case "dashboard":
-        return (
-          <DashboardScreen
-            selectedEmotion={
-              (flowState.selectedEmotion as EmotionType) ||
-              ("happy" as EmotionType)
-            }
-            currentStreak={1}
-            weeklyData={[]}
-          />
-        );
+      case "feedback":
+        return <JournalingStep key="feedback" onComplete={onComplete} />;
 
       default:
-        console.warn(`Unknown flow step: ${flowState.currentStep}`);
-        return <WelcomePage />;
+        console.warn("Unknown flow step:", flowState.currentStep);
+        return <WelcomeScreen key="fallback" />;
     }
   };
 
-  return <div className="flow-router">{renderCurrentStep()}</div>;
+  return (
+    <div className="relative z-10 min-h-screen w-full">
+      <AnimatePresence mode="wait">{renderCurrentStep()}</AnimatePresence>
+    </div>
+  );
 };
 
 export default FlowRouter;

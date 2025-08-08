@@ -23,7 +23,6 @@ const AnalyticsContext = createContext<AnalyticsContextType | undefined>(
 
 export { AnalyticsContext };
 export type { AnalyticsContextType };
-export default AnalyticsContext;
 
 interface AnalyticsProviderProps {
   children: ReactNode;

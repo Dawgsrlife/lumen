@@ -1,93 +1,39 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Sparkles, Bot, User } from "lucide-react";
+import { Send, User } from "lucide-react";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
-import { chatbotService } from "../services/chatbot";
-import type { ChatMessage, ChatContext } from "../services/chatbot";
-import { useClerkUser } from "../hooks/useClerkUser";
+import {
+  chatbotService,
+  type ChatMessage,
+  type ChatContext,
+} from "../services/chatbot";
 
-export default function Chat() {
-  const { user } = useClerkUser();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export function Chat() {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      content:
+        "Hi there! I'm Lumi, your friendly wellness companion. I'm here to listen, support, and chat about whatever's on your mind. How are you feeling today? 🌟",
+      timestamp: new Date(),
+    },
+  ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [recentEmotions, setRecentEmotions] = useState([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "end",
-      inline: "nearest",
-    });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    const timer = setTimeout(scrollToBottom, 100);
-    return () => clearTimeout(timer);
+    scrollToBottom();
   }, [messages]);
 
-  // Global keyboard listener for focusing chat input
   useEffect(() => {
-    const handleGlobalKeyPress = (e: KeyboardEvent) => {
-      // Only focus input if:
-      // 1. Enter key is pressed
-      // 2. No modifier keys are held
-      // 3. The target is not already an input/textarea
-      // 4. The input exists and is not already focused
-      if (
-        e.key === "Enter" &&
-        !e.ctrlKey &&
-        !e.altKey &&
-        !e.metaKey &&
-        !(e.target instanceof HTMLInputElement) &&
-        !(e.target instanceof HTMLTextAreaElement) &&
-        inputRef.current &&
-        document.activeElement !== inputRef.current
-      ) {
-        e.preventDefault();
-        inputRef.current.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleGlobalKeyPress);
-    return () => document.removeEventListener("keydown", handleGlobalKeyPress);
+    inputRef.current?.focus();
   }, []);
-
-  useEffect(() => {
-    // Initialize with welcome message
-    const welcomeMessage: ChatMessage = {
-      id: "welcome",
-      role: "assistant",
-      content:
-        "Hi there! I'm Lumi, your AI companion here in Lumen. I'm here to listen, support, and chat with you about anything on your mind. How are you feeling today?",
-      timestamp: new Date(),
-    };
-    setMessages([welcomeMessage]);
-
-    // Fetch user context data
-    fetchUserContext();
-  }, []);
-
-  const fetchUserContext = async () => {
-    try {
-      // In a real app, these would be API calls
-      // For now, we'll use mock data or empty arrays
-      setRecentEmotions([]);
-    } catch (error) {
-      console.error("Failed to fetch user context:", error);
-    }
-  };
-
-  const buildChatContext = (): ChatContext => {
-    return {
-      userAnalytics: undefined, // Type issue - using undefined for now
-      recentEmotions,
-      currentMood: undefined, // Would come from recent emotion entry
-      conversationHistory: messages,
-    };
-  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -104,7 +50,10 @@ export default function Chat() {
     setIsLoading(true);
 
     try {
-      const context = buildChatContext();
+      const context: ChatContext = {
+        conversationHistory: messages.slice(-5),
+      };
+
       const response = await chatbotService.generateResponse(
         inputMessage.trim(),
         context
@@ -119,23 +68,21 @@ export default function Chat() {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
-      console.error("Failed to get chatbot response:", error);
-
+      console.error("Chat error:", error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content:
-          "I'm sorry, I'm having trouble responding right now. But I'm still here to listen whenever you're ready.",
+          "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
         timestamp: new Date(),
       };
-
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -143,386 +90,239 @@ export default function Chat() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-r from-purple-200/20 to-blue-200/20 rounded-full blur-xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, -80, 0],
-            y: [0, 120, 0],
-            rotate: [0, -180, -360],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-1/2 -right-20 w-32 h-32 bg-gradient-to-r from-yellow-200/20 to-orange-200/20 rounded-full blur-xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, 60, 0],
-            y: [0, -60, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-20 left-1/4 w-24 h-24 bg-gradient-to-r from-green-200/20 to-teal-200/20 rounded-full blur-xl"
-        />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      {/* Soft background gradient - matching our app aesthetic */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-radial from-yellow-400/5 via-purple-600/8 to-transparent blur-3xl"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1.2, opacity: 1 }}
+        transition={{ duration: 2, ease: "easeOut" }}
+      />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 lg:px-12">
-        {/* Sophisticated Header */}
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-8">
+        {/* Clean Header */}
         <motion.div
-          initial={{ opacity: 0, y: -30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
-          <div className="inline-flex items-center justify-center mb-6">
-            <motion.div
-              animate={{
-                rotate: [0, 5, -5, 0],
-                scale: [1, 1.05, 1],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="relative"
-            >
-              <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 via-orange-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl shadow-purple-500/25">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xl">
-                  🤖
+          {/* Cute Bunny-Fox Lumi Mascot */}
+          <motion.div
+            className="inline-block mb-6"
+            animate={{
+              y: [-2, 2, -2],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <div className="relative">
+              {/* Main head circle */}
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-300 via-amber-200 to-yellow-300 rounded-full relative shadow-lg">
+                {/* Bunny ears */}
+                <div className="absolute -top-3 left-3 w-3 h-6 bg-gradient-to-t from-orange-300 to-orange-200 rounded-full transform -rotate-12" />
+                <div className="absolute -top-3 right-3 w-3 h-6 bg-gradient-to-t from-orange-300 to-orange-200 rounded-full transform rotate-12" />
+                {/* Inner ears */}
+                <div className="absolute -top-2 left-4 w-1.5 h-3 bg-pink-200 rounded-full transform -rotate-12" />
+                <div className="absolute -top-2 right-4 w-1.5 h-3 bg-pink-200 rounded-full transform rotate-12" />
+
+                {/* Face features */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative">
+                    {/* Eyes */}
+                    <div className="flex items-center space-x-2 mb-1">
+                      <div className="w-2 h-2 bg-gray-800 rounded-full" />
+                      <div className="w-2 h-2 bg-gray-800 rounded-full" />
+                    </div>
+                    {/* Nose */}
+                    <div className="w-1 h-1 bg-pink-400 rounded-full mx-auto mb-1" />
+                    {/* Smile */}
+                    <div className="w-3 h-1.5 border-b-2 border-gray-600 rounded-b-full mx-auto" />
+                  </div>
                 </div>
+
+                {/* Fox tail curl (small) */}
+                <div className="absolute -right-2 top-1 w-3 h-3 bg-gradient-to-br from-orange-400 to-amber-300 rounded-full" />
               </div>
+
+              {/* Soft glow */}
               <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full blur-lg scale-125"
                 animate={{
-                  scale: [0.8, 1.2, 0.8],
-                  opacity: [0.3, 0.7, 0.3],
+                  opacity: [0.3, 0.6, 0.3],
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-500 to-purple-600 rounded-full blur-md"
               />
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
 
-          <h1 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-800 via-purple-700 to-blue-800 bg-clip-text text-transparent mb-4">
+          <h1
+            className="text-3xl md:text-4xl font-light text-gray-900 mb-4 leading-tight tracking-tight"
+            style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+          >
             Chat with Lumi
           </h1>
-          <p className="text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
-            Your compassionate AI companion, here to listen, understand, and
-            support you on your wellness journey
+          <p className="text-lg text-gray-600 font-light">
+            Your compassionate AI companion
           </p>
         </motion.div>
 
-        {/* Main Chat Container */}
+        {/* Clean Chat Container */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-5xl mx-auto"
+          className="bg-white/60 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg overflow-hidden"
         >
-          <div className="relative bg-white/40 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl shadow-slate-900/10 overflow-hidden">
-            {/* Chat Header Bar */}
-            <div className="flex items-center justify-between p-6 border-b border-white/20 bg-white/20">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 bg-red-400 rounded-full shadow-sm" />
-                <div className="w-3 h-3 bg-yellow-400 rounded-full shadow-sm" />
-                <div className="w-3 h-3 bg-green-400 rounded-full shadow-sm" />
-              </div>
-              <div className="flex items-center space-x-2 text-slate-700">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-sm font-medium">Lumi is online</span>
-              </div>
-            </div>
+          {/* Messages Area */}
+          <div className="h-[500px] overflow-y-auto p-6 space-y-4">
+            <AnimatePresence mode="popLayout">
+              {messages.map((message, index) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className={`flex ${
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`flex items-start space-x-3 max-w-[80%] ${
+                      message.role === "user"
+                        ? "flex-row-reverse space-x-reverse"
+                        : ""
+                    }`}
+                  >
+                    {/* Avatar */}
+                    <div className="flex-shrink-0 mt-1">
+                      {message.role === "user" ? (
+                        <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 bg-gradient-to-br from-orange-300 to-yellow-300 rounded-full flex items-center justify-center relative">
+                          {/* Mini bunny ears */}
+                          <div className="absolute -top-1 left-1.5 w-1 h-2 bg-orange-300 rounded-full transform -rotate-12" />
+                          <div className="absolute -top-1 right-1.5 w-1 h-2 bg-orange-300 rounded-full transform rotate-12" />
+                          {/* Simple face */}
+                          <div className="text-xs">🦊</div>
+                        </div>
+                      )}
+                    </div>
 
-            {/* Messages Container */}
-            <div className="h-[600px] flex flex-col">
-              {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6 scrollbar-thin scrollbar-thumb-slate-300/50 scrollbar-track-transparent">
-                <AnimatePresence mode="popLayout">
-                  {messages.map((message, index) => (
-                    <motion.div
-                      key={message.id}
-                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                      transition={{
-                        duration: 0.4,
-                        delay: index * 0.1,
-                        ease: "easeOut",
-                      }}
-                      className={`flex ${
+                    {/* Message Bubble */}
+                    <div
+                      className={`px-4 py-3 rounded-2xl ${
                         message.role === "user"
-                          ? "justify-end"
-                          : "justify-start"
+                          ? "bg-gradient-to-r from-yellow-400 to-purple-600 text-white"
+                          : "bg-white/80 text-gray-800 border border-gray-200"
                       }`}
                     >
-                      <div
-                        className={`flex items-end space-x-3 max-w-[85%] ${
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                        {message.content}
+                      </p>
+                      <span
+                        className={`text-xs mt-2 block ${
                           message.role === "user"
-                            ? "flex-row-reverse space-x-reverse"
-                            : ""
+                            ? "text-white/70"
+                            : "text-gray-500"
                         }`}
                       >
-                        {/* Avatar */}
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.2 }}
-                          className="flex-shrink-0"
-                        >
-                          {message.role === "user" ? (
-                            <div className="relative">
-                              <img
-                                src={user?.imageUrl || ""}
-                                alt="You"
-                                className="w-10 h-10 rounded-full object-cover shadow-lg border-2 border-white/50"
-                              />
-                              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                <User className="w-2 h-2 text-white" />
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="relative">
-                              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 via-orange-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white text-sm">
-                                  🤖
-                                </div>
-                              </div>
-                              <motion.div
-                                animate={{
-                                  scale: [1, 1.2, 1],
-                                  opacity: [0.5, 0.8, 0.5],
-                                }}
-                                transition={{
-                                  duration: 2,
-                                  repeat: Infinity,
-                                  ease: "easeInOut",
-                                }}
-                                className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center"
-                              >
-                                <Bot className="w-2 h-2 text-white" />
-                              </motion.div>
-                            </div>
-                          )}
-                        </motion.div>
-
-                        {/* Message Bubble */}
-                        <motion.div
-                          whileHover={{ scale: 1.02 }}
-                          transition={{ duration: 0.2 }}
-                          className={`relative group ${
-                            message.role === "user"
-                              ? "bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-xl shadow-slate-900/25"
-                              : "bg-white/80 backdrop-blur-sm text-slate-800 shadow-lg shadow-slate-500/10 border border-white/30"
-                          } rounded-2xl px-6 py-4 max-w-md`}
-                        >
-                          {/* Message Content */}
-                          <div className="relative z-10">
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                              {message.content}
-                            </p>
-                            <div className="flex items-center justify-between mt-3">
-                              <span
-                                className={`text-xs ${
-                                  message.role === "user"
-                                    ? "text-slate-300"
-                                    : "text-slate-500"
-                                } font-medium`}
-                              >
-                                {message.timestamp.toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </span>
-                              {message.role === "assistant" && (
-                                <motion.div
-                                  animate={{
-                                    rotate: [0, 10, -10, 0],
-                                  }}
-                                  transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut",
-                                  }}
-                                >
-                                  <Sparkles className="w-3 h-3 text-yellow-500" />
-                                </motion.div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Message Glow Effect */}
-                          <div
-                            className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                              message.role === "user"
-                                ? "bg-gradient-to-br from-slate-700/20 to-slate-900/20"
-                                : "bg-gradient-to-br from-white/30 to-white/10"
-                            }`}
-                          />
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-
-                {/* Typing Indicator */}
-                {isLoading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="flex justify-start"
-                  >
-                    <div className="flex items-end space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 via-orange-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                        <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white text-sm">
-                          🤖
-                        </div>
-                      </div>
-                      <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg border border-white/30">
-                        <div className="flex space-x-1">
-                          <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{
-                              duration: 0.6,
-                              repeat: Infinity,
-                              delay: 0,
-                            }}
-                            className="w-2 h-2 bg-slate-400 rounded-full"
-                          />
-                          <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{
-                              duration: 0.6,
-                              repeat: Infinity,
-                              delay: 0.2,
-                            }}
-                            className="w-2 h-2 bg-slate-400 rounded-full"
-                          />
-                          <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{
-                              duration: 0.6,
-                              repeat: Infinity,
-                              delay: 0.4,
-                            }}
-                            className="w-2 h-2 bg-slate-400 rounded-full"
-                          />
-                        </div>
-                      </div>
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
                     </div>
-                  </motion.div>
-                )}
-
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Input Area */}
-              <div className="border-t border-white/20 bg-white/20 backdrop-blur-sm p-6">
-                <div className="flex items-end space-x-4">
-                  <div className="flex-1 relative">
-                    <motion.input
-                      ref={inputRef}
-                      type="text"
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyDown={handleInputKeyDown}
-                      placeholder="Share what's on your mind... Lumi is here to listen"
-                      className="w-full px-6 py-4 bg-white/60 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300 text-slate-800 placeholder-slate-500 shadow-lg resize-none"
-                      disabled={isLoading}
-                      whileFocus={{ scale: 1.02 }}
-                      transition={{ duration: 0.2 }}
-                    />
-
-                    {/* Input Enhancement Indicator */}
-                    <motion.div
-                      animate={{
-                        opacity: inputMessage.trim() ? 1 : 0,
-                        scale: inputMessage.trim() ? 1 : 0.8,
-                      }}
-                      className="absolute right-16 top-1/2 transform -translate-y-1/2"
-                    >
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    </motion.div>
                   </div>
-
-                  <motion.button
-                    onClick={handleSendMessage}
-                    disabled={!inputMessage.trim() || isLoading}
-                    className="relative group p-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 overflow-hidden"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <motion.div
-                      animate={isLoading ? { rotate: 360 } : {}}
-                      transition={{
-                        duration: 1,
-                        repeat: isLoading ? Infinity : 0,
-                      }}
-                    >
-                      {isLoading ? (
-                        <LoadingSpinner size="sm" />
-                      ) : (
-                        <Send className="w-5 h-5" />
-                      )}
-                    </motion.div>
-
-                    {/* Button Glow Effect */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 opacity-0 group-hover:opacity-30 transition-opacity duration-300 rounded-2xl"
-                      animate={{
-                        scale: [1, 1.1, 1],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-                  </motion.button>
-                </div>
-
-                {/* Help Text */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                  className="mt-4 text-center"
-                >
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Press Enter to send • Lumi responds with empathy and
-                    understanding •
-                    <span className="text-purple-600 font-medium">
-                      {" "}
-                      All conversations are private and secure
-                    </span>
-                  </p>
                 </motion.div>
-              </div>
+              ))}
+            </AnimatePresence>
+
+            {/* Typing Indicator */}
+            {isLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex justify-start"
+              >
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-orange-300 to-yellow-300 rounded-full flex items-center justify-center relative mt-1">
+                    <div className="absolute -top-1 left-1.5 w-1 h-2 bg-orange-300 rounded-full transform -rotate-12" />
+                    <div className="absolute -top-1 right-1.5 w-1 h-2 bg-orange-300 rounded-full transform rotate-12" />
+                    <div className="text-xs">🦊</div>
+                  </div>
+                  <div className="bg-white/80 px-4 py-3 rounded-2xl border border-gray-200">
+                    <div className="flex space-x-1">
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: Infinity,
+                          delay: 0,
+                        }}
+                        className="w-2 h-2 bg-gray-400 rounded-full"
+                      />
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: Infinity,
+                          delay: 0.2,
+                        }}
+                        className="w-2 h-2 bg-gray-400 rounded-full"
+                      />
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: Infinity,
+                          delay: 0.4,
+                        }}
+                        className="w-2 h-2 bg-gray-400 rounded-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input Area */}
+          <div className="border-t border-gray-200 p-4 bg-white/40">
+            <div className="flex items-center space-x-3">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={handleInputKeyDown}
+                placeholder="Type a message..."
+                disabled={isLoading}
+                className="flex-1 px-4 py-3 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-transparent text-gray-900 placeholder-gray-500"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isLoading}
+                className="px-4 py-3 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
         </motion.div>
@@ -530,3 +330,5 @@ export default function Chat() {
     </div>
   );
 }
+
+export default Chat;

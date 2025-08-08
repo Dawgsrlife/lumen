@@ -2,7 +2,35 @@ import React from "react";
 import { motion } from "framer-motion";
 import type { EmotionType } from "../types";
 
-// Premium emotion data with sophisticated styling
+// Random motivational dashboard messages
+const dashboardMessages = [
+  "Every moment is a fresh beginning ✨",
+  "Your mindful journey continues 🌸",
+  "Progress, not perfection 🌱",
+  "Small steps, big impact 💫",
+  "Your growth is beautiful to witness 🌺",
+  "Consistency creates magic ⭐",
+  "You're exactly where you need to be 🦋",
+  "Breathe deeply, you've got this 🌊",
+  "Your self-care matters 💝",
+  "Today brings new possibilities 🌅",
+  "You're building something wonderful 🏗️",
+  "Inner peace is your superpower 🧘‍♀️",
+  "Your emotional awareness is growing 📈",
+  "Kindness to yourself is revolutionary 💕",
+  "You're creating positive change 🌟",
+];
+
+// Function to get a consistent random message for the day
+const getDailyMessage = (): string => {
+  const today = new Date().toDateString();
+  const hash = today.split("").reduce((a, b) => {
+    a = (a << 5) - a + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  const index = Math.abs(hash) % dashboardMessages.length;
+  return dashboardMessages[index];
+};
 const emotionData: Record<
   EmotionType,
   {
@@ -382,7 +410,31 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   currentStreak,
   weeklyData,
 }) => {
-  const emotion = emotionData[selectedEmotion];
+  // Debug logging
+  console.log("DashboardScreen props:", {
+    selectedEmotion,
+    currentStreak,
+    weeklyData,
+  });
+
+  // Safety check for emotion data
+  const emotion = emotionData[selectedEmotion] || emotionData.happy;
+  const dailyMessage = getDailyMessage();
+
+  // Safety check for weeklyData
+  const safeWeeklyData = Array.isArray(weeklyData)
+    ? weeklyData
+    : [false, false, false, false, false, false, false];
+
+  // Safety check for currentStreak
+  const safeCurrentStreak =
+    typeof currentStreak === "number" ? currentStreak : 0;
+
+  console.log("DashboardScreen safe values:", {
+    emotion: emotion?.label,
+    safeCurrentStreak,
+    safeWeeklyData,
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
@@ -393,38 +445,29 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       {/* Mascot removed for cleaner interface */}
 
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-20">
-        {/* Sophisticated Header */}
+        {/* Daily Message Header */}
         <motion.div
           className="text-center mb-20"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <motion.h1
-            className="text-6xl lg:text-7xl font-light text-slate-900 mb-6 tracking-tight leading-tight"
+          <motion.p
+            className="text-2xl md:text-3xl text-slate-600 font-light leading-relaxed max-w-2xl mx-auto tracking-wide"
             style={{ fontFamily: "Playfair Display, Georgia, serif" }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
-            Welcome back
-          </motion.h1>
+            {dailyMessage}
+          </motion.p>
 
           <motion.div
-            className="w-24 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto mb-8"
+            className="w-24 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto mt-8"
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 96, opacity: 1 }}
             transition={{ delay: 0.4, duration: 1.2, ease: "easeOut" }}
           />
-
-          <motion.p
-            className="text-xl text-slate-600 font-light leading-relaxed max-w-2xl mx-auto tracking-wide"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-          >
-            Your mindful sanctuary awaits
-          </motion.p>
         </motion.div>
 
         {/* Premium Three-Card Layout */}
@@ -501,7 +544,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             transition={{ delay: 1.0, duration: 0.8, ease: "easeOut" }}
             whileHover={{ y: -8, transition: { duration: 0.3 } }}
           >
-            <WeeklyProgress weeklyData={weeklyData} />
+            <WeeklyProgress weeklyData={safeWeeklyData} />
           </motion.div>
 
           {/* Streak Card - Elite Design */}
@@ -521,7 +564,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             >
               Your Dedication
             </motion.h3>
-            <StreakCounter currentStreak={currentStreak} />
+            <StreakCounter currentStreak={safeCurrentStreak} />
           </motion.div>
         </div>
 
