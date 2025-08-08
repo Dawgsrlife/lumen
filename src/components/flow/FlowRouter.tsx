@@ -27,8 +27,12 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
   };
 
   const handleEmotionSelected = (emotion: EmotionType) => {
-    console.log("Emotion selected:", emotion);
+    console.log("🎯 FlowRouter - Emotion selected:", emotion);
     flowState.actions.selectEmotion(emotion);
+    console.log(
+      "🎯 FlowRouter - Flow state after emotion selection:",
+      flowState.selectedEmotion
+    );
     // Don't auto-advance to game - go to game-prompt first
     flowState.actions.setCurrentStep("game-prompt");
   };
@@ -45,8 +49,8 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
       grief: "memorylantern",
       lethargy: "rythmgrow",
       anger: "boxbreathing",
-      happy: "colorbloom",
-      loneliness: "memorylantern",
+      happy: "rythmgrow", // Fixed: should be rythmgrow not colorbloom
+      loneliness: "colorbloom", // Fixed: should be colorbloom not memorylantern
       fear: "boxbreathing",
     };
 
@@ -114,6 +118,10 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
         );
 
       case "game":
+        console.log(
+          "🎮 FlowRouter - Rendering game section with emotion:",
+          flowState.selectedEmotion
+        );
         return (
           <FlowGameSection
             emotion={flowState.selectedEmotion || "happy"}

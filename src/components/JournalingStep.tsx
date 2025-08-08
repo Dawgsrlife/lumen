@@ -114,9 +114,6 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
           <p className="text-gray-600 mb-2">
             Take a moment to reflect on your experience.
           </p>
-          <p className="text-sm text-gray-500 italic">
-            💡 Responses may take 5-10 seconds to save due to our database setup
-          </p>
         </div>
 
         {/* Journal Input */}

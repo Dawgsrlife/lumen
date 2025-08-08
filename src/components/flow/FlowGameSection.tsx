@@ -155,10 +155,17 @@ const FlowGameSection: React.FC<FlowGameSectionProps> = ({
 }) => {
   const [showInstructions, setShowInstructions] = useState(true);
 
+  // Debug logging for emotion and game mapping
+  console.log("🎮 FlowGameSection - Emotion received:", emotion);
+
   const gameConfig = emotionToGame[emotion];
+  console.log("🎮 FlowGameSection - Game config:", gameConfig);
+
   const instructions = gameConfig
     ? gameInstructions[gameConfig.gameName]
     : null;
+
+  console.log("🎮 FlowGameSection - Instructions:", instructions);
 
   if (!gameConfig) {
     return (

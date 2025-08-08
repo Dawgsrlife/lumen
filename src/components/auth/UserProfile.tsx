@@ -20,14 +20,30 @@ export const UserProfile: React.FC = () => {
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
+    console.log("🔄 UserProfile: Starting sign out process...");
     setIsSigningOut(true);
     try {
+      console.log("📤 UserProfile: Calling Clerk signOut...");
       await signOut();
-      navigate("/landing");
+      console.log(
+        "✅ UserProfile: Sign out successful, navigating to landing..."
+      );
+
+      // Clear any localStorage data that might interfere
+      const userKey = user?.id ? `lumen-welcome-shown-${user.id}` : null;
+      if (userKey) {
+        localStorage.removeItem(userKey);
+      }
+
+      // Force navigation to landing page
+      navigate("/landing", { replace: true });
     } catch (error) {
-      console.error("Sign out error:", error);
+      console.error("❌ UserProfile: Sign out error:", error);
+      // Even if signOut fails, try to navigate to landing
+      navigate("/landing", { replace: true });
     } finally {
       setIsSigningOut(false);
+      console.log("🏁 UserProfile: Sign out process completed");
     }
   };
 

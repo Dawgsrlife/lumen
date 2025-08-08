@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Unity, useUnityContext } from "react-unity-webgl";
-import { Button, LoadingSpinner } from "../ui";
+import { LoadingSpinner } from "../ui";
 import type { UnityGameData, UnityReward } from "../../services/unity";
 
 interface UnityGameProps {
@@ -20,6 +20,67 @@ interface UnityGameProps {
   className?: string;
 }
 
+// Game theme configurations for sophisticated styling
+const gameThemes: Record<
+  string,
+  {
+    gradient: string;
+    accentColor: string;
+    bgPattern: string;
+    icon: string;
+    completionMessage: string;
+  }
+> = {
+  colorbloom: {
+    gradient: "from-pink-400 via-rose-300 to-orange-300",
+    accentColor: "text-rose-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_30%_20%,rgba(251,113,133,0.1),transparent_50%)]",
+    icon: "🌸",
+    completionMessage: "Beautiful blooms flourish from your care",
+  },
+  rythmgrow: {
+    gradient: "from-green-400 via-emerald-300 to-teal-300",
+    accentColor: "text-emerald-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_70%_30%,rgba(52,211,153,0.1),transparent_50%)]",
+    icon: "🌳",
+    completionMessage: "Your rhythm nurtures growth and vitality",
+  },
+  boxbreathing: {
+    gradient: "from-blue-400 via-cyan-300 to-sky-300",
+    accentColor: "text-blue-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]",
+    icon: "🫁",
+    completionMessage: "Peace flows through your mindful breathing",
+  },
+  memorylantern: {
+    gradient: "from-amber-400 via-yellow-300 to-orange-300",
+    accentColor: "text-amber-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_20%_80%,rgba(245,158,11,0.1),transparent_50%)]",
+    icon: "🏮",
+    completionMessage: "Your memories shine with loving light",
+  },
+  balancingact: {
+    gradient: "from-slate-400 via-gray-300 to-stone-300",
+    accentColor: "text-slate-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_60%_40%,rgba(100,116,139,0.1),transparent_50%)]",
+    icon: "🪨",
+    completionMessage: "Balance restored through patient practice",
+  },
+  default: {
+    gradient: "from-indigo-400 via-purple-300 to-pink-300",
+    accentColor: "text-indigo-600",
+    bgPattern:
+      "bg-[radial-gradient(circle_at_40%_60%,rgba(129,140,248,0.1),transparent_50%)]",
+    icon: "✨",
+    completionMessage: "Journey completed with mindful presence",
+  },
+};
+
 const UnityGame: React.FC<UnityGameProps> = ({
   gameId,
   gameTitle,
@@ -30,6 +91,10 @@ const UnityGame: React.FC<UnityGameProps> = ({
   onRewardEarned,
 }) => {
   const [gameData, setGameData] = useState<UnityGameData | null>(null);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
+
+  // Get theme for current game
+  const theme = gameThemes[gameName || "default"] || gameThemes.default;
 
   // Initialize Unity context with proper URLs and game parameter
   const {
@@ -48,6 +113,29 @@ const UnityGame: React.FC<UnityGameProps> = ({
   });
 
   const [error, setError] = useState<string | null>(null);
+
+  // Enhanced loading error detection
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isLoaded && loadingProgression === 0) {
+        setLoadingError(
+          "Game files may not be loading correctly. Check console for network errors."
+        );
+        console.error(
+          "Unity loading timeout - files may be missing or inaccessible:",
+          {
+            buildUrl,
+            loaderUrl: `${buildUrl}/Builds.loader.js`,
+            dataUrl: `${buildUrl}/Builds.data.br`,
+            frameworkUrl: `${buildUrl}/Builds.framework.js.br`,
+            codeUrl: `${buildUrl}/Builds.wasm.br`,
+          }
+        );
+      }
+    }, 10000); // 10 second timeout
+
+    return () => clearTimeout(timer);
+  }, [isLoaded, loadingProgression, buildUrl]);
 
   // Handle game start event
   const handleGameStart = useCallback(() => {
@@ -84,6 +172,61 @@ const UnityGame: React.FC<UnityGameProps> = ({
   // Handle Unity loaded event
   const handleLoaded = useCallback(() => {
     setError(null);
+  }, []);
+
+  // Inject custom CSS for Unity UI styling
+  useEffect(() => {
+    const styleId = "unity-ui-custom-styles";
+
+    // Remove existing style if any
+    const existingStyle = document.getElementById(styleId);
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+
+    // Create and inject new styles
+    const style = document.createElement("style");
+    style.id = styleId;
+    style.textContent = `
+      /* Custom Unity UI Styling */
+      canvas {
+        border-radius: 12px !important;
+      }
+      
+      /* Try to target Unity's internal UI elements through canvas interaction */
+      #unity-container button,
+      .unity-canvas button,
+      canvas + div button {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px !important;
+        color: white !important;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+        font-weight: 500 !important;
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      }
+      
+      #unity-container button:hover,
+      .unity-canvas button:hover,
+      canvas + div button:hover {
+        background: linear-gradient(135deg, #334155 0%, #475569 100%) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+      }
+    `;
+
+    document.head.appendChild(style);
+
+    // Cleanup on unmount
+    return () => {
+      const styleElement = document.getElementById(styleId);
+      if (styleElement) {
+        styleElement.remove();
+      }
+    };
   }, []);
 
   // Setup event listeners including error handling
@@ -188,86 +331,241 @@ const UnityGame: React.FC<UnityGameProps> = ({
 
   return (
     <div className="w-full">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        {/* Game Canvas - More compact */}
-        <div className="relative bg-gray-900 overflow-hidden">
-          <Unity
-            unityProvider={unityProvider}
-            style={{
-              width: "100%",
-              height: "500px", // Reduced from 720px
-              maxWidth: "100%",
-              aspectRatio: "16/10", // More widescreen friendly
-              backgroundColor: "#000000",
+      {/* Sophisticated Game Container with Dynamic Theming */}
+      <motion.div
+        className="relative bg-gradient-to-br from-white/95 via-white/90 to-white/85 backdrop-blur-2xl rounded-[2.5rem] border border-white/50 shadow-2xl shadow-slate-900/10 overflow-hidden"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        {/* Dynamic background pattern based on game theme */}
+        <div className={`absolute inset-0 ${theme.bgPattern}`} />
+
+        {/* Subtle gradient overlay */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${theme.gradient} opacity-5`}
+        />
+
+        {/* Premium Game Header */}
+        <motion.div
+          className="relative p-8 text-center border-b border-white/30"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        >
+          <motion.div
+            className="text-4xl mb-4"
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0],
             }}
-          />
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            {theme.icon}
+          </motion.div>
 
-          {/* Loading Overlay */}
-          {!isLoaded && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <div className="text-center">
-                <LoadingSpinner size="lg" />
-                <p className="text-white mt-4">
-                  Loading {gameTitle}... {Math.round(loadingProgression * 100)}%
-                </p>
-              </div>
-            </div>
-          )}
+          <h1
+            className={`text-3xl font-light mb-2 tracking-wide ${theme.accentColor}`}
+            style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+          >
+            {gameTitle}
+          </h1>
 
-          {/* Error Overlay */}
-          {error && (
-            <div className="absolute inset-0 bg-red-900/50 flex items-center justify-center">
-              <div className="text-center text-white p-4">
-                <div className="text-2xl mb-2">⚠️</div>
-                <p className="font-semibold">Unity Loading Error</p>
-                <p className="text-sm mt-2 max-w-md">
-                  Unable to load the game. Please try refreshing the page.
-                </p>
-                <Button
-                  onClick={() => {
-                    setError(null);
-                    window.location.reload();
-                  }}
-                  className="mt-4"
-                  variant="outline"
+          <div className="w-16 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto" />
+        </motion.div>
+
+        {/* Enhanced Game Canvas Container */}
+        <div className="relative">
+          <motion.div
+            className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
+            <Unity
+              unityProvider={unityProvider}
+              style={{
+                width: "100%",
+                height: "600px",
+                maxWidth: "100%",
+                aspectRatio: "16/9",
+                backgroundColor: "#0f172a",
+              }}
+            />
+
+            {/* Sophisticated Loading Overlay */}
+            <AnimatePresence>
+              {!isLoaded && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-sm flex items-center justify-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  Retry
-                </Button>
-              </div>
-            </div>
-          )}
+                  <div className="text-center max-w-md px-8">
+                    <motion.div
+                      className="relative mb-8"
+                      animate={{
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 180, 360],
+                      }}
+                      transition={{
+                        duration: 2.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <LoadingSpinner size="lg" />
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-r ${theme.gradient} opacity-20 rounded-full blur-xl scale-150`}
+                      />
+                    </motion.div>
 
-          {/* Game Controls Overlay */}
-          {isLoaded && (
-            <div className="absolute top-4 right-4 flex gap-2">
-              <Button
-                onClick={handleFullscreen}
-                size="sm"
-                variant="outline"
-                className="bg-black/50 text-white border-white/20 hover:bg-black/70"
-              >
-                ⛶ Fullscreen
-              </Button>
-              <Button
-                onClick={() => {
-                  handleStopGame();
-                  if (onGameComplete) {
-                    onGameComplete({
-                      gameId: gameId,
-                      score: 0,
-                      duration: 0,
-                      achievements: [],
-                    });
-                  }
-                }}
-                size="sm"
-                variant="outline"
-                className="bg-red-600/50 text-white border-red-400/20 hover:bg-red-600/70"
-              >
-                Stop
-              </Button>
-            </div>
-          )}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <h3
+                        className="text-2xl font-light text-white mb-4 tracking-wide"
+                        style={{
+                          fontFamily: "Playfair Display, Georgia, serif",
+                        }}
+                      >
+                        Preparing {gameTitle}
+                      </h3>
+
+                      <div className="flex items-center justify-center gap-4 mb-6">
+                        <div className="w-48 h-2 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur-sm">
+                          <motion.div
+                            className={`h-full bg-gradient-to-r ${theme.gradient} rounded-full`}
+                            style={{ width: `${loadingProgression * 100}%` }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        </div>
+                        <span className="text-slate-300 text-sm font-medium min-w-[3rem]">
+                          {Math.round(loadingProgression * 100)}%
+                        </span>
+                      </div>
+
+                      <p className="text-slate-400 text-sm font-light leading-relaxed">
+                        Creating your mindful sanctuary...
+                      </p>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Enhanced Error Overlay */}
+            <AnimatePresence>
+              {(error || loadingError) && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-br from-red-900/95 via-red-800/95 to-red-900/95 backdrop-blur-sm flex items-center justify-center"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="text-center text-white p-8 max-w-md">
+                    <motion.div
+                      className="text-6xl mb-6"
+                      animate={{
+                        scale: [1, 1.1, 1],
+                        rotate: [0, -5, 5, 0],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      ⚠️
+                    </motion.div>
+
+                    <h3
+                      className="text-2xl font-light mb-4 tracking-wide"
+                      style={{
+                        fontFamily: "Playfair Display, Georgia, serif",
+                      }}
+                    >
+                      Game Loading Issue
+                    </h3>
+
+                    <p className="text-red-200 text-sm mb-6 leading-relaxed">
+                      {error || loadingError}
+                    </p>
+
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => {
+                          setError(null);
+                          setLoadingError(null);
+                          window.location.reload();
+                        }}
+                        className="w-full px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-all duration-300 backdrop-blur-sm"
+                      >
+                        Retry Game
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          if (onGameComplete) {
+                            onGameComplete({
+                              gameId: gameId,
+                              score: 0,
+                              duration: 0,
+                              achievements: [],
+                            });
+                          }
+                        }}
+                        className="w-full px-6 py-3 bg-transparent hover:bg-white/5 border border-white/10 rounded-xl font-light transition-all duration-300"
+                      >
+                        Skip Game
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-red-300 mt-4 opacity-70">
+                      Check browser console for technical details
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Game Controls Overlay */}
+            {isLoaded && (
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button
+                  onClick={handleFullscreen}
+                  className="px-3 py-2 bg-black/50 text-white border border-white/20 rounded-lg text-sm hover:bg-black/70 transition-all duration-300"
+                >
+                  ⛶ Fullscreen
+                </button>
+                <button
+                  onClick={() => {
+                    handleStopGame();
+                    if (onGameComplete) {
+                      onGameComplete({
+                        gameId: gameId,
+                        score: 0,
+                        duration: 0,
+                        achievements: [],
+                      });
+                    }
+                  }}
+                  className="px-3 py-2 bg-red-600/50 text-white border border-red-400/20 rounded-lg text-sm hover:bg-red-600/70 transition-all duration-300"
+                >
+                  Stop
+                </button>
+              </div>
+            )}
+          </motion.div>
         </div>
 
         {/* Game Controls */}
@@ -281,7 +579,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
                     "linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)",
                 }}
               >
-                <Button
+                <button
                   onClick={() =>
                     onGameComplete &&
                     onGameComplete({
@@ -291,11 +589,10 @@ const UnityGame: React.FC<UnityGameProps> = ({
                       achievements: gameData?.achievements || [],
                     })
                   }
-                  size="lg"
-                  className="bg-transparent text-white font-semibold border-0 shadow-lg hover:shadow-xl cursor-pointer relative z-10"
+                  className="px-8 py-3 bg-transparent text-white font-semibold border-0 shadow-lg hover:shadow-xl cursor-pointer relative z-10 transition-all duration-300"
                 >
                   Finish
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -347,7 +644,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
             </div>
           </motion.div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

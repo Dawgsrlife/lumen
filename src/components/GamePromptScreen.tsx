@@ -83,7 +83,7 @@ const emotionData: Record<
     },
   },
   frustration: {
-    emoji: "",
+    emoji: "😤",
     label: "Frustration",
     encouragingMessage:
       "Frustration can be exhausting. Let's find some relief together.",
@@ -145,72 +145,84 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
   const emotion = emotionData[selectedEmotion];
 
   return (
-    <motion.div
-      className="w-full min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-br from-gray-50 via-white to-gray-100"
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -50 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="text-center max-w-md">
-        {/* Emotion Display */}
-        <motion.div
-          className="mb-8"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <div className="text-6xl mb-4">{emotion.emoji}</div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-            {emotion.label}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {emotion.encouragingMessage}
-          </p>
-        </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.05),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.8),transparent_50%)]" />
 
-        {/* Simple Game Info */}
-        <motion.div
-          className="bg-white rounded-xl p-6 mb-8 border border-gray-200 shadow-sm"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="text-lg">🎮</span>
-            <span className="font-medium text-gray-900">Calming Activity</span>
-          </div>
-          <div className="text-sm text-gray-600 space-y-1">
-            <p>
-              {emotion.gameInfo.duration} • {emotion.gameInfo.difficulty}
-            </p>
-            <p className="text-xs">{emotion.gameInfo.benefits.join(", ")}</p>
-          </div>
-        </motion.div>
-
-        {/* Clean Action Buttons */}
-        <motion.div
-          className="space-y-3"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-        >
-          <button
-            onClick={onPlayGame}
-            className="w-full px-6 py-4 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 cursor-pointer"
+      {/* Main Content */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-6">
+        <div className="text-center max-w-2xl mx-auto">
+          {/* Emotion Display */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.8,
+              ease: [0.23, 1, 0.32, 1],
+              delay: 0.2,
+            }}
           >
-            Start Activity
-          </button>
+            <div className="text-6xl mb-8">{emotion.emoji}</div>
+            <h2
+              className="text-xl md:text-2xl font-light text-gray-600 mb-12 leading-relaxed tracking-wide max-w-lg mx-auto"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+            >
+              {emotion.encouragingMessage}
+            </h2>
+          </motion.div>
 
-          <button
-            onClick={onSkipGame}
-            className="w-full px-6 py-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 cursor-pointer"
+          {/* Simple Question */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.8,
+              ease: [0.23, 1, 0.32, 1],
+              delay: 0.4,
+            }}
           >
-            Skip for now
-          </button>
-        </motion.div>
+            <h1
+              className="text-2xl md:text-3xl font-light text-gray-800 mb-16 leading-tight tracking-wide"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+            >
+              Ready for a mindful moment?
+            </h1>
+          </motion.div>
+
+          {/* Action Buttons */}
+          <motion.div
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.8,
+              ease: [0.23, 1, 0.32, 1],
+              delay: 0.6,
+            }}
+          >
+            <motion.button
+              onClick={onPlayGame}
+              className="px-8 py-3 bg-gradient-to-r from-slate-800 to-slate-700 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300 min-w-[160px]"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Begin Journey
+            </motion.button>
+
+            <motion.button
+              onClick={onSkipGame}
+              className="px-8 py-3 bg-white/80 text-slate-600 font-light border border-slate-200 rounded-full hover:bg-white hover:border-slate-300 transition-all duration-300 min-w-[160px] backdrop-blur-sm"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Skip for now
+            </motion.button>
+          </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

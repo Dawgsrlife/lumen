@@ -20,7 +20,9 @@ const Analytics: React.FC = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState<
     "7days" | "month" | "3months" | "alltime"
   >("7days");
-  const [analytics, setAnalytics] = useState<Partial<UserAnalytics> | null>(null);
+  const [analytics, setAnalytics] = useState<Partial<UserAnalytics> | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [currentStreak, setCurrentStreak] = useState<number>(0);
   const [moodData, setMoodData] = useState<
@@ -105,7 +107,7 @@ const Analytics: React.FC = () => {
         });
 
         const allEntries = journalResponse.entries;
-        
+
         // Filter entries by the selected time range
         const cutoffDate = new Date();
         if (selectedTimeRange !== "alltime") {
@@ -115,7 +117,7 @@ const Analytics: React.FC = () => {
         }
 
         const filteredEntries = allEntries.filter(
-          entry => new Date(entry.createdAt) >= cutoffDate
+          (entry) => new Date(entry.createdAt) >= cutoffDate
         );
 
         // Calculate real analytics from filtered entries
@@ -136,9 +138,14 @@ const Analytics: React.FC = () => {
         };
 
         // Calculate average mood from entries that have mood data
-        const entriesWithMood = filteredEntries.filter(entry => entry.mood && entry.mood > 0);
+        const entriesWithMood = filteredEntries.filter(
+          (entry) => entry.mood && entry.mood > 0
+        );
         if (entriesWithMood.length > 0) {
-          const totalMood = entriesWithMood.reduce((sum, entry) => sum + (entry.mood || 0), 0);
+          const totalMood = entriesWithMood.reduce(
+            (sum, entry) => sum + (entry.mood || 0),
+            0
+          );
           realAnalytics.averageMood = totalMood / entriesWithMood.length;
         }
 
@@ -152,8 +159,8 @@ const Analytics: React.FC = () => {
         if (filteredEntries.length > 0) {
           // Group entries by date and calculate daily averages
           const dailyMoods: Record<string, number[]> = {};
-          
-          entriesWithMood.forEach(entry => {
+
+          entriesWithMood.forEach((entry) => {
             const dateKey = new Date(entry.createdAt).toDateString();
             if (!dailyMoods[dateKey]) {
               dailyMoods[dateKey] = [];
@@ -167,7 +174,7 @@ const Analytics: React.FC = () => {
             const date = new Date();
             date.setDate(date.getDate() - i);
             const dateKey = date.toDateString();
-            
+
             const formattedDate =
               selectedTimeRange === "7days"
                 ? date.toLocaleDateString("en-US", { weekday: "short" })
@@ -179,7 +186,9 @@ const Analytics: React.FC = () => {
                     });
 
             if (dailyMoods[dateKey]) {
-              const avgMood = dailyMoods[dateKey].reduce((a, b) => a + b, 0) / dailyMoods[dateKey].length;
+              const avgMood =
+                dailyMoods[dateKey].reduce((a, b) => a + b, 0) /
+                dailyMoods[dateKey].length;
               chartData.push({
                 date: formattedDate,
                 mood: Math.round(avgMood * 10) / 10,
@@ -193,7 +202,7 @@ const Analytics: React.FC = () => {
             }
           }
 
-          setMoodData(chartData.filter(d => d.mood > 0)); // Only show days with actual data
+          setMoodData(chartData.filter((d) => d.mood > 0)); // Only show days with actual data
         } else {
           // No data for this time range
           setMoodData([]);
@@ -247,47 +256,58 @@ const Analytics: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.05),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.8),transparent_50%)]" />
+
       <LumenMascot currentPage="/analytics" />
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-20">
-        {/* Beautiful Header - Inspired by Landing Page */}
+        {/* Enhanced Header */}
         <motion.div
-          className="text-center mb-24 flex flex-col items-center justify-center"
-          initial={{ opacity: 0, y: 30 }}
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <motion.h1
-            className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-8 text-center"
+            className="text-4xl md:text-5xl font-light text-gray-900 mb-6 tracking-wide"
             style={{ fontFamily: "Playfair Display, Georgia, serif" }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
           >
-            Your Beautiful Journey
+            Your Journey Insights
           </motion.h1>
 
+          <motion.div
+            className="w-24 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto mb-8"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 96, opacity: 1 }}
+            transition={{ delay: 0.4, duration: 1.2, ease: "easeOut" }}
+          />
+
           <motion.p
-            className="text-xl leading-relaxed text-gray-600 max-w-3xl mx-auto font-light text-center"
+            className="text-lg text-gray-600 font-light max-w-2xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
           >
-            A gentle look at your emotional patterns and growth over time
+            Discover patterns in your emotional wellness journey and celebrate
+            your growth
           </motion.p>
         </motion.div>
 
-        {/* Simple Time Range Filters */}
+        {/* Refined Time Range Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-3 mb-16"
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="flex flex-wrap justify-center gap-2 mb-12"
         >
           {[
-            { key: "7days", label: "Last 7 Days" },
-            { key: "month", label: "Last Month" },
-            { key: "3months", label: "Last 3 Months" },
+            { key: "7days", label: "7 Days" },
+            { key: "month", label: "30 Days" },
+            { key: "3months", label: "3 Months" },
             { key: "alltime", label: "All Time" },
           ].map((range) => (
             <motion.button
@@ -297,11 +317,11 @@ const Analytics: React.FC = () => {
                   range.key as "7days" | "month" | "3months" | "alltime"
                 )
               }
-              className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
+              className={`px-6 py-2.5 text-sm font-medium transition-all duration-300 cursor-pointer border ${
                 selectedTimeRange === range.key
-                  ? "bg-gray-900 text-white shadow-lg"
-                  : "bg-white/80 backdrop-blur-sm text-gray-700 border border-gray-200 hover:bg-white hover:shadow-md"
-              }`}
+                  ? "bg-gradient-to-r from-slate-800 to-slate-700 text-white border-slate-700 shadow-lg"
+                  : "bg-white/70 text-slate-600 border-slate-200 hover:bg-white hover:border-slate-300 hover:text-slate-700"
+              } rounded-full backdrop-blur-sm`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -310,34 +330,63 @@ const Analytics: React.FC = () => {
           ))}
         </motion.div>
 
-        {/* Simple Chart Section */}
+        {/* Elegant Chart Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 mb-16"
+          transition={{ duration: 0.8, delay: 1.0 }}
+          className="bg-white/90 backdrop-blur-sm rounded-3xl p-10 shadow-xl border border-slate-200/60 mb-16"
         >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Your Mood Journey
-            </h2>
-            <p className="text-gray-600 text-lg">
-              A gentle look at your emotional patterns over time
-            </p>
+          <div className="text-center mb-10">
+            <motion.h2
+              className="text-2xl font-light text-gray-800 mb-3 tracking-wide"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.6 }}
+            >
+              Your Emotional Patterns
+            </motion.h2>
+
+            <motion.div
+              className="w-16 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto mb-6"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 64, opacity: 1 }}
+              transition={{ delay: 1.4, duration: 1.0, ease: "easeOut" }}
+            />
+
+            <motion.p
+              className="text-slate-600 font-light leading-relaxed"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.6, duration: 0.6 }}
+            >
+              A gentle visualization of your emotional wellness journey
+            </motion.p>
+
             {moodData.length === 0 ? (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-700">
-                  Start logging your emotions to see your personalized insights
-                  here
+              <motion.div
+                className="mt-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.8, duration: 0.5 }}
+              >
+                <p className="text-sm text-blue-700 font-medium">
+                  🌱 Begin your emotional wellness tracking to unlock
+                  personalized insights
                 </p>
-              </div>
+              </motion.div>
             ) : (
-              <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-sm text-green-700">
-                  ✨ This preview shows how your analytics will look as you
-                  build your emotional journey
+              <motion.div
+                className="mt-6 p-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.8, duration: 0.5 }}
+              >
+                <p className="text-sm text-emerald-700 font-medium">
+                  ✨ Beautiful insights emerging from your emotional journey
                 </p>
-              </div>
+              </motion.div>
             )}
           </div>
 
@@ -410,34 +459,43 @@ const Analytics: React.FC = () => {
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Simple Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        {/* Refined Analytics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {/* Average Mood Card */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
+            transition={{ duration: 0.8, delay: 1.4 }}
+            className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-slate-200/60 text-center hover:shadow-xl transition-all duration-300"
           >
-            <div className="text-5xl mb-4">📊</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            <motion.div
+              className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mb-6 mx-auto"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+            >
+              <span className="text-2xl">📊</span>
+            </motion.div>
+            <h3
+              className="text-xl font-light text-gray-800 mb-3 tracking-wide"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+            >
               Average Mood
             </h3>
-            <div className="text-4xl font-bold text-gray-900 mb-2">
+            <div className="text-3xl font-light text-gray-900 mb-2">
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-400"></div>
                 </div>
               ) : analytics?.averageMood && analytics.averageMood > 0 ? (
                 Math.round(analytics.averageMood * 10) / 10
               ) : (
-                "0"
+                "—"
               )}
             </div>
-            <p className="text-gray-600">
-              {analytics?.averageMood && analytics.averageMood > 0 
-                ? "Out of 5 stars" 
-                : "No data yet"}
+            <p className="text-sm text-slate-500 font-light">
+              {analytics?.averageMood && analytics.averageMood > 0
+                ? "out of 5"
+                : "Start tracking your mood"}
             </p>
           </motion.div>
 
@@ -445,31 +503,40 @@ const Analytics: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+            transition={{ duration: 0.8, delay: 1.6 }}
+            className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-slate-200/60 text-center cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
             onClick={() => (window.location.href = "/check-ins")}
           >
-            <div className="text-5xl mb-4">📝</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              Total Check-ins
+            <motion.div
+              className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center mb-6 mx-auto"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+            >
+              <span className="text-2xl">📝</span>
+            </motion.div>
+            <h3
+              className="text-xl font-light text-gray-800 mb-3 tracking-wide"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+            >
+              Check-ins
             </h3>
-            <div className="text-4xl font-bold text-gray-900 mb-2">
+            <div className="text-3xl font-light text-gray-900 mb-2">
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-400"></div>
                 </div>
               ) : (
                 analytics?.totalEntries || 0
               )}
             </div>
-            <p className="text-gray-600 mb-4">
-              {selectedTimeRange === "7days" && "Last 7 days"}
-              {selectedTimeRange === "month" && "Last month"}
-              {selectedTimeRange === "3months" && "Last 3 months"}
-              {selectedTimeRange === "alltime" && "All time"}
+            <p className="text-sm text-slate-500 font-light mb-3">
+              {selectedTimeRange === "7days" && "past week"}
+              {selectedTimeRange === "month" && "past month"}
+              {selectedTimeRange === "3months" && "past 3 months"}
+              {selectedTimeRange === "alltime" && "total entries"}
             </p>
-            <p className="text-sm text-purple-600 font-medium">
-              👆 Click to view details
+            <p className="text-xs text-emerald-600 font-medium opacity-75">
+              Tap to explore
             </p>
           </motion.div>
 
@@ -477,23 +544,34 @@ const Analytics: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center"
+            transition={{ duration: 0.8, delay: 1.8 }}
+            className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-slate-200/60 text-center hover:shadow-xl transition-all duration-300"
           >
-            <div className="text-5xl mb-4">🔥</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            <motion.div
+              className="w-16 h-16 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center mb-6 mx-auto"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+            >
+              <span className="text-2xl">🔥</span>
+            </motion.div>
+            <h3
+              className="text-xl font-light text-gray-800 mb-3 tracking-wide"
+              style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+            >
               Current Streak
             </h3>
-            <div className="text-4xl font-bold text-gray-900 mb-2">
+            <div className="text-3xl font-light text-gray-900 mb-2">
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-400"></div>
                 </div>
               ) : (
                 currentStreak
               )}
             </div>
-            <p className="text-gray-600">Days in a row</p>
+            <p className="text-sm text-slate-500 font-light">
+              consecutive days
+            </p>
           </motion.div>
         </div>
 

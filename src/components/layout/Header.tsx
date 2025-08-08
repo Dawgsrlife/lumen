@@ -80,9 +80,19 @@ const Header: React.FC = () => {
       console.log("📤 Header: Calling Clerk signOut...");
       await signOut();
       console.log("✅ Header: Sign out successful, navigating to landing...");
-      navigate("/landing");
+
+      // Clear any localStorage data that might interfere
+      const userKey = user?.id ? `lumen-welcome-shown-${user.id}` : null;
+      if (userKey) {
+        localStorage.removeItem(userKey);
+      }
+
+      // Force navigation to landing page
+      navigate("/landing", { replace: true });
     } catch (error) {
       console.error("❌ Header: Sign out error:", error);
+      // Even if signOut fails, try to navigate to landing
+      navigate("/landing", { replace: true });
     } finally {
       setIsSigningOut(false);
       setIsMenuOpen(false);

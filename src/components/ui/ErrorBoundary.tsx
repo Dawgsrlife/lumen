@@ -60,7 +60,7 @@ class ErrorBoundary extends Component<Props, State> {
               <Button
                 onClick={() => window.location.href = '/'}
                 variant="outline"
-                className="w-full"
+                className="w-full hover:bg-gray-900"
               >
                 Go Home
               </Button>
