@@ -62,25 +62,25 @@ export const UserProfile: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-6">
             Your Profile
           </h1>
           <p className="text-lg text-gray-600">
-            Manage your account and preferences
+            View your account settings and information
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Profile Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="lg:col-span-1"
+            className="lg:col-span-2"
           >
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center min-w-[280px]">
               <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-yellow-400 to-purple-600 p-1">
                 <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
                   {user.imageUrl ? (
@@ -95,18 +95,26 @@ export const UserProfile: React.FC = () => {
                 </div>
               </div>
 
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 {displayName}
               </h2>
+              <div className="mb-4"></div>
 
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex items-center justify-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <span>{user.primaryEmailAddress?.emailAddress}</span>
+              <div className="space-y-4 text-sm text-gray-600">
+                <div className="flex items-center justify-center gap-2 min-h-[20px]">
+                  <Mail className="w-4 h-4 flex-shrink-0" />
+                  <span
+                    className="truncate max-w-[600px]"
+                    title={user.primaryEmailAddress?.emailAddress}
+                  >
+                    {user.primaryEmailAddress?.emailAddress}
+                  </span>
                 </div>
-                <div className="flex items-center justify-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>Member since {memberSince}</span>
+                <div className="flex items-center justify-center gap-2 min-h-[20px]">
+                  <Calendar className="w-4 h-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">
+                    Member since {memberSince}
+                  </span>
                 </div>
               </div>
             </div>
@@ -117,7 +125,7 @@ export const UserProfile: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-2 space-y-6"
+            className="lg:col-span-3 space-y-6"
           >
             {/* Account Settings */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -174,10 +182,11 @@ export const UserProfile: React.FC = () => {
             </div>
 
             {/* Account Actions */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-16">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">
                 Account Actions
               </h3>
+              <div className="mb-4"></div>
 
               <motion.button
                 onClick={handleSignOut}

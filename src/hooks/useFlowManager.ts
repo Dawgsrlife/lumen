@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useMemo } from 'react';
-import { useFlowParams } from './useFlowParams';
-import { useUserFlowState } from './useUserFlowState';
-import type { FlowStep } from '../context/FlowProvider';
+import { useCallback, useEffect, useRef, useMemo } from "react";
+import { useFlowParams } from "./useFlowParams";
+import { useUserFlowState } from "./useUserFlowState";
+import type { FlowStep } from "../context/FlowProvider";
 
 export interface FlowManager {
   initializeFlow: () => FlowStep | null;
@@ -27,37 +27,38 @@ export const useFlowManager = (): FlowManager => {
   // Single source of truth for flow initialization
   const initializeFlow = useCallback((): FlowStep | null => {
     if (userFlowState.isLoading) return null;
-    
-
 
     // Return the initial step
-    return isManualFlow ? 'emotion-selection' : 'welcome';
+    return isManualFlow ? "emotion-selection" : "welcome";
   }, [userFlowState.isLoading, isManualFlow]);
 
   // Auto-transition logic
-  const handleAutoTransitions = useCallback((currentStep: FlowStep) => {
-    // Clear any existing timer
-    if (autoTransitionTimerRef.current) {
-      clearTimeout(autoTransitionTimerRef.current);
-      autoTransitionTimerRef.current = null;
-    }
+  const handleAutoTransitions = useCallback(
+    (currentStep: FlowStep) => {
+      // Clear any existing timer
+      if (autoTransitionTimerRef.current) {
+        clearTimeout(autoTransitionTimerRef.current);
+        autoTransitionTimerRef.current = null;
+      }
 
-    if (currentStep === 'welcome' && !isManualFlow) {
-      autoTransitionTimerRef.current = setTimeout(() => {
-        // This will be handled by the parent component
-        // We return a cleanup function
-      }, 3500);
+      if (currentStep === "welcome" && !isManualFlow) {
+        autoTransitionTimerRef.current = setTimeout(() => {
+          // This will be handled by the parent component
+          // We return a cleanup function
+        }, 3500);
 
-      return () => {
-        if (autoTransitionTimerRef.current) {
-          clearTimeout(autoTransitionTimerRef.current);
-          autoTransitionTimerRef.current = null;
-        }
-      };
-    }
+        return () => {
+          if (autoTransitionTimerRef.current) {
+            clearTimeout(autoTransitionTimerRef.current);
+            autoTransitionTimerRef.current = null;
+          }
+        };
+      }
 
-    return () => {}; // Return empty cleanup function instead of null
-  }, [isManualFlow]);
+      return () => {}; // Return empty cleanup function instead of null
+    },
+    [isManualFlow]
+  );
 
   // Check if we should redirect to dashboard
   const shouldRedirectToDashboard = useMemo(() => {
@@ -70,4 +71,4 @@ export const useFlowManager = (): FlowManager => {
     shouldRedirectToDashboard,
     error: userFlowState.error,
   };
-}; 
+};

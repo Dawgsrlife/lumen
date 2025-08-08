@@ -20,7 +20,7 @@ const Analytics: React.FC = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState<
     "7days" | "month" | "3months" | "alltime"
   >("7days");
-  const [analytics, setAnalytics] = useState<UserAnalytics | null>(null);
+  const [analytics, setAnalytics] = useState<Partial<UserAnalytics> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentStreak, setCurrentStreak] = useState<number>(0);
   const [moodData, setMoodData] = useState<
@@ -98,77 +98,128 @@ const Analytics: React.FC = () => {
                 ? 90
                 : 365;
 
-        // Get analytics overview
-        const analyticsData = await apiService.getAnalyticsOverview(days);
-        setAnalytics(analyticsData);
+        // Get journal entries for the selected time range to calculate real analytics
+        const journalResponse = await apiService.getJournalEntries({
+          limit: 1000, // Get more entries to ensure we capture the time range
+          includePrivate: true,
+        });
 
-        // Calculate current streak
+        const allEntries = journalResponse.entries;
+        
+        // Filter entries by the selected time range
+        const cutoffDate = new Date();
+        if (selectedTimeRange !== "alltime") {
+          cutoffDate.setDate(cutoffDate.getDate() - days);
+        } else {
+          cutoffDate.setFullYear(cutoffDate.getFullYear() - 10); // Far back for "all time"
+        }
+
+        const filteredEntries = allEntries.filter(
+          entry => new Date(entry.createdAt) >= cutoffDate
+        );
+
+        // Calculate real analytics from filtered entries
+        const realAnalytics: Partial<UserAnalytics> = {
+          totalEntries: filteredEntries.length,
+          averageMood: 0,
+          emotionDistribution: {
+            happy: 0,
+            sad: 0,
+            loneliness: 0,
+            anxiety: 0,
+            frustration: 0,
+            stress: 0,
+            lethargy: 0,
+            fear: 0,
+            grief: 0,
+          },
+        };
+
+        // Calculate average mood from entries that have mood data
+        const entriesWithMood = filteredEntries.filter(entry => entry.mood && entry.mood > 0);
+        if (entriesWithMood.length > 0) {
+          const totalMood = entriesWithMood.reduce((sum, entry) => sum + (entry.mood || 0), 0);
+          realAnalytics.averageMood = totalMood / entriesWithMood.length;
+        }
+
+        setAnalytics(realAnalytics);
+
+        // Calculate current streak (this should be based on all entries, not just filtered ones)
         const streak = await calculateStreak();
         setCurrentStreak(streak);
 
-        // Get mood trends for chart
-        const trends = await apiService.getMoodTrends(days);
+        // Generate mood trends chart data from filtered entries
+        if (filteredEntries.length > 0) {
+          // Group entries by date and calculate daily averages
+          const dailyMoods: Record<string, number[]> = {};
+          
+          entriesWithMood.forEach(entry => {
+            const dateKey = new Date(entry.createdAt).toDateString();
+            if (!dailyMoods[dateKey]) {
+              dailyMoods[dateKey] = [];
+            }
+            dailyMoods[dateKey].push(entry.mood || 0);
+          });
 
-        if (trends.trends && trends.trends.length > 0) {
-          const trendData = (
-            trends.trends as Array<{ date: string; averageIntensity: number }>
-          ).map((t) => ({
-            date: new Date(t.date).toLocaleDateString("en-US", {
-              weekday: selectedTimeRange === "7days" ? "short" : undefined,
-              month: selectedTimeRange !== "7days" ? "short" : undefined,
-              day: "numeric",
-            }),
-            mood: Math.round(t.averageIntensity * 10) / 10,
-          }));
-          setMoodData(trendData);
+          // Create chart data
+          const chartData: Array<{ date: string; mood: number }> = [];
+          for (let i = days - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateKey = date.toDateString();
+            
+            const formattedDate =
+              selectedTimeRange === "7days"
+                ? date.toLocaleDateString("en-US", { weekday: "short" })
+                : selectedTimeRange === "month"
+                  ? date.getDate().toString()
+                  : date.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    });
+
+            if (dailyMoods[dateKey]) {
+              const avgMood = dailyMoods[dateKey].reduce((a, b) => a + b, 0) / dailyMoods[dateKey].length;
+              chartData.push({
+                date: formattedDate,
+                mood: Math.round(avgMood * 10) / 10,
+              });
+            } else {
+              // No entry for this day - only add to chart if we want to show gaps
+              chartData.push({
+                date: formattedDate,
+                mood: 0, // or null if you want gaps in the chart
+              });
+            }
+          }
+
+          setMoodData(chartData.filter(d => d.mood > 0)); // Only show days with actual data
         } else {
-          // Generate beautiful placeholder if no data yet
-          generatePlaceholderData();
+          // No data for this time range
+          setMoodData([]);
         }
       } catch (error) {
         console.error("Error fetching analytics data:", error);
-        // Generate beautiful placeholder on error
-        generatePlaceholderData();
+        // Set empty state on error
+        setAnalytics({
+          totalEntries: 0,
+          averageMood: 0,
+          emotionDistribution: {
+            happy: 0,
+            sad: 0,
+            loneliness: 0,
+            anxiety: 0,
+            frustration: 0,
+            stress: 0,
+            lethargy: 0,
+            fear: 0,
+            grief: 0,
+          },
+        });
+        setMoodData([]);
       } finally {
         setIsLoading(false);
       }
-    };
-
-    const generatePlaceholderData = () => {
-      const days =
-        selectedTimeRange === "7days"
-          ? 7
-          : selectedTimeRange === "month"
-            ? 30
-            : selectedTimeRange === "3months"
-              ? 90
-              : 180;
-
-      const placeholderData: Array<{ date: string; mood: number }> = [];
-
-      for (let i = days - 1; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const formattedDate =
-          selectedTimeRange === "7days"
-            ? date.toLocaleDateString("en-US", { weekday: "short" })
-            : selectedTimeRange === "month"
-              ? date.getDate().toString()
-              : date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
-
-        // Generate realistic mood pattern with natural variation
-        const baseMood =
-          4.2 + Math.sin(i * 0.3) * 0.8 + (Math.random() - 0.5) * 0.6;
-        placeholderData.push({
-          date: formattedDate,
-          mood: Math.max(1, Math.min(5, Math.round(baseMood * 10) / 10)),
-        });
-      }
-
-      setMoodData(placeholderData);
     };
 
     fetchAnalyticsData();
@@ -377,13 +428,17 @@ const Analytics: React.FC = () => {
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
                 </div>
-              ) : analytics?.averageMood ? (
+              ) : analytics?.averageMood && analytics.averageMood > 0 ? (
                 Math.round(analytics.averageMood * 10) / 10
               ) : (
-                "4.2"
+                "0"
               )}
             </div>
-            <p className="text-gray-600">Out of 5 stars</p>
+            <p className="text-gray-600">
+              {analytics?.averageMood && analytics.averageMood > 0 
+                ? "Out of 5 stars" 
+                : "No data yet"}
+            </p>
           </motion.div>
 
           {/* Check-ins Card */}
@@ -407,7 +462,7 @@ const Analytics: React.FC = () => {
                 analytics?.totalEntries || 0
               )}
             </div>
-            <p className="text-gray-600 mb-2">
+            <p className="text-gray-600 mb-4">
               {selectedTimeRange === "7days" && "Last 7 days"}
               {selectedTimeRange === "month" && "Last month"}
               {selectedTimeRange === "3months" && "Last 3 months"}

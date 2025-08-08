@@ -1,21 +1,21 @@
-import { useCallback, useMemo } from 'react';
-import { useAppContext, useFlow } from '../context/hooks';
-import { useUserFlowState } from './useUserFlowState';
-import type { FlowStep } from '../context/FlowProvider';
-import type { EmotionType } from '../types';
-import type { UnityGameData, UnityReward } from '../services/unity';
+import { useCallback, useMemo } from "react";
+import { useAppContext, useFlow } from "../context/hooks";
+import { useUserFlowState } from "./useUserFlowState";
+import type { FlowStep } from "../context/FlowProvider";
+import type { EmotionType } from "../types";
+import type { UnityGameData, UnityReward } from "../services/unity";
 
 export interface FlowState {
   // App state
   user: Record<string, unknown> | null;
   isLoading: boolean;
-  
+
   // Flow state
   currentStep: FlowStep;
   selectedEmotion: EmotionType | null;
   gameData: Record<string, unknown> | null;
   gameRewards: UnityReward[];
-  
+
   // User flow state
   hasLoggedToday: boolean;
   isManualFlow: boolean;
@@ -34,46 +34,68 @@ export interface FlowActions {
 
 export const useFlowState = (): FlowState & { actions: FlowActions } => {
   const { state: appState, logEmotion, completeGame } = useAppContext();
-  const { state: flowState, dispatch, setEmotion, setGameData, skipToJournaling } = useFlow();
-  const { state: userFlowState, markEmotionLogged, resetFlowState } = useUserFlowState();
+  const {
+    state: flowState,
+    dispatch,
+    setEmotion,
+    setGameData,
+    skipToJournaling,
+  } = useFlow();
+  const {
+    state: userFlowState,
+    markEmotionLogged,
+    resetFlowState,
+  } = useUserFlowState();
 
   // Memoized state
-  const state = useMemo((): FlowState => ({
-    // App state
-    user: appState.user as Record<string, unknown> | null,
-    isLoading: appState.isLoading || userFlowState.isLoading,
-    
-    // Flow state
-    currentStep: flowState.currentStep,
-    selectedEmotion: flowState.selectedEmotion as EmotionType | null,
-    gameData: flowState.gameData,
-    gameRewards: [], // TODO: Add to flow state if needed
-    
-    // User flow state
-    hasLoggedToday: userFlowState.hasLoggedEmotionToday,
-    isManualFlow: userFlowState.isManualFlow,
-    error: userFlowState.error,
-  }), [appState, flowState, userFlowState]);
+  const state = useMemo(
+    (): FlowState => ({
+      // App state
+      user: appState.user as Record<string, unknown> | null,
+      isLoading: appState.isLoading || userFlowState.isLoading,
+
+      // Flow state
+      currentStep: flowState.currentStep,
+      selectedEmotion: flowState.selectedEmotion as EmotionType | null,
+      gameData: flowState.gameData,
+      gameRewards: [], // TODO: Add to flow state if needed
+
+      // User flow state
+      hasLoggedToday: userFlowState.hasLoggedEmotionToday,
+      isManualFlow: userFlowState.isManualFlow,
+      error: userFlowState.error,
+    }),
+    [appState, flowState, userFlowState]
+  );
 
   // Individual action handlers
-  const setCurrentStep = useCallback((step: FlowStep) => {
-    dispatch({ type: 'SET_CURRENT_STEP', payload: step });
-  }, [dispatch]);
+  const setCurrentStep = useCallback(
+    (step: FlowStep) => {
+      dispatch({ type: "SET_CURRENT_STEP", payload: step });
+    },
+    [dispatch]
+  );
 
-  const selectEmotion = useCallback((emotion: EmotionType) => {
-    console.log('Selecting emotion:', emotion);
-    setEmotion(emotion);
-    logEmotion(emotion);
-    markEmotionLogged();
-    // ✅ DON'T auto-advance - let FlowRouter handle step transitions
-    // Remove: dispatch({ type: 'SET_CURRENT_STEP', payload: 'game' });
-  }, [setEmotion, logEmotion, markEmotionLogged]);
+  const selectEmotion = useCallback(
+    (emotion: EmotionType) => {
+      console.log("Selecting emotion:", emotion);
+      setEmotion(emotion);
+      logEmotion(emotion);
+      markEmotionLogged();
+      // ✅ DON'T auto-advance - let FlowRouter handle step transitions
+      // Remove: dispatch({ type: 'SET_CURRENT_STEP', payload: 'game' });
+    },
+    [setEmotion, logEmotion, markEmotionLogged]
+  );
 
-  const handleCompleteGame = useCallback((data: UnityGameData) => {
-    setGameData(data as unknown as Record<string, unknown>);
-    completeGame();
-    dispatch({ type: 'SET_CURRENT_STEP', payload: 'feedback' });
-  }, [setGameData, completeGame, dispatch]);
+  const handleCompleteGame = useCallback(
+    (data: UnityGameData) => {
+      setGameData(data as unknown as Record<string, unknown>);
+      completeGame();
+      dispatch({ type: "SET_CURRENT_STEP", payload: "feedback" });
+    },
+    [setGameData, completeGame, dispatch]
+  );
 
   const skipStep = useCallback(() => {
     skipToJournaling();
@@ -93,18 +115,29 @@ export const useFlowState = (): FlowState & { actions: FlowActions } => {
   }, [resetFlowState]);
 
   // Memoized actions object
-  const actions = useMemo((): FlowActions => ({
-    setCurrentStep,
-    selectEmotion,
-    completeGame: handleCompleteGame,
-    skipStep,
-    completeFlow,
-    markEmotionLogged: handleMarkEmotionLogged,
-    resetFlowState: handleResetFlowState,
-  }), [setCurrentStep, selectEmotion, handleCompleteGame, skipStep, completeFlow, handleMarkEmotionLogged, handleResetFlowState]);
+  const actions = useMemo(
+    (): FlowActions => ({
+      setCurrentStep,
+      selectEmotion,
+      completeGame: handleCompleteGame,
+      skipStep,
+      completeFlow,
+      markEmotionLogged: handleMarkEmotionLogged,
+      resetFlowState: handleResetFlowState,
+    }),
+    [
+      setCurrentStep,
+      selectEmotion,
+      handleCompleteGame,
+      skipStep,
+      completeFlow,
+      handleMarkEmotionLogged,
+      handleResetFlowState,
+    ]
+  );
 
   return {
     ...state,
     actions,
   };
-}; 
+};

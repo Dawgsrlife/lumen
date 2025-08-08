@@ -1,4 +1,4 @@
-import type { SurveyResponse, AIFeedback } from '../types';
+import type { SurveyResponse, AIFeedback } from "../types";
 
 interface StoredEmotionData {
   id: string;
@@ -40,10 +40,10 @@ class StorageService {
   // Get stored data from localStorage
   private getStoredData(): StoredEmotionData[] {
     try {
-      const data = localStorage.getItem('lumen_emotions');
+      const data = localStorage.getItem("lumen_emotions");
       return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error('Error reading from localStorage:', error);
+      console.error("Error reading from localStorage:", error);
       return [];
     }
   }
@@ -51,14 +51,16 @@ class StorageService {
   // Set data to localStorage
   private setStoredData(data: StoredEmotionData[]): void {
     try {
-      localStorage.setItem('lumen_emotions', JSON.stringify(data));
+      localStorage.setItem("lumen_emotions", JSON.stringify(data));
     } catch (error) {
-      console.error('Error writing to localStorage:', error);
+      console.error("Error writing to localStorage:", error);
     }
   }
 
   // Save emotion entry
-  async saveEmotionEntry(entry: Omit<StoredEmotionData, 'id' | 'timestamp'>): Promise<StoredEmotionData> {
+  async saveEmotionEntry(
+    entry: Omit<StoredEmotionData, "id" | "timestamp">
+  ): Promise<StoredEmotionData> {
     const emotionEntry: StoredEmotionData = {
       ...entry,
       id: this.generateId(),
@@ -79,14 +81,20 @@ class StorageService {
   // Get all emotion entries for a user
   async getEmotionEntries(userId: string): Promise<StoredEmotionData[]> {
     const allData = this.getStoredData();
-    return allData.filter(entry => entry.userId === userId);
+    return allData.filter((entry) => entry.userId === userId);
   }
 
   // Get recent emotions for a user
-  async getRecentEmotions(userId: string, limit: number = 5): Promise<StoredEmotionData[]> {
+  async getRecentEmotions(
+    userId: string,
+    limit: number = 5
+  ): Promise<StoredEmotionData[]> {
     const userEntries = await this.getEmotionEntries(userId);
     return userEntries
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )
       .slice(0, limit);
   }
 
@@ -95,20 +103,25 @@ class StorageService {
     const userEntries = await this.getEmotionEntries(userId);
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
-    const weeklyEntries = userEntries.filter(entry => 
-      new Date(entry.timestamp) >= weekAgo
+
+    const weeklyEntries = userEntries.filter(
+      (entry) => new Date(entry.timestamp) >= weekAgo
     );
 
     return {
       totalEntries: weeklyEntries.length,
-      averageIntensity: weeklyEntries.length > 0 
-        ? weeklyEntries.reduce((sum, entry) => sum + entry.intensity, 0) / weeklyEntries.length 
-        : 0,
-      emotionBreakdown: weeklyEntries.reduce((acc, entry) => {
-        acc[entry.emotion] = (acc[entry.emotion] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>)
+      averageIntensity:
+        weeklyEntries.length > 0
+          ? weeklyEntries.reduce((sum, entry) => sum + entry.intensity, 0) /
+            weeklyEntries.length
+          : 0,
+      emotionBreakdown: weeklyEntries.reduce(
+        (acc, entry) => {
+          acc[entry.emotion] = (acc[entry.emotion] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
     };
   }
 
@@ -116,29 +129,35 @@ class StorageService {
   async getUserStats(userId: string): Promise<UserStats> {
     const userEntries = await this.getEmotionEntries(userId);
     const totalEntries = userEntries.length;
-    
+
     if (totalEntries === 0) {
       return {
         totalEntries: 0,
         currentStreak: 0,
         longestStreak: 0,
         averageIntensity: 0,
-        mostCommonEmotion: '😐',
+        mostCommonEmotion: "😐",
         weeklyAverage: 0,
       };
     }
 
     // Calculate average intensity
-    const averageIntensity = userEntries.reduce((sum, entry) => sum + entry.intensity, 0) / totalEntries;
+    const averageIntensity =
+      userEntries.reduce((sum, entry) => sum + entry.intensity, 0) /
+      totalEntries;
 
     // Calculate most common emotion
-    const emotionCounts = userEntries.reduce((acc, entry) => {
-      acc[entry.emotion] = (acc[entry.emotion] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    
-    const mostCommonEmotion = Object.entries(emotionCounts)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] || '😐';
+    const emotionCounts = userEntries.reduce(
+      (acc, entry) => {
+        acc[entry.emotion] = (acc[entry.emotion] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    const mostCommonEmotion =
+      Object.entries(emotionCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ||
+      "😐";
 
     // Calculate streaks (simplified)
     const currentStreak = 1; // TODO: Implement proper streak calculation
@@ -146,7 +165,8 @@ class StorageService {
 
     // Calculate weekly average
     const weeklyTrends = await this.getWeeklyTrends(userId);
-    const weeklyAverage = (weeklyTrends as { averageIntensity: number }).averageIntensity || 0;
+    const weeklyAverage =
+      (weeklyTrends as { averageIntensity: number }).averageIntensity || 0;
 
     return {
       totalEntries,
@@ -166,8 +186,8 @@ class StorageService {
 
   // Clear all data (for testing)
   clearAllData(): void {
-    localStorage.removeItem('lumen_emotions');
+    localStorage.removeItem("lumen_emotions");
   }
 }
 
-export const storageService = StorageService.getInstance(); 
+export const storageService = StorageService.getInstance();
