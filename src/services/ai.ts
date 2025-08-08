@@ -1,7 +1,7 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || "");
 
 export interface AIFeedbackRequest {
   emotion: string;
@@ -19,16 +19,17 @@ export interface AIFeedbackResponse {
   insight: string;
   advice: string[];
   activities: string[];
-  mood: 'positive' | 'neutral' | 'negative';
+  mood: "positive" | "neutral" | "negative";
   confidence: number;
 }
 
 export class AIService {
   private static instance: AIService;
-  private model: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private model: any; // Using any for Gemini model to avoid TypeScript issues
 
   private constructor() {
-    this.model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    this.model = genAI.getGenerativeModel({ model: "gemini-pro" });
   }
 
   public static getInstance(): AIService {
@@ -38,38 +39,48 @@ export class AIService {
     return AIService.instance;
   }
 
-  async generateFeedback(request: AIFeedbackRequest): Promise<AIFeedbackResponse> {
+  async generateFeedback(
+    request: AIFeedbackRequest
+  ): Promise<AIFeedbackResponse> {
     try {
       const prompt = this.buildPrompt(request);
-      
+
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      
+
       return this.parseAIResponse(text);
     } catch (error) {
-      console.error('AI feedback generation failed:', error);
+      console.error("AI feedback generation failed:", error);
       return this.getFallbackResponse(request.emotion);
     }
   }
 
   private buildPrompt(request: AIFeedbackRequest): string {
     const { emotion, intensity, context, recentEmotions, userGoals } = request;
-    
+
     const prompt = `You are a compassionate mental health AI assistant. Analyze the user's emotional state and provide supportive, actionable feedback.
 
 Current Emotion: ${emotion}
 Intensity Level: ${intensity}/10
-${context ? `Context: ${context}` : ''}
+${context ? `Context: ${context}` : ""}
 
-${recentEmotions && recentEmotions.length > 0 ? `
+${
+  recentEmotions && recentEmotions.length > 0
+    ? `
 Recent Emotional Pattern:
-${recentEmotions.map(e => `- ${e.date}: ${e.emotion}${e.note ? ` (${e.note})` : ''}`).join('\n')}
-` : ''}
+${recentEmotions.map((e) => `- ${e.date}: ${e.emotion}${e.note ? ` (${e.note})` : ""}`).join("\n")}
+`
+    : ""
+}
 
-${userGoals && userGoals.length > 0 ? `
-User Goals: ${userGoals.join(', ')}
-` : ''}
+${
+  userGoals && userGoals.length > 0
+    ? `
+User Goals: ${userGoals.join(", ")}
+`
+    : ""
+}
 
 Please provide a response in the following JSON format:
 {
@@ -92,47 +103,69 @@ Focus on being supportive, non-judgmental, and providing practical suggestions.`
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         return {
-          insight: parsed.insight || 'I understand how you\'re feeling.',
-          advice: Array.isArray(parsed.advice) ? parsed.advice : ['Take a moment to breathe deeply.'],
-          activities: Array.isArray(parsed.activities) ? parsed.activities : ['Try a short meditation.'],
-          mood: ['positive', 'neutral', 'negative'].includes(parsed.mood) ? parsed.mood : 'neutral',
-          confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.8,
+          insight: parsed.insight || "I understand how you're feeling.",
+          advice: Array.isArray(parsed.advice)
+            ? parsed.advice
+            : ["Take a moment to breathe deeply."],
+          activities: Array.isArray(parsed.activities)
+            ? parsed.activities
+            : ["Try a short meditation."],
+          mood: ["positive", "neutral", "negative"].includes(parsed.mood)
+            ? parsed.mood
+            : "neutral",
+          confidence:
+            typeof parsed.confidence === "number" ? parsed.confidence : 0.8,
         };
       }
     } catch (error) {
-      console.error('Failed to parse AI response:', error);
+      console.error("Failed to parse AI response:", error);
     }
 
     // Fallback parsing
-    return this.getFallbackResponse('neutral');
+    return this.getFallbackResponse("neutral");
   }
 
   private getFallbackResponse(emotion: string): AIFeedbackResponse {
     const fallbackResponses = {
-      '😊': {
-        insight: 'It\'s wonderful that you\'re feeling positive!',
-        advice: ['Savor this moment', 'Share your joy with others', 'Practice gratitude'],
-        activities: ['Write in a gratitude journal', 'Take a nature walk'],
-        mood: 'positive' as const,
+      "😊": {
+        insight: "It's wonderful that you're feeling positive!",
+        advice: [
+          "Savor this moment",
+          "Share your joy with others",
+          "Practice gratitude",
+        ],
+        activities: ["Write in a gratitude journal", "Take a nature walk"],
+        mood: "positive" as const,
         confidence: 0.9,
       },
-      '😐': {
-        insight: 'It\'s okay to feel neutral - emotions ebb and flow naturally.',
-        advice: ['Check in with yourself', 'Try a small positive activity', 'Be patient with yourself'],
-        activities: ['Try a 5-minute meditation', 'Listen to calming music'],
-        mood: 'neutral' as const,
+      "😐": {
+        insight: "It's okay to feel neutral - emotions ebb and flow naturally.",
+        advice: [
+          "Check in with yourself",
+          "Try a small positive activity",
+          "Be patient with yourself",
+        ],
+        activities: ["Try a 5-minute meditation", "Listen to calming music"],
+        mood: "neutral" as const,
         confidence: 0.8,
       },
-      '😢': {
-        insight: 'I hear you, and your feelings are valid.',
-        advice: ['Be gentle with yourself', 'Reach out to someone you trust', 'Remember this will pass'],
-        activities: ['Practice self-compassion', 'Try a breathing exercise'],
-        mood: 'negative' as const,
+      "😢": {
+        insight: "I hear you, and your feelings are valid.",
+        advice: [
+          "Be gentle with yourself",
+          "Reach out to someone you trust",
+          "Remember this will pass",
+        ],
+        activities: ["Practice self-compassion", "Try a breathing exercise"],
+        mood: "negative" as const,
         confidence: 0.7,
       },
     };
 
-    return fallbackResponses[emotion as keyof typeof fallbackResponses] || fallbackResponses['😐'];
+    return (
+      fallbackResponses[emotion as keyof typeof fallbackResponses] ||
+      fallbackResponses["😐"]
+    );
   }
 
   async generateWeeklyInsight(weeklyData: unknown): Promise<string> {
@@ -147,8 +180,8 @@ Provide a 2-3 sentence insight that's encouraging and actionable.`;
       const response = await result.response;
       return response.text();
     } catch (error) {
-      console.error('Weekly insight generation failed:', error);
-      return 'You\'ve been tracking your emotions consistently this week. Keep up the great work!';
+      console.error("Weekly insight generation failed:", error);
+      return "You've been tracking your emotions consistently this week. Keep up the great work!";
     }
   }
 
@@ -164,10 +197,82 @@ Keep it supportive and not deterministic.`;
       const response = await result.response;
       return response.text();
     } catch (error) {
-      console.error('Mood prediction failed:', error);
-      return 'Your emotional patterns show resilience and growth.';
+      console.error("Mood prediction failed:", error);
+      return "Your emotional patterns show resilience and growth.";
+    }
+  }
+
+  async analyzeJournalReflection(
+    reflection: string,
+    selectedEmotion: string,
+    gameCompleted?: string
+  ): Promise<{
+    emotionalInsight: string;
+    moodScore: number; // 1-10 scale
+    suggestedActions: string[];
+    emotionAccuracy: number; // How well the reflection matches the selected emotion
+  }> {
+    try {
+      const context = gameCompleted
+        ? `The user just completed a ${gameCompleted} game activity designed for ${selectedEmotion} emotions.`
+        : `The user selected "${selectedEmotion}" as their current emotion.`;
+
+      const prompt = `You are a compassionate mental health AI assistant. Analyze this journal reflection:
+
+CONTEXT: ${context}
+SELECTED EMOTION: ${selectedEmotion}
+USER REFLECTION: "${reflection}"
+
+Please provide:
+1. A brief emotional insight (1-2 sentences)
+2. A mood score from 1-10 (where 1 is very low mood, 10 is excellent mood)
+3. 2-3 gentle suggested actions for emotional wellness
+4. An emotion accuracy score 1-10 (how well the reflection aligns with the selected emotion)
+
+Respond in this JSON format:
+{
+  "emotionalInsight": "Brief supportive insight",
+  "moodScore": 5,
+  "suggestedActions": ["action1", "action2", "action3"],
+  "emotionAccuracy": 7
+}`;
+
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+
+      try {
+        // Try to parse JSON response
+        const cleanedText = text.replace(/```json|```/g, "").trim();
+        return JSON.parse(cleanedText);
+      } catch {
+        console.warn("Failed to parse AI response as JSON, using fallback");
+        return {
+          emotionalInsight: `Your reflection shows thoughtfulness about your ${selectedEmotion} feelings.`,
+          moodScore: 5,
+          suggestedActions: [
+            "Take a few deep breaths",
+            "Practice self-compassion",
+            "Consider journaling again tomorrow",
+          ],
+          emotionAccuracy: 7,
+        };
+      }
+    } catch (error) {
+      console.error("Journal reflection analysis failed:", error);
+      return {
+        emotionalInsight:
+          "Thank you for taking time to reflect on your emotions.",
+        moodScore: 5,
+        suggestedActions: [
+          "Continue with self-reflection",
+          "Practice mindfulness",
+          "Stay connected with your feelings",
+        ],
+        emotionAccuracy: 5,
+      };
     }
   }
 }
 
-export const aiService = AIService.getInstance(); 
+export const aiService = AIService.getInstance();

@@ -1,11 +1,15 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { EmotionType, EmotionEntry, UserAnalytics } from '../types';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  type EmotionType,
+  type EmotionEntry,
+  type UserAnalytics,
+} from "../types";
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || "");
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
   emotionContext?: {
@@ -31,8 +35,8 @@ export class ChatbotService {
   private model: unknown;
 
   private constructor() {
-    this.model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+    this.model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
       generationConfig: {
         temperature: 0.7,
         topP: 0.8,
@@ -51,7 +55,7 @@ Core traits:
 Safety protocols:
 - For crisis situations, direct to professional help immediately
 - Never provide medical advice or diagnose conditions
-- Encourage professional mental health support when appropriate`
+- Encourage professional mental health support when appropriate`,
     });
   }
 
@@ -64,28 +68,43 @@ Safety protocols:
 
   private buildContextPrompt(context: ChatContext): string {
     const { userAnalytics, recentEmotions, currentMood } = context;
-    
-    return `## User's Current Emotional Context:
-${currentMood ? `
-**Current Mood**: ${currentMood.emotion} (intensity: ${currentMood.intensity}/10)
-${currentMood.context ? `**Context**: ${currentMood.context}` : ''}
-` : '**Current Mood**: Not recently tracked'}
 
-${userAnalytics ? `
+    return `## User's Current Emotional Context:
+${
+  currentMood
+    ? `
+**Current Mood**: ${currentMood.emotion} (intensity: ${currentMood.intensity}/10)
+${currentMood.context ? `**Context**: ${currentMood.context}` : ""}
+`
+    : "**Current Mood**: Not recently tracked"
+}
+
+${
+  userAnalytics
+    ? `
 **Mental Health Journey**:
 - Total emotion entries: ${userAnalytics.totalEntries}
 - Current streak: ${userAnalytics.streakData.current} days
 - Average mood: ${userAnalytics.averageMood.toFixed(1)}/10
-- Most frequent emotion: ${userAnalytics.emotionDistribution ? Object.entries(userAnalytics.emotionDistribution).sort(([,a], [,b]) => b - a)[0]?.[0] || 'Not available' : 'Not available'}
+- Most frequent emotion: ${userAnalytics.emotionDistribution ? Object.entries(userAnalytics.emotionDistribution).sort(([, a], [, b]) => b - a)[0]?.[0] || "Not available" : "Not available"}
 - Games played: ${userAnalytics.gamesPlayed}
-` : '**User Journey**: New user or limited data available'}
+`
+    : "**User Journey**: New user or limited data available"
+}
 
-${recentEmotions && recentEmotions.length > 0 ? `
+${
+  recentEmotions && recentEmotions.length > 0
+    ? `
 **Recent Emotional Pattern** (last ${recentEmotions.length} entries):
-${recentEmotions.map(entry => 
-  `- ${new Date(entry.createdAt).toLocaleDateString()}: ${entry.emotion} (${entry.intensity}/10)${entry.context ? ` - ${entry.context.substring(0, 50)}...` : ''}`
-).join('\n')}
-` : '**Recent Pattern**: No recent emotion entries available'}
+${recentEmotions
+  .map(
+    (entry) =>
+      `- ${new Date(entry.createdAt).toLocaleDateString()}: ${entry.emotion} (${entry.intensity}/10)${entry.context ? ` - ${entry.context.substring(0, 50)}...` : ""}`
+  )
+  .join("\n")}
+`
+    : "**Recent Pattern**: No recent emotion entries available"
+}
 
 ## Available Therapeutic Activities:
 Based on emotions, suggest these mini-games:
@@ -104,17 +123,17 @@ If user expresses self-harm thoughts: "I'm concerned about you and want to help.
   }
 
   async generateResponse(
-    userMessage: string, 
+    userMessage: string,
     context: ChatContext
   ): Promise<string> {
     try {
       const systemPrompt = this.buildContextPrompt(context);
-      
+
       // Build conversation history
       const conversationContext = context.conversationHistory
         .slice(-10) // Last 10 messages for context
-        .map(msg => `${msg.role}: ${msg.content}`)
-        .join('\n');
+        .map((msg) => `${msg.role}: ${msg.content}`)
+        .join("\n");
 
       const fullPrompt = `${systemPrompt}
 
@@ -131,31 +150,41 @@ assistant:`;
       const response = await result.response;
       return response.text();
     } catch (error) {
-      console.error('Chatbot response generation failed:', error);
-      
+      console.error("Chatbot response generation failed:", error);
+
       // Fallback response based on current mood
       if (context.currentMood) {
         return this.getFallbackResponse(context.currentMood.emotion);
       }
-      
+
       return "I'm here to listen and support you. How are you feeling today?";
     }
   }
 
   private getFallbackResponse(emotion: EmotionType): string {
     const responses = {
-      happy: "It's wonderful to hear from you! I'd love to hear more about what's bringing you joy today.",
+      happy:
+        "It's wonderful to hear from you! I'd love to hear more about what's bringing you joy today.",
       sad: "I'm here with you. Sometimes it helps to talk about what's weighing on your heart.",
-      loneliness: "You're not alone - I'm here to chat and listen. What's on your mind?",
-      anxiety: "I can sense you might be feeling anxious. Take a deep breath with me. What's making you feel this way?",
-      frustration: "Frustration can be really overwhelming. I'm here to listen without judgment. What's been bothering you?",
-      stress: "Stress can feel so heavy. Let's take this one step at a time. What's been on your mind lately?",
-      lethargy: "Sometimes our energy feels low, and that's okay. I'm here to gently support you. How has your day been?",
+      loneliness:
+        "You're not alone - I'm here to chat and listen. What's on your mind?",
+      anxiety:
+        "I can sense you might be feeling anxious. Take a deep breath with me. What's making you feel this way?",
+      frustration:
+        "Frustration can be really overwhelming. I'm here to listen without judgment. What's been bothering you?",
+      stress:
+        "Stress can feel so heavy. Let's take this one step at a time. What's been on your mind lately?",
+      lethargy:
+        "Sometimes our energy feels low, and that's okay. I'm here to gently support you. How has your day been?",
       fear: "Fear can feel so isolating. You're safe here with me. Would you like to share what's worrying you?",
-      grief: "Grief is one of the deepest emotions we experience. I'm here to honor your feelings and listen."
+      grief:
+        "Grief is one of the deepest emotions we experience. I'm here to honor your feelings and listen.",
     };
 
-    return responses[emotion] || "I'm here to listen and support you. How are you feeling right now?";
+    return (
+      responses[emotion] ||
+      "I'm here to listen and support you. How are you feeling right now?"
+    );
   }
 }
 

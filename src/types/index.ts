@@ -11,23 +11,42 @@ export interface User {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   notifications: boolean;
-  privacyLevel: 'public' | 'private' | 'friends';
+  privacyLevel: "public" | "private" | "friends";
   language: string;
 }
 
 // Emotion Types
-export type EmotionType = 
-  | 'happy'
-  | 'sad' 
-  | 'loneliness' 
-  | 'anxiety' 
-  | 'frustration' 
-  | 'stress' 
-  | 'lethargy' 
-  | 'fear' 
-  | 'grief';
+export type EmotionType =
+  | "happy"
+  | "sad"
+  | "loneliness"
+  | "anxiety"
+  | "frustration"
+  | "stress"
+  | "lethargy"
+  | "fear"
+  | "grief";
+
+// Numeric representation for each emotion (1-5 scale)
+export const EMOTION_SCORE: Record<EmotionType, number> = {
+  happy: 5,
+  sad: 2,
+  loneliness: 2,
+  anxiety: 2,
+  frustration: 2,
+  stress: 2,
+  lethargy: 1,
+  fear: 2,
+  grief: 1,
+};
+
+// Helper to normalize intensity (0-10) to 1-5 scale
+export const normalizeIntensityToFivePoint = (intensity: number): number => {
+  const clamped = Math.max(0, Math.min(10, intensity));
+  return Math.round((clamped / 10) * 5 * 10) / 10; // one decimal place
+};
 
 export interface EmotionEntry {
   id: string;
@@ -45,7 +64,7 @@ export interface SurveyResponse {
   questionId: string;
   question: string;
   answer: string | number;
-  category: 'context' | 'severity' | 'triggers' | 'coping';
+  category: "context" | "severity" | "triggers" | "coping";
 }
 
 export interface AIFeedback {
@@ -66,7 +85,7 @@ export interface Game {
   description: string;
   instructions: string;
   duration: number; // in minutes
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
   isActive: boolean;
 }
 
@@ -87,15 +106,15 @@ export interface Achievement {
   name: string;
   description: string;
   icon: string;
-  category: 'emotion' | 'game' | 'streak' | 'milestone';
+  category: "emotion" | "game" | "streak" | "milestone";
   criteria: AchievementCriteria;
   unlockedAt?: Date;
 }
 
 export interface AchievementCriteria {
-  type: 'streak' | 'count' | 'score' | 'completion';
+  type: "streak" | "count" | "score" | "completion";
   value: number;
-  timeframe?: 'daily' | 'weekly' | 'monthly' | 'all-time';
+  timeframe?: "daily" | "weekly" | "monthly" | "all-time";
 }
 
 // Progress & Analytics Types
@@ -138,8 +157,8 @@ export interface PaginatedResponse<T> {
 // Component Props Types
 export interface ButtonProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
   loading?: boolean;
   onClick?: () => void;
@@ -159,7 +178,7 @@ export interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 // Form Types
@@ -205,7 +224,7 @@ export interface AppError {
 export interface Notification {
   _id?: string;
   userId: string;
-  type: 'emotion_log' | 'analytics_check' | 'meditation_session';
+  type: "emotion_log" | "analytics_check" | "meditation_session";
   title: string;
   message: string;
   isRead: boolean;
@@ -284,6 +303,11 @@ export interface CreateEmotionRequest {
   intensity: number;
   context: string;
   surveyResponses?: SurveyResponse[];
+  aiAnalysis?: {
+    moodScore: number;
+    emotionAccuracy: number;
+    insight: string;
+  };
 }
 
 export interface CreateJournalRequest {
@@ -293,6 +317,12 @@ export interface CreateJournalRequest {
   mood?: number;
   tags?: string[];
   isPrivate?: boolean;
+  aiInsights?: {
+    emotionalInsight: string;
+    suggestedActions: string[];
+    emotionAccuracy: number;
+    analysisTimestamp: string;
+  };
 }
 
 // Post-Game Feedback Types
@@ -321,4 +351,4 @@ export interface CreateFeedbackRequest {
     duration?: number;
     achievements?: string[];
   };
-} 
+}

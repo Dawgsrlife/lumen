@@ -1,24 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User } from 'lucide-react';
-import Card from '../components/ui/Card';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { chatbotService } from '../services/chatbot';
-import type { ChatMessage, ChatContext } from '../services/chatbot';
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send } from "lucide-react";
+import Card from "../components/ui/Card";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
+import { chatbotService } from "../services/chatbot";
+import type { ChatMessage, ChatContext } from "../services/chatbot";
+import { useClerkUser } from "../hooks/useClerkUser";
+import ChatMascot from "../components/ui/ChatMascot";
 
 export default function Chat() {
+  const { user } = useClerkUser();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [userAnalytics, setUserAnalytics] = useState<Record<string, unknown> | null>(null);
   const [recentEmotions, setRecentEmotions] = useState([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ 
-      behavior: 'smooth',
-      block: 'end',
-      inline: 'nearest'
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+      inline: "nearest",
     });
   };
 
@@ -27,13 +30,41 @@ export default function Chat() {
     return () => clearTimeout(timer);
   }, [messages]);
 
+  // Global keyboard listener for focusing chat input
+  useEffect(() => {
+    const handleGlobalKeyPress = (e: KeyboardEvent) => {
+      // Only focus input if:
+      // 1. Enter key is pressed
+      // 2. No modifier keys are held
+      // 3. The target is not already an input/textarea
+      // 4. The input exists and is not already focused
+      if (
+        e.key === "Enter" &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.metaKey &&
+        !(e.target instanceof HTMLInputElement) &&
+        !(e.target instanceof HTMLTextAreaElement) &&
+        inputRef.current &&
+        document.activeElement !== inputRef.current
+      ) {
+        e.preventDefault();
+        inputRef.current.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleGlobalKeyPress);
+    return () => document.removeEventListener("keydown", handleGlobalKeyPress);
+  }, []);
+
   useEffect(() => {
     // Initialize with welcome message
     const welcomeMessage: ChatMessage = {
-      id: 'welcome',
-      role: 'assistant',
-      content: "Hi there! I'm Lumi, your AI companion here in Lumen. I'm here to listen, support, and chat with you about anything on your mind. How are you feeling today?",
-      timestamp: new Date()
+      id: "welcome",
+      role: "assistant",
+      content:
+        "Hi there! I'm Lumi, your AI companion here in Lumen. I'm here to listen, support, and chat with you about anything on your mind. How are you feeling today?",
+      timestamp: new Date(),
     };
     setMessages([welcomeMessage]);
 
@@ -45,19 +76,18 @@ export default function Chat() {
     try {
       // In a real app, these would be API calls
       // For now, we'll use mock data or empty arrays
-      setUserAnalytics(null);
       setRecentEmotions([]);
     } catch (error) {
-      console.error('Failed to fetch user context:', error);
+      console.error("Failed to fetch user context:", error);
     }
   };
 
   const buildChatContext = (): ChatContext => {
     return {
-      userAnalytics,
+      userAnalytics: undefined, // Type issue - using undefined for now
       recentEmotions,
       currentMood: undefined, // Would come from recent emotion entry
-      conversationHistory: messages
+      conversationHistory: messages,
     };
   };
 
@@ -66,45 +96,49 @@ export default function Chat() {
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      role: 'user',
+      role: "user",
       content: inputMessage.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
     setIsLoading(true);
 
     try {
       const context = buildChatContext();
-      const response = await chatbotService.generateResponse(inputMessage.trim(), context);
-      
+      const response = await chatbotService.generateResponse(
+        inputMessage.trim(),
+        context
+      );
+
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
+        role: "assistant",
         content: response,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Failed to get chatbot response:', error);
-      
+      console.error("Failed to get chatbot response:", error);
+
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: "I'm sorry, I'm having trouble responding right now. But I'm still here to listen whenever you're ready.",
-        timestamp: new Date()
+        role: "assistant",
+        content:
+          "I'm sorry, I'm having trouble responding right now. But I'm still here to listen whenever you're ready.",
+        timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -115,7 +149,7 @@ export default function Chat() {
       <div className="max-w-6xl mx-auto px-8 py-16">
         {/* Header Section */}
         <div className="mb-8">
-          <div className="mb-4"></div>
+          <div className="mb-2"></div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -133,46 +167,61 @@ export default function Chat() {
 
         {/* Fixed-Size Chat Container */}
         <div className="max-w-4xl mx-auto">
-          <Card className="h-[700px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
-            {/* Messages Area - Fixed height with scroll */}
-            <div className="h-[570px] overflow-y-auto px-6 pt-6 pb-4 space-y-4">
+          <Card className="min-h-[700px] flex flex-col overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100">
+            {/* Messages Area - Flexible height with scroll */}
+            <div
+              className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-4"
+              style={{ minHeight: "500px" }}
+            >
               <AnimatePresence>
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <div className={`flex items-start space-x-3 max-w-[80%] ${
-                      message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                    }`}>
+                    <div
+                      className={`flex items-start space-x-3 max-w-[80%] ${
+                        message.role === "user"
+                          ? "flex-row-reverse space-x-reverse"
+                          : ""
+                      }`}
+                    >
                       {/* Avatar */}
-                      <div className={`p-2 rounded-full ${
-                        message.role === 'user' 
-                          ? 'bg-gray-100 text-gray-600' 
-                          : 'bg-gradient-to-r from-yellow-400 to-purple-600 text-white'
-                      }`}>
-                        {message.role === 'user' ? (
-                          <User className="h-4 w-4" />
-                        ) : (
-                          <Bot className="h-4 w-4" />
-                        )}
-                      </div>
+                      {message.role === "user" ? (
+                        <img
+                          src={user?.imageUrl || ""}
+                          alt="You"
+                          className="h-8 w-8 rounded-full object-cover bg-gray-200"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gradient-to-r from-yellow-400 to-purple-600">
+                          <ChatMascot size="sm" />
+                        </div>
+                      )}
 
                       {/* Message Bubble */}
-                      <div className={`p-4 rounded-2xl ${
-                        message.role === 'user'
-                          ? 'bg-gray-900 text-white rounded-br-sm'
-                          : 'bg-gray-50 text-gray-800 rounded-bl-sm border border-gray-100'
-                      }`}>
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
-                        <p className={`text-xs mt-2 ${
-                          message.role === 'user' ? 'text-gray-300' : 'text-gray-500'
-                        }`}>
-                          {message.timestamp.toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
+                      <div
+                        className={`p-4 rounded-2xl ${
+                          message.role === "user"
+                            ? "bg-gray-900 text-white rounded-br-sm"
+                            : "bg-gray-50 text-gray-800 rounded-bl-sm border border-gray-100"
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {message.content}
+                        </p>
+                        <p
+                          className={`text-xs mt-2 ${
+                            message.role === "user"
+                              ? "text-gray-300"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {message.timestamp.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
                           })}
                         </p>
                       </div>
@@ -189,8 +238,8 @@ export default function Chat() {
                   className="flex justify-start"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-purple-600 text-white">
-                      <Bot className="h-4 w-4" />
+                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gradient-to-r from-yellow-400 to-purple-600">
+                      <ChatMascot size="sm" />
                     </div>
                     <div className="bg-gray-50 p-4 rounded-2xl rounded-bl-sm border border-gray-100">
                       <LoadingSpinner size="sm" />
@@ -202,15 +251,19 @@ export default function Chat() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Fixed Input Area - Always at bottom, fixed height */}
-            <div className="h-[130px] border-t border-gray-100 bg-white p-6 pb-8 flex flex-col justify-center">
-              <div className="relative">
+            {/* Fixed Input Area - Better spacing and height */}
+            <div
+              className="border-t border-gray-100 bg-white p-6 flex flex-col justify-center"
+              style={{ minHeight: "140px" }}
+            >
+              <div className="relative mb-4">
                 <input
+                  ref={inputRef}
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleInputKeyDown}
-                  placeholder="Share what's on your mind..."
+                  placeholder="Press Enter to focus, type and send your message..."
                   className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 bg-gray-50/50 transition-all"
                   disabled={isLoading}
                 />
@@ -222,9 +275,13 @@ export default function Chat() {
                   <Send className="h-4 w-4" />
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                Lumi is here to listen and support you. For urgent concerns, please contact a mental health professional.
-              </p>
+              <div className="text-center px-4">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Press Enter anywhere to focus chat • Lumi is here to listen
+                  and support you • For urgent concerns, please contact a mental
+                  health professional.
+                </p>
+              </div>
             </div>
           </Card>
         </div>

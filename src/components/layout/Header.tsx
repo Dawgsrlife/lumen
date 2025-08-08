@@ -1,14 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useClerk } from '@clerk/clerk-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useClerkUser } from '../../hooks/useClerkUser';
-import LumenIcon from '../ui/LumenIcon';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useClerk } from "@clerk/clerk-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useClerkUser } from "../../hooks/useClerkUser";
+import LumenIcon from "../ui/LumenIcon";
 
-import NotificationsModal from '../ui/NotificationsModal';
-import NotificationsDropdown from '../ui/NotificationsDropdown';
-import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../../services/api';
-import type { Notification } from '../../types';
+import NotificationsModal from "../ui/NotificationsModal";
+import NotificationsDropdown from "../ui/NotificationsDropdown";
+import {
+  getNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteNotification,
+} from "../../services/api";
+import type { Notification } from "../../types";
 
 const Header: React.FC = () => {
   const { user, isAuthenticated } = useClerkUser();
@@ -16,35 +21,39 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isNotificationsDropdownOpen, setIsNotificationsDropdownOpen] = useState(false);
+  const [isNotificationsDropdownOpen, setIsNotificationsDropdownOpen] =
+    useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
+  const [isNotificationsModalOpen, setIsNotificationsModalOpen] =
+    useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
-  const isLandingPage = location.pathname === '/landing';
-  const isWelcomePage = location.pathname === '/welcome';
-
-
+  const isLandingPage = location.pathname === "/landing";
+  const isWelcomePage = location.pathname === "/welcome";
 
   // Handle profile dropdown click outside and ESC key
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Check if the click is on the profile button (which is outside the dropdown)
       const target = event.target as Element;
-      const isProfileButton = target.closest('[data-profile-button]');
+      const isProfileButton = target.closest("[data-profile-button]");
 
-      if (menuRef.current && !menuRef.current.contains(event.target as Node) && !isProfileButton) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        !isProfileButton
+      ) {
         setIsMenuOpen(false);
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsMenuOpen(false);
       }
     };
@@ -52,34 +61,32 @@ const Header: React.FC = () => {
     if (isMenuOpen) {
       // Use a small delay to prevent immediate closing when opening
       const timeoutId = setTimeout(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('keydown', handleEscape);
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleEscape);
       }, 100);
 
       return () => {
         clearTimeout(timeoutId);
-        document.removeEventListener('mousedown', handleClickOutside);
-        document.removeEventListener('keydown', handleEscape);
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleEscape);
       };
     }
   }, [isMenuOpen]);
 
-
-
   const handleSignOut = async () => {
-    console.log('🔄 Header: Starting sign out process...');
+    console.log("🔄 Header: Starting sign out process...");
     setIsSigningOut(true);
     try {
-      console.log('📤 Header: Calling Clerk signOut...');
+      console.log("📤 Header: Calling Clerk signOut...");
       await signOut();
-      console.log('✅ Header: Sign out successful, navigating to home...');
-      navigate('/');
+      console.log("✅ Header: Sign out successful, navigating to home...");
+      navigate("/");
     } catch (error) {
-      console.error('❌ Header: Sign out error:', error);
+      console.error("❌ Header: Sign out error:", error);
     } finally {
       setIsSigningOut(false);
       setIsMenuOpen(false);
-      console.log('🏁 Header: Sign out process completed');
+      console.log("🏁 Header: Sign out process completed");
     }
   };
 
@@ -92,87 +99,15 @@ const Header: React.FC = () => {
       if (response.success && response.notifications) {
         setNotifications(response.notifications);
       } else {
-        // For now, use mock notifications until backend is fully connected
-        setNotifications([
-          {
-            _id: '1',
-            userId: user?.id || '',
-            type: 'emotion_log',
-            title: 'Time to check in!',
-            message: 'How are you feeling today? Take a moment to log your emotions.',
-            isRead: false,
-            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-            actionUrl: '/dashboard'
-          },
-          {
-            _id: '2',
-            userId: user?.id || '',
-            type: 'analytics_check',
-            title: 'Weekly insights ready',
-            message: 'Your weekly mood analysis is complete. Check out your progress!',
-            isRead: false,
-            createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-            actionUrl: '/analytics'
-          },
-          {
-            _id: '3',
-            userId: user?.id || '',
-            type: 'meditation_session',
-            title: 'Meditation reminder',
-            message: 'Take a 5-minute break to practice mindfulness and reduce stress.',
-            isRead: true,
-            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-            actionUrl: '/dashboard'
-          },
-          {
-            _id: '4',
-            userId: user?.id || '',
-            type: 'emotion_log',
-            title: 'Great progress!',
-            message: 'You\'ve logged emotions for 7 days in a row. Keep up the amazing work!',
-            isRead: true,
-            createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
-            actionUrl: '/analytics'
-          },
-          {
-            _id: '5',
-            userId: user?.id || '',
-            type: 'analytics_check',
-            title: 'New feature available',
-            message: 'Check out the new detailed insights in your analytics dashboard.',
-            isRead: true,
-            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-            actionUrl: '/analytics'
-          }
-        ]);
+        // No notifications available
+        setNotifications([]);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
-      // Fallback to mock notifications
-      setNotifications([
-        {
-          _id: '1',
-          userId: user?.id || '',
-          type: 'emotion_log',
-          title: 'Time to check in!',
-          message: 'How are you feeling today? Take a moment to log your emotions.',
-          isRead: false,
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          actionUrl: '/dashboard'
-        },
-        {
-          _id: '2',
-          userId: user?.id || '',
-          type: 'analytics_check',
-          title: 'Weekly insights ready',
-          message: 'Your weekly mood analysis is complete. Check out your progress!',
-          isRead: false,
-          createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          actionUrl: '/analytics'
-        }
-      ]);
+      console.error("Error fetching notifications:", error);
+      // No notifications on error
+      setNotifications([]);
     }
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated]);
 
   // Handle notification click
   const handleNotificationClick = async (notification: Notification) => {
@@ -180,13 +115,13 @@ const Header: React.FC = () => {
     if (!notification.isRead) {
       try {
         await markNotificationAsRead(notification._id!);
-        setNotifications(prev =>
-          prev.map(n =>
+        setNotifications((prev) =>
+          prev.map((n) =>
             n._id === notification._id ? { ...n, isRead: true } : n
           )
         );
       } catch (error) {
-        console.error('Error marking notification as read:', error);
+        console.error("Error marking notification as read:", error);
       }
     }
 
@@ -196,17 +131,17 @@ const Header: React.FC = () => {
     } else {
       // Fallback navigation based on type
       switch (notification.type) {
-        case 'emotion_log':
-          navigate('/dashboard');
+        case "emotion_log":
+          navigate("/dashboard");
           break;
-        case 'analytics_check':
-          navigate('/analytics');
+        case "analytics_check":
+          navigate("/analytics");
           break;
-        case 'meditation_session':
-          navigate('/chat');
+        case "meditation_session":
+          navigate("/chat");
           break;
         default:
-          console.log('Unknown notification type:', notification.type);
+          console.log("Unknown notification type:", notification.type);
       }
     }
 
@@ -219,11 +154,19 @@ const Header: React.FC = () => {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllNotificationsAsRead();
-      setNotifications(prev =>
-        prev.map(n => ({ ...n, isRead: true }))
-      );
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      console.error("Error marking all notifications as read:", error);
+    }
+  };
+
+  // Clear individual notification
+  const handleClearNotification = async (notificationId: string) => {
+    try {
+      await deleteNotification(notificationId);
+      setNotifications((prev) => prev.filter((n) => n._id !== notificationId));
+    } catch (error) {
+      console.error("Error clearing notification:", error);
     }
   };
 
@@ -238,9 +181,9 @@ const Header: React.FC = () => {
   }
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard', protected: true },
-    { label: 'Analytics', href: '/analytics', protected: true },
-    { label: 'Chat', href: '/chat', protected: true },
+    { label: "Dashboard", href: "/dashboard", protected: true },
+    { label: "Analytics", href: "/analytics", protected: true },
+    { label: "Chat", href: "/chat", protected: true },
   ];
 
   return (
@@ -248,7 +191,10 @@ const Header: React.FC = () => {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo with LumenIcon */}
-          <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <Link
+            to={isAuthenticated ? "/dashboard" : "/"}
+            className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+          >
             <LumenIcon size="sm" />
             <span className="text-xl font-light text-gray-900">Lumen</span>
           </Link>
@@ -261,10 +207,11 @@ const Header: React.FC = () => {
                   <Link
                     key={item.href}
                     to={item.href}
-                    className={`text-sm font-medium transition-colors duration-200 px-4 py-2 rounded-lg whitespace-nowrap ${isActive(item.href)
-                        ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                      }`}
+                    className={`text-sm font-medium transition-colors duration-200 px-4 py-2 rounded-lg whitespace-nowrap ${
+                      isActive(item.href)
+                        ? "text-blue-600 bg-blue-50"
+                        : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+                    }`}
                   >
                     {item.label}
                   </Link>
@@ -272,10 +219,30 @@ const Header: React.FC = () => {
               </>
             ) : (
               <>
-                <Link to="/" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer">HOME</Link>
-                <Link to="/about" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer">ABOUT</Link>
-                <Link to="/features" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer">FEATURES</Link>
-                <Link to="/contact" className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer">CONTACT</Link>
+                <Link
+                  to="/"
+                  className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer"
+                >
+                  HOME
+                </Link>
+                <Link
+                  to="/about"
+                  className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer"
+                >
+                  ABOUT
+                </Link>
+                <Link
+                  to="/features"
+                  className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer"
+                >
+                  FEATURES
+                </Link>
+                <Link
+                  to="/contact"
+                  className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors cursor-pointer"
+                >
+                  CONTACT
+                </Link>
               </>
             )}
           </nav>
@@ -297,13 +264,23 @@ const Header: React.FC = () => {
                     }}
                     className="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-lg hover:bg-gray-50 relative cursor-pointer hover:scale-105"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 0 1 6 6v3.75l2.25 2.25a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25L6.75 12.75V9.75a6 6 0 0 1 6-6z" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 0 1 6 6v3.75l2.25 2.25a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25L6.75 12.75V9.75a6 6 0 0 1 6-6z"
+                      />
                     </svg>
                     {/* Notification badge */}
-                    {notifications.filter(n => !n.isRead).length > 0 && (
+                    {notifications.filter((n) => !n.isRead).length > 0 && (
                       <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                        {notifications.filter(n => !n.isRead).length}
+                        {notifications.filter((n) => !n.isRead).length}
                       </span>
                     )}
                   </button>
@@ -341,15 +318,29 @@ const Header: React.FC = () => {
                       />
                     ) : (
                       <span className="text-blue-600 font-semibold text-sm">
-                        {user?.firstName?.[0] || user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() || 'U'}
+                        {user?.firstName?.[0] ||
+                          user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() ||
+                          "U"}
                       </span>
                     )}
                   </div>
                   <span className="hidden sm:block font-light">
-                    {user?.firstName || user?.primaryEmailAddress?.emailAddress || 'User'}
+                    {user?.firstName ||
+                      user?.primaryEmailAddress?.emailAddress ||
+                      "User"}
                   </span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
@@ -384,7 +375,7 @@ const Header: React.FC = () => {
                         disabled={isSigningOut}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        {isSigningOut ? 'Signing out...' : 'Sign out'}
+                        {isSigningOut ? "Signing out..." : "Sign out"}
                       </button>
                     </motion.div>
                   )}
@@ -393,7 +384,7 @@ const Header: React.FC = () => {
             ) : (
               <div className="flex items-center space-x-3">
                 <Link to="/sign-in">
-                  <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                  <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer">
                     Sign In
                   </button>
                 </Link>
@@ -410,6 +401,7 @@ const Header: React.FC = () => {
         notifications={notifications}
         onNotificationClick={handleNotificationClick}
         onMarkAllAsRead={handleMarkAllAsRead}
+        onClearNotification={handleClearNotification}
       />
     </header>
   );

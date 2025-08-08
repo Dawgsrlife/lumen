@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { useClerkUser } from '../hooks/useClerkUser';
-import { apiService } from '../services/api';
-import type { JournalEntry } from '../types';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { useClerkUser } from "../hooks/useClerkUser";
+import { apiService } from "../services/api";
+import type { JournalEntry } from "../types";
 
 const CheckIns: React.FC = () => {
   const { user } = useClerkUser();
@@ -16,19 +16,22 @@ const CheckIns: React.FC = () => {
   useEffect(() => {
     const fetchCheckIns = async () => {
       if (!user) return;
-      
+
       try {
         setIsLoading(true);
         const response = await apiService.getJournalEntries({
           page: currentPage,
           limit: entriesPerPage,
-          includePrivate: true
+          includePrivate: true,
         });
-        
+
         setJournalEntries(response.entries);
-        setTotalEntries(response.pagination?.total || response.entries.length);
+        setTotalEntries(
+          (response.pagination as { total?: number })?.total ||
+            response.entries.length
+        );
       } catch (error) {
-        console.error('Error fetching check-ins:', error);
+        console.error("Error fetching check-ins:", error);
         // Fallback to empty array on error
         setJournalEntries([]);
         setTotalEntries(0);
@@ -42,13 +45,13 @@ const CheckIns: React.FC = () => {
 
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long',
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -61,9 +64,11 @@ const CheckIns: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Authentication Required
           </h1>
-          <p className="text-gray-600 mb-8 text-lg">Please sign in to view your check-ins</p>
-          <Link 
-            to="/sign-in" 
+          <p className="text-gray-600 mb-8 text-lg">
+            Please sign in to view your check-ins
+          </p>
+          <Link
+            to="/sign-in"
             className="px-8 py-4 bg-gray-900 text-white rounded-xl font-semibold shadow-lg hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 cursor-pointer"
           >
             Sign In
@@ -77,23 +82,23 @@ const CheckIns: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
       <div className="relative z-10 max-w-6xl mx-auto px-8 py-16">
         {/* Beautiful Header */}
-        <motion.div 
+        <motion.div
           className="text-center mb-16 flex flex-col items-center justify-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
-          <motion.h1 
+          <motion.h1
             className="text-5xl lg:text-6xl font-bold leading-tight text-gray-900 mb-6 text-center"
-            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+            style={{ fontFamily: "Playfair Display, Georgia, serif" }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             Your Check-In History
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             className="text-xl leading-relaxed text-gray-600 max-w-3xl mx-auto font-light text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -118,27 +123,31 @@ const CheckIns: React.FC = () => {
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
               <p className="text-gray-600 text-lg">Loading your check-ins...</p>
             </div>
           </div>
         ) : (
           <>
             {/* Check-ins List */}
-            <div className="space-y-6 mb-12">
+            <div className="space-y-8 mb-16">
               {journalEntries.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="text-center py-16"
+                  className="text-center py-20"
                 >
-                  <div className="text-6xl mb-6">📝</div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">No check-ins yet</h3>
-                  <p className="text-gray-600 mb-8 text-lg">Start your journey by logging your first emotion</p>
+                  <div className="text-6xl mb-12">📝</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-8">
+                    No check-ins yet
+                  </h3>
+                  <p className="text-gray-600 mb-16 text-lg max-w-md mx-auto">
+                    Start your journey by logging your first emotion
+                  </p>
                   <Link
                     to="/flow?manual=true"
-                    className="inline-block px-8 py-4 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                    className="inline-block px-8 py-4 bg-gray-900 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
                   >
                     💭 Log Your First Emotion
                   </Link>
@@ -150,41 +159,47 @@ const CheckIns: React.FC = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300"
+                    className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300"
                   >
-                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3 mb-6">
                           <h3 className="text-xl font-bold text-gray-900 flex-1">
                             {entry.title}
                           </h3>
                           {entry.mood && (
-                            <div className="flex items-center gap-2 bg-yellow-50 px-3 py-1 rounded-lg">
+                            <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-lg">
                               <span className="text-sm font-medium text-yellow-700">
                                 Mood: {entry.mood}/10
                               </span>
                               <div className="flex">
-                                {Array.from({ length: Math.floor(entry.mood / 2) }).map((_, i) => (
-                                  <span key={i} className="text-yellow-500">⭐</span>
+                                {Array.from({
+                                  length: Math.floor(entry.mood / 2),
+                                }).map((_, i) => (
+                                  <span
+                                    key={i}
+                                    className="text-yellow-500 text-lg"
+                                  >
+                                    ⭐
+                                  </span>
                                 ))}
                               </div>
                             </div>
                           )}
                         </div>
-                        
-                        <p className="text-gray-700 mb-4 leading-relaxed">
-                          {entry.content.length > 200 
-                            ? `${entry.content.substring(0, 200)}...` 
-                            : entry.content
-                          }
+
+                        <p className="text-gray-700 mb-6 leading-relaxed text-lg">
+                          {entry.content.length > 200
+                            ? `${entry.content.substring(0, 200)}...`
+                            : entry.content}
                         </p>
-                        
+
                         {entry.tags && entry.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-3">
+                          <div className="flex flex-wrap gap-2 mb-4">
                             {entry.tags.map((tag, tagIndex) => (
                               <span
                                 key={tagIndex}
-                                className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium"
+                                className="px-3 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium"
                               >
                                 #{tag}
                               </span>
@@ -192,13 +207,13 @@ const CheckIns: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="text-right md:text-left md:min-w-[200px]">
-                        <p className="text-sm text-gray-500 mb-2">
+                        <p className="text-sm text-gray-500 mb-3">
                           {formatDate(entry.createdAt)}
                         </p>
                         {entry.isPrivate && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-sm">
+                          <span className="inline-flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm">
                             🔒 Private
                           </span>
                         )}
@@ -215,7 +230,7 @@ const CheckIns: React.FC = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex justify-center items-center gap-4 mb-8"
+                className="flex justify-center items-center gap-4 mb-16 mt-8"
               >
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -224,13 +239,15 @@ const CheckIns: React.FC = () => {
                 >
                   Previous
                 </button>
-                
-                <span className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-purple-600 text-white rounded-lg font-semibold">
+
+                <span className="px-4 py-2 bg-gray-900 text-white rounded-lg font-semibold">
                   {currentPage} of {totalPages}
                 </span>
-                
+
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg hover:bg-white hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -240,47 +257,6 @@ const CheckIns: React.FC = () => {
             )}
           </>
         )}
-
-        {/* Action Buttons */}
-        <motion.div
-          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          <motion.button
-            onClick={() => window.location.href = '/flow?manual=true'}
-            className="relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
-            style={{
-              background: 'linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)',
-              boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
-            }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <span className="relative z-10">
-              💭 Add New Check-in
-            </span>
-          </motion.button>
-          
-          <motion.button
-            onClick={() => window.location.href = '/analytics'}
-            className="px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-xl font-semibold border border-gray-200 hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            📊 View Analytics
-          </motion.button>
-          
-          <motion.button
-            onClick={() => window.location.href = '/dashboard'}
-            className="px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-xl font-semibold border border-gray-200 hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            🏠 Back to Dashboard
-          </motion.button>
-        </motion.div>
       </div>
     </div>
   );

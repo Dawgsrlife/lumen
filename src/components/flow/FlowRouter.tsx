@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react';
-import WelcomeScreen from '../WelcomeScreen';
-import EmotionSelectionScreen from '../EmotionSelectionScreen';
-import GamePromptScreen from '../GamePromptScreen';
-import FlowGameSection from './FlowGameSection';
-import JournalingStep from '../JournalingStep';
-import { useFlowState } from '../../hooks/useFlowState';
-import { LumenMascot } from '../ui';
-import type { EmotionType } from '../../types';
+import React, { useEffect } from "react";
+import WelcomeScreen from "../WelcomeScreen";
+import EmotionSelectionScreen from "../EmotionSelectionScreen";
+import GamePromptScreen from "../GamePromptScreen";
+import FlowGameSection from "./FlowGameSection";
+import JournalingStep from "../JournalingStep";
+import { useFlowState } from "../../hooks/useFlowState";
+import { LumenMascot } from "../ui";
+import type { EmotionType } from "../../types";
+import type { UnityGameData } from "../../services/unity";
 
 interface FlowRouterProps {
   onComplete?: () => void;
@@ -14,69 +15,71 @@ interface FlowRouterProps {
 
 const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
   const flowState = useFlowState(); // Use the unified hook
-  
+
   // Debug logging for step changes
   useEffect(() => {
-    console.log('FlowRouter: Step changed to:', flowState.currentStep);
+    console.log("FlowRouter: Step changed to:", flowState.currentStep);
   }, [flowState.currentStep]);
-  
+
   const handleWelcomeComplete = () => {
-    console.log('Welcome completed, advancing to emotion selection');
-    flowState.actions.setCurrentStep('emotion-selection');
+    console.log("Welcome completed, advancing to emotion selection");
+    flowState.actions.setCurrentStep("emotion-selection");
   };
 
   const handleEmotionSelected = (emotion: EmotionType) => {
-    console.log('Emotion selected:', emotion);
+    console.log("Emotion selected:", emotion);
     flowState.actions.selectEmotion(emotion);
     // Don't auto-advance to game - go to game-prompt first
-    flowState.actions.setCurrentStep('game-prompt');
+    flowState.actions.setCurrentStep("game-prompt");
   };
 
   const handleGamePromptContinue = () => {
-    console.log('Game prompt continue');
-    
+    console.log("Game prompt continue");
+
     // Update URL with game parameter based on selected emotion
     const emotionToGameName: Record<string, string> = {
-      'frustration': 'boxbreathing',
-      'stress': 'balancingact', 
-      'anxiety': 'boxbreathing',
-      'sad': 'colorbloom',
-      'grief': 'memorylantern',
-      'lethargy': 'rythmgrow',
-      'anger': 'boxbreathing',
-      'happy': 'colorbloom',
-      'loneliness': 'memorylantern',
-      'fear': 'boxbreathing'
+      frustration: "boxbreathing",
+      stress: "balancingact",
+      anxiety: "boxbreathing",
+      sad: "colorbloom",
+      grief: "memorylantern",
+      lethargy: "rythmgrow",
+      anger: "boxbreathing",
+      happy: "colorbloom",
+      loneliness: "memorylantern",
+      fear: "boxbreathing",
     };
-    
+
     const selectedEmotion = flowState.selectedEmotion;
-    const gameName = selectedEmotion ? emotionToGameName[selectedEmotion] : null;
-    
+    const gameName = selectedEmotion
+      ? emotionToGameName[selectedEmotion]
+      : null;
+
     if (gameName) {
       // Update URL without page refresh
       const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('game', gameName);
-      window.history.replaceState({}, '', newUrl.toString());
-      console.log('Updated URL with game parameter:', gameName);
+      newUrl.searchParams.set("game", gameName);
+      window.history.replaceState({}, "", newUrl.toString());
+      console.log("Updated URL with game parameter:", gameName);
     }
-    
-    flowState.actions.setCurrentStep('game');
+
+    flowState.actions.setCurrentStep("game");
   };
 
-  const handleGameComplete = (data: Record<string, unknown>) => {
-    console.log('Game completed');
-    
+  const handleGameComplete = (data: UnityGameData) => {
+    console.log("Game completed");
+
     // Remove game parameter from URL when moving to journaling
     const newUrl = new URL(window.location.href);
-    newUrl.searchParams.delete('game');
-    window.history.replaceState({}, '', newUrl.toString());
-    
+    newUrl.searchParams.delete("game");
+    window.history.replaceState({}, "", newUrl.toString());
+
     flowState.actions.completeGame(data);
-    flowState.actions.setCurrentStep('journaling');
+    flowState.actions.setCurrentStep("journaling");
   };
 
   const handleJournalingComplete = () => {
-    console.log('Journaling completed');
+    console.log("Journaling completed");
     // Save journal entry and complete flow
     flowState.actions.completeFlow();
     if (onComplete) {
@@ -85,27 +88,23 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
   };
 
   const renderStep = () => {
-    console.log('Rendering step:', flowState.currentStep);
-    
-    switch (flowState.currentStep) {
-      case 'welcome':
-        return (
-          <WelcomeScreen
-            onComplete={handleWelcomeComplete}
-          />
-        );
+    console.log("Rendering step:", flowState.currentStep);
 
-      case 'emotion-selection':
+    switch (flowState.currentStep) {
+      case "welcome":
+        return <WelcomeScreen onComplete={handleWelcomeComplete} />;
+
+      case "emotion-selection":
         return (
           <EmotionSelectionScreen
             onEmotionSelect={handleEmotionSelected} // ✅ CORRECT prop name
           />
         );
 
-      case 'game-prompt':
+      case "game-prompt":
         return (
           <GamePromptScreen
-            selectedEmotion={flowState.selectedEmotion || 'happy'}
+            selectedEmotion={flowState.selectedEmotion || "happy"}
             onPlayGame={handleGamePromptContinue}
             onSkipGame={() => {
               flowState.actions.completeFlow();
@@ -114,22 +113,22 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
           />
         );
 
-      case 'game':
+      case "game":
         return (
           <FlowGameSection
-            emotion={flowState.selectedEmotion || 'happy'}
+            emotion={flowState.selectedEmotion || "happy"}
             onGameComplete={handleGameComplete}
-            onRewardEarned={(reward) => console.log('Reward earned:', reward)}
+            onRewardEarned={(reward) => console.log("Reward earned:", reward)}
             onSkip={() => {
-              flowState.actions.setCurrentStep('journaling');
+              flowState.actions.setCurrentStep("journaling");
             }}
           />
         );
 
-      case 'journaling':
+      case "journaling":
         return (
           <JournalingStep
-            selectedEmotion={flowState.selectedEmotion || 'happy'}
+            selectedEmotion={flowState.selectedEmotion || "happy"}
             gameCompleted={flowState.gameData?.gameId || undefined}
             onComplete={handleJournalingComplete}
             onSkip={() => {
@@ -143,9 +142,11 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
         return (
           <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">Unknown Step: {flowState.currentStep}</h1>
-              <button 
-                onClick={() => flowState.actions.setCurrentStep('welcome')} 
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                Unknown Step: {flowState.currentStep}
+              </h1>
+              <button
+                onClick={() => flowState.actions.setCurrentStep("welcome")}
                 className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300 cursor-pointer"
               >
                 Restart Flow
@@ -158,10 +159,11 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {flowState.currentStep !== 'welcome' && flowState.currentStep !== 'game' && <LumenMascot currentPage="/flow" />}
+      {flowState.currentStep !== "welcome" &&
+        flowState.currentStep !== "game" && <LumenMascot currentPage="/flow" />}
       {renderStep()}
     </div>
   );
 };
 
-export default FlowRouter; 
+export default FlowRouter;

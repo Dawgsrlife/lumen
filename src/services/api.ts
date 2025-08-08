@@ -24,9 +24,14 @@ const getAuthToken = async (): Promise<string> => {
   return token;
 };
 
+const getSessionId = (): string | null => {
+  return localStorage.getItem('lumen_session_id');
+};
+
 class ApiService {
   private api: AxiosInstance;
   private token: string | null = null;
+  private sessionId: string | null = null;
 
   constructor() {
     this.api = axios.create({
@@ -42,6 +47,9 @@ class ApiService {
       (config) => {
         if (this.token) {
           config.headers.Authorization = `Bearer ${this.token}`;
+        }
+        if (this.sessionId) {
+          (config.headers as Record<string, string>)["X-Session-Id"] = this.sessionId;
         }
         return config;
       },
@@ -105,6 +113,18 @@ class ApiService {
     localStorage.removeItem('lumen_token');
   }
 
+  // Session management for Clerk
+  setSessionId(sessionId: string) {
+    this.sessionId = sessionId;
+    localStorage.setItem('lumen_session_id', sessionId);
+  }
+  getSessionId(): string | null {
+    if (!this.sessionId) {
+      this.sessionId = localStorage.getItem('lumen_session_id');
+    }
+    return this.sessionId;
+  }
+
   // Authentication
   async registerWithClerk(clerkToken: string, userData: {
     firstName?: string;
@@ -165,6 +185,38 @@ class ApiService {
       console.error('Error creating emotion entry:', error);
       throw error;
     }
+  }
+
+  // Journal entries
+  async createJournalEntry(journalData: CreateJournalRequest): Promise<{
+    journalEntry: JournalEntry;
+    analysis?: {
+      sentiment: 'positive' | 'negative' | 'neutral';
+      keyThemes: string[];
+      suggestions: string[];
+    };
+  }> {
+    const response: AxiosResponse = await this.api.post('/api/journal', journalData);
+    // Create a simple notification on first journal/check-in of the day
+    try {
+      await fetch(`${API_BASE_URL}/notifications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getToken() || ''}`,
+          'X-Session-Id': this.getSessionId() || ''
+        },
+        body: JSON.stringify({
+          type: 'emotion_log',
+          title: 'Check-in saved',
+          message: 'Great job logging your emotion today.',
+          actionUrl: '/dashboard'
+        })
+      });
+    } catch {
+      // fail quietly
+    }
+    return response.data.data;
   }
 
   /**
@@ -440,7 +492,8 @@ export const getNotifications = async (): Promise<NotificationResponse> => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await getAuthToken()}`
+        'Authorization': `Bearer ${await getAuthToken()}`,
+        'X-Session-Id': getSessionId() || ''
       }
     });
     
@@ -458,7 +511,8 @@ export const createNotification = async (notification: Omit<Notification, '_id' 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await getAuthToken()}`
+        'Authorization': `Bearer ${await getAuthToken()}`,
+        'X-Session-Id': getSessionId() || ''
       },
       body: JSON.stringify(notification)
     });
@@ -477,7 +531,8 @@ export const markNotificationAsRead = async (notificationId: string): Promise<No
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await getAuthToken()}`
+        'Authorization': `Bearer ${await getAuthToken()}`,
+        'X-Session-Id': getSessionId() || ''
       }
     });
     
@@ -495,7 +550,8 @@ export const markAllNotificationsAsRead = async (): Promise<NotificationResponse
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await getAuthToken()}`
+        'Authorization': `Bearer ${await getAuthToken()}`,
+        'X-Session-Id': getSessionId() || ''
       }
     });
     
@@ -513,7 +569,8 @@ export const deleteNotification = async (notificationId: string): Promise<Notifi
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await getAuthToken()}`
+        'Authorization': `Bearer ${await getAuthToken()}`,
+        'X-Session-Id': getSessionId() || ''
       }
     });
     

@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "author": "Alex Meng (Project Manager, Frontend Lead & Backend Integration), Zikora (Full Stack Developer), Nathan (Game Development), Vishnu (Backend Integration & API Support)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

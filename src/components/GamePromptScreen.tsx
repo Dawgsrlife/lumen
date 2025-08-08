@@ -1,107 +1,133 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import type { EmotionType } from '../types';
+import React from "react";
+import { motion } from "framer-motion";
+import type { EmotionType } from "../types";
 
 // Emotion data with encouraging messages and game info
-const emotionData: Record<EmotionType, { 
-  emoji: string; 
-  label: string; 
-  encouragingMessage: string;
-  gameInfo: {
-    duration: string;
-    difficulty: string;
-    benefits: string[];
-  };
-}> = {
-  happy: { 
-    emoji: '😊', 
-    label: 'Happy', 
-    encouragingMessage: 'Your joy is beautiful! Let\'s celebrate this moment together.',
+const emotionData: Record<
+  EmotionType,
+  {
+    emoji: string;
+    label: string;
+    encouragingMessage: string;
     gameInfo: {
-      duration: '5-10 minutes',
-      difficulty: 'Easy',
-      benefits: ['Celebrate positive emotions', 'Create beautiful visual art', 'Practice gratitude']
-    }
+      duration: string;
+      difficulty: string;
+      benefits: string[];
+    };
+  }
+> = {
+  happy: {
+    emoji: "😊",
+    label: "Happy",
+    encouragingMessage:
+      "Your joy is beautiful! Let's celebrate this moment together.",
+    gameInfo: {
+      duration: "5-10 minutes",
+      difficulty: "Easy",
+      benefits: [
+        "Celebrate positive emotions",
+        "Create beautiful visual art",
+        "Practice gratitude",
+      ],
+    },
   },
-  sad: { 
-    emoji: '😢', 
-    label: 'Sad', 
-    encouragingMessage: 'It\'s okay to feel sad. Let\'s find some gentle comfort together.',
+  sad: {
+    emoji: "😢",
+    label: "Sad",
+    encouragingMessage:
+      "It's okay to feel sad. Let's find some gentle comfort together.",
     gameInfo: {
-      duration: '8-12 minutes',
-      difficulty: 'Gentle',
-      benefits: ['Nurture growth and beauty', 'Find comfort in creation', 'Practice self-care']
-    }
+      duration: "8-12 minutes",
+      difficulty: "Gentle",
+      benefits: [
+        "Nurture growth and beauty",
+        "Find comfort in creation",
+        "Practice self-care",
+      ],
+    },
   },
-  loneliness: { 
-    emoji: '😔', 
-    label: 'Loneliness', 
-    encouragingMessage: 'You\'re not alone. Let\'s create a moment of connection.',
+  loneliness: {
+    emoji: "😔",
+    label: "Loneliness",
+    encouragingMessage:
+      "You're not alone. Let's create a moment of connection.",
     gameInfo: {
-      duration: '10-15 minutes',
-      difficulty: 'Gentle',
-      benefits: ['Connect with meaningful memories', 'Find inner peace', 'Practice self-compassion']
-    }
+      duration: "10-15 minutes",
+      difficulty: "Gentle",
+      benefits: [
+        "Connect with meaningful memories",
+        "Find inner peace",
+        "Practice self-compassion",
+      ],
+    },
   },
-  anxiety: { 
-    emoji: '😰', 
-    label: 'Anxiety', 
-    encouragingMessage: 'Let\'s find some calm together. You\'re doing great.',
+  anxiety: {
+    emoji: "😰",
+    label: "Anxiety",
+    encouragingMessage: "Let's find some calm together. You're doing great.",
     gameInfo: {
-      duration: '5-8 minutes',
-      difficulty: 'Easy',
-      benefits: ['Calm your nervous system', 'Focus your attention', 'Practice mindfulness']
-    }
+      duration: "10-15 minutes",
+      difficulty: "Calming",
+      benefits: ["Practice mindfulness", "Reduce tension", "Find inner peace"],
+    },
   },
-  frustration: { 
-    emoji: '😤', 
-    label: 'Frustration', 
-    encouragingMessage: 'Let\'s release that tension and find some peace.',
+  stress: {
+    emoji: "😤",
+    label: "Stress",
+    encouragingMessage:
+      "Feeling overwhelmed is tough. Let's work through this together.",
     gameInfo: {
-      duration: '5-8 minutes',
-      difficulty: 'Easy',
-      benefits: ['Release physical tension', 'Calm your mind', 'Practice patience']
-    }
+      duration: "8-15 minutes",
+      difficulty: "Balancing",
+      benefits: ["Restore balance", "Practice focus", "Build resilience"],
+    },
   },
-  stress: { 
-    emoji: '😵', 
-    label: 'Stress', 
-    encouragingMessage: 'Let\'s take a moment to breathe and unwind together.',
+  frustration: {
+    emoji: "",
+    label: "Frustration",
+    encouragingMessage:
+      "Frustration can be exhausting. Let's find some relief together.",
     gameInfo: {
-      duration: '8-12 minutes',
-      difficulty: 'Easy',
-      benefits: ['Reduce stress hormones', 'Improve focus', 'Practice relaxation']
-    }
+      duration: "10-15 minutes",
+      difficulty: "Soothing",
+      benefits: ["Release tension", "Practice breathing", "Find clarity"],
+    },
   },
-  lethargy: { 
-    emoji: '😴', 
-    label: 'Lethargy', 
-    encouragingMessage: 'Let\'s gently awaken your energy with something soothing.',
+  lethargy: {
+    emoji: "😴",
+    label: "Lethargy",
+    encouragingMessage:
+      "Low energy is okay. Let's gently re-energize together.",
     gameInfo: {
-      duration: '10-15 minutes',
-      difficulty: 'Gentle',
-      benefits: ['Gently increase energy', 'Improve mood', 'Practice gentle movement']
-    }
+      duration: "5-10 minutes",
+      difficulty: "Energizing",
+      benefits: ["Boost energy", "Practice rhythm", "Feel alive"],
+    },
   },
-  fear: { 
-    emoji: '😨', 
-    label: 'Fear', 
-    encouragingMessage: 'You\'re safe here. Let\'s find courage together.',
+  fear: {
+    emoji: "😨",
+    label: "Fear",
+    encouragingMessage: "Fear is natural. Let's face it with courage together.",
     gameInfo: {
-      duration: '5-10 minutes',
-      difficulty: 'Easy',
-      benefits: ['Calm your nervous system', 'Build courage', 'Practice safety']
-    }
+      duration: "10-15 minutes",
+      difficulty: "Gentle",
+      benefits: ["Build confidence", "Practice breathing", "Find courage"],
+    },
   },
-  grief: { 
-    emoji: '💔', 
-    label: 'Grief', 
-    encouragingMessage: 'Your feelings are valid. Let\'s honor them with gentle care.',
+  grief: {
+    emoji: "😭",
+    label: "Grief",
+    encouragingMessage:
+      "Grief shows how much you care. Let's honor these feelings.",
     gameInfo: {
-      duration: '12-18 minutes',
-      difficulty: 'Gentle',
-      benefits: ['Honor your feelings', 'Find peace', 'Practice self-compassion']
-    }
+      duration: "12-18 minutes",
+      difficulty: "Gentle",
+      benefits: [
+        "Honor your feelings",
+        "Find peace",
+        "Practice self-compassion",
+      ],
+    },
   },
 };
 
@@ -111,148 +137,81 @@ interface GamePromptScreenProps {
   onSkipGame: () => void;
 }
 
-const GamePromptScreen: React.FC<GamePromptScreenProps> = ({ 
-  selectedEmotion, 
-  onPlayGame, 
-  onSkipGame 
+const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
+  selectedEmotion,
+  onPlayGame,
+  onSkipGame,
 }) => {
   const emotion = emotionData[selectedEmotion];
 
   return (
     <motion.div
-      className="w-full min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50"
+      className="w-full min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-br from-gray-50 via-white to-gray-100"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="text-center max-w-3xl">
+      <div className="text-center max-w-md">
         {/* Emotion Display */}
         <motion.div
-          className="text-8xl mb-6"
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
+          className="mb-8"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
         >
-          {emotion.emoji}
+          <div className="text-6xl mb-4">{emotion.emoji}</div>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+            {emotion.label}
+          </h2>
+          <p className="text-gray-600 leading-relaxed">
+            {emotion.encouragingMessage}
+          </p>
         </motion.div>
 
-        <motion.h2
-          className="text-3xl md:text-4xl font-light text-gray-900 mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          {emotion.label}
-        </motion.h2>
-
-        <div className="mb-4"></div>
-
-        <motion.p
-          className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-        >
-          {emotion.encouragingMessage}
-        </motion.p>
-
-        <div className="mb-4"></div>
-
-        {/* Game Information Card */}
+        {/* Simple Game Info */}
         <motion.div
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg border border-white/20"
+          className="bg-white rounded-xl p-6 mb-8 border border-gray-200 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
         >
-          <h3 className="text-xl font-medium text-gray-900 mb-4">
-            🎮 Game Information
-          </h3>
-
-          <div className="mb-4"></div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="text-center">
-              <div className="text-2xl mb-1">⏱️</div>
-              <div className="text-sm text-gray-600">Duration</div>
-              <div className="font-medium text-gray-900">{emotion.gameInfo.duration}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl mb-1">📊</div>
-              <div className="text-sm text-gray-600">Difficulty</div>
-              <div className="font-medium text-gray-900">{emotion.gameInfo.difficulty}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl mb-1">✨</div>
-              <div className="text-sm text-gray-600">Benefits</div>
-              <div className="font-medium text-gray-900">{emotion.gameInfo.benefits.length} areas</div>
-            </div>
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <span className="text-lg">🎮</span>
+            <span className="font-medium text-gray-900">Calming Activity</span>
           </div>
-
-          <div className="mb-4"></div>
-          
-          <div className="text-left">
-            <div className="text-sm text-gray-600 mb-2">What you'll gain:</div>
-            <ul className="space-y-1">
-              {emotion.gameInfo.benefits.map((benefit, index) => (
-                <li key={index} className="text-sm text-gray-700 flex items-center">
-                  <span className="text-green-500 mr-2">✓</span>
-                  {benefit}
-                </li>
-              ))}
-            </ul>
+          <div className="text-sm text-gray-600 space-y-1">
+            <p>
+              {emotion.gameInfo.duration} • {emotion.gameInfo.difficulty}
+            </p>
+            <p className="text-xs">{emotion.gameInfo.benefits.join(", ")}</p>
           </div>
-
-          <div className="mb-4"></div>
         </motion.div>
 
-        <div className="mb-4"></div>
-
-        <motion.h3
-          className="text-2xl md:text-3xl font-light text-gray-900 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0, duration: 0.6 }}
-        >
-          Would you like to play a calming game?
-        </motion.h3>
-
-        <div className="mb-4"></div>
-
+        {/* Clean Action Buttons */}
         <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="space-y-3"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
         >
-          <motion.button
+          <button
             onClick={onPlayGame}
-            className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl text-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="w-full px-6 py-4 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 cursor-pointer"
           >
-            <span className="flex items-center justify-center gap-2">
-              <span>🎮</span>
-              Yes, let's play
-            </span>
-          </motion.button>
-          
-          <motion.button
+            Start Activity
+          </button>
+
+          <button
             onClick={onSkipGame}
-            className="px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl text-lg font-medium hover:bg-gray-200 transition-all duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="w-full px-6 py-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 cursor-pointer"
           >
-            <span className="flex items-center justify-center gap-2">
-              <span>⏭️</span>
-              Maybe later
-            </span>
-          </motion.button>
+            Skip for now
+          </button>
         </motion.div>
       </div>
     </motion.div>
   );
 };
 
-export default GamePromptScreen; 
+export default GamePromptScreen;

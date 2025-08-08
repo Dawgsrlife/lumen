@@ -9,6 +9,7 @@ import { useAppContext, useFlow } from './context/hooks';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import LoginRedirectHandler from './components/auth/LoginRedirectHandler';
 import { Header, Footer } from './components/layout';
+import AuthSync from './components/auth/AuthSync';
 
 // Lazy load pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -86,6 +87,7 @@ function App() {
     <ErrorBoundary>
       <Router>
         <ClerkProviderWrapper>
+          <AuthSync />
           <AppProvider>
             <FlowProvider>
               <Routes>

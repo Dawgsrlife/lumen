@@ -24,6 +24,7 @@ A minimalist mental health web app designed to support users through emotion tra
 ## 🎨 Design System
 
 **Color Palette:**
+
 - Primary (Yellow): `#FBBF24` - representing light/lumen
 - Secondary (Purple): `#8B5CF6` - for highlights and accents
 - Dark Mode: `#1F2937`
@@ -31,25 +32,29 @@ A minimalist mental health web app designed to support users through emotion tra
 
 ## 📋 Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - Git
 
 ## 🚀 Quick Start
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/Dawgsrlife/lumen.git
 cd lumen
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Environment Setup
+
 Create a `.env` file in the root directory:
+
 ```env
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
@@ -59,11 +64,13 @@ VITE_APP_VERSION=1.0.0
 ```
 
 ### 4. Get API Keys
+
 - **Clerk**: [Dashboard](https://dashboard.clerk.com/) for authentication
 - **Google Gemini**: [AI Studio](https://aistudio.google.com/) for AI features
 - **MongoDB**: [Atlas](https://cloud.mongodb.com/) for database
 
 ### 5. Start Development Server
+
 ```bash
 npm run dev
 ```
@@ -102,9 +109,9 @@ Each emotion triggers a specific therapeutic mini-game:
 
 ## 🤝 Team Roles
 
-- **Alex**: Frontend & UI/UX Design (Lead)
+- **Alex Meng**: Project Manager, Frontend Lead & Backend Integration
+- **Zikora**: Full Stack Developer
 - **Nathan**: Game Development (Mini-games)
-- **Zikora**: Frontend & UI/UX Design (Support)
 - **Vishnu**: Backend Integration & API Support
 
 ## 📝 Available Scripts
@@ -125,6 +132,7 @@ Each emotion triggers a specific therapeutic mini-game:
 ## 📊 Healthcare Focus
 
 This app addresses mental health through:
+
 - **Clinical Relevance**: Evidence-based therapeutic techniques
 - **Healthcare Outcomes**: Measurable impact on user well-being
 - **Evidence-Based**: Research-backed intervention methods

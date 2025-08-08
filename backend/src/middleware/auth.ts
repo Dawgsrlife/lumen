@@ -28,6 +28,7 @@ export const authenticateToken = async (
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const sessionIdHeader = (req.headers['x-session-id'] || req.headers['x-clerk-session-id']) as string | undefined;
 
     if (!token) {
       res.status(401).json({
@@ -37,8 +38,8 @@ export const authenticateToken = async (
       return;
     }
 
-    // Verify token with Clerk
-    const authUser = await clerkService.verifyToken(token);
+    // Verify token with Clerk (supports JWT or session verify)
+    const authUser = await clerkService.verifyToken(token, sessionIdHeader);
     
     if (!authUser) {
       res.status(401).json({
