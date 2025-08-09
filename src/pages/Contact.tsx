@@ -6,7 +6,7 @@ const Contact: React.FC = () => {
   const teamMembers = [
     {
       name: "Alex Meng",
-      role: "Project Manager, Frontend Lead & Backend Integration",
+      role: "Project Manager & Lead Developer",
       email: "alex.meng@mail.utoronto.ca",
     },
     {
