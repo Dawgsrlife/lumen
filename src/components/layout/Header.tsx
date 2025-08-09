@@ -85,17 +85,22 @@ const Header: React.FC = () => {
         console.log("🧹 Header: Cleared localStorage data for user");
       }
 
-      console.log("📤 Header: Calling Clerk signOut with explicit redirect...");
+      console.log("📤 Header: Calling Clerk signOut...");
 
-      // Force sign out with immediate redirect
-      await signOut(() => navigate("/landing", { replace: true }));
+      // Call signOut without any callback to prevent Clerk's automatic redirect
+      await signOut();
 
-      console.log("✅ Header: Sign out completed successfully");
+      console.log(
+        "✅ Header: Sign out completed, forcing navigation to landing"
+      );
+
+      // Force immediate navigation to landing page
+      window.location.href = "/landing";
     } catch (error) {
       console.error("❌ Header: Sign out error:", error);
       // Fallback: Force navigation to landing if Clerk signOut fails
       console.log("🔄 Header: Using fallback navigation to landing");
-      navigate("/landing", { replace: true });
+      window.location.href = "/landing";
     } finally {
       setIsSigningOut(false);
       setIsMenuOpen(false);

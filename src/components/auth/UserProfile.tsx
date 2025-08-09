@@ -1,6 +1,5 @@
 import { useClerk } from "@clerk/clerk-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   User,
@@ -16,7 +15,6 @@ import { useClerkUser } from "../../hooks/useClerkUser";
 export const UserProfile: React.FC = () => {
   const { user } = useClerkUser();
   const { signOut } = useClerk();
-  const navigate = useNavigate();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
@@ -31,19 +29,22 @@ export const UserProfile: React.FC = () => {
         console.log("🧹 UserProfile: Cleared localStorage data for user");
       }
 
+      console.log("📤 UserProfile: Calling Clerk signOut...");
+
+      // Call signOut without any callback to prevent Clerk's automatic redirect
+      await signOut();
+
       console.log(
-        "📤 UserProfile: Calling Clerk signOut with explicit redirect..."
+        "✅ UserProfile: Sign out completed, forcing navigation to landing"
       );
 
-      // Force sign out with immediate redirect
-      await signOut(() => navigate("/landing", { replace: true }));
-
-      console.log("✅ UserProfile: Sign out completed successfully");
+      // Force immediate navigation to landing page
+      window.location.href = "/landing";
     } catch (error) {
       console.error("❌ UserProfile: Sign out error:", error);
       // Fallback: Force navigation to landing if Clerk signOut fails
       console.log("🔄 UserProfile: Using fallback navigation to landing");
-      navigate("/landing", { replace: true });
+      window.location.href = "/landing";
     } finally {
       setIsSigningOut(false);
       console.log("🏁 UserProfile: Sign out process completed");
