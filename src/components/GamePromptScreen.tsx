@@ -202,7 +202,7 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
           >
             <motion.button
               onClick={onPlayGame}
-              className="px-8 py-3 bg-gradient-to-r from-slate-800 to-slate-700 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300 min-w-[160px]"
+              className="px-8 py-3 bg-gradient-to-r from-slate-800 to-slate-700 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300 min-w-[160px] cursor-pointer"
               style={{ fontFamily: "Playfair Display, Georgia, serif" }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -212,7 +212,7 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
 
             <motion.button
               onClick={onSkipGame}
-              className="px-8 py-3 bg-white/80 text-slate-600 font-light border border-slate-200 rounded-full hover:bg-white hover:border-slate-300 transition-all duration-300 min-w-[160px] backdrop-blur-sm"
+              className="px-8 py-3 bg-white/80 text-slate-600 font-light border border-slate-200 rounded-full hover:bg-white hover:border-slate-300 transition-all duration-300 min-w-[160px] backdrop-blur-sm cursor-pointer"
               style={{ fontFamily: "Playfair Display, Georgia, serif" }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

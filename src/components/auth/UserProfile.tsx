@@ -22,24 +22,27 @@ export const UserProfile: React.FC = () => {
   const handleSignOut = async () => {
     console.log("🔄 UserProfile: Starting sign out process...");
     setIsSigningOut(true);
-    try {
-      console.log("📤 UserProfile: Calling Clerk signOut...");
-      await signOut();
-      console.log(
-        "✅ UserProfile: Sign out successful, navigating to landing..."
-      );
 
-      // Clear any localStorage data that might interfere
+    try {
+      // Clear any localStorage data that might interfere FIRST
       const userKey = user?.id ? `lumen-welcome-shown-${user.id}` : null;
       if (userKey) {
         localStorage.removeItem(userKey);
+        console.log("🧹 UserProfile: Cleared localStorage data for user");
       }
 
-      // Force navigation to landing page
-      navigate("/landing", { replace: true });
+      console.log(
+        "📤 UserProfile: Calling Clerk signOut with explicit redirect..."
+      );
+
+      // Force sign out with immediate redirect
+      await signOut(() => navigate("/landing", { replace: true }));
+
+      console.log("✅ UserProfile: Sign out completed successfully");
     } catch (error) {
       console.error("❌ UserProfile: Sign out error:", error);
-      // Even if signOut fails, try to navigate to landing
+      // Fallback: Force navigation to landing if Clerk signOut fails
+      console.log("🔄 UserProfile: Using fallback navigation to landing");
       navigate("/landing", { replace: true });
     } finally {
       setIsSigningOut(false);
@@ -207,7 +210,7 @@ export const UserProfile: React.FC = () => {
               <motion.button
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="w-full flex items-center justify-center gap-3 bg-gray-900 text-white py-4 px-6 rounded-xl hover:bg-gray-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                className="w-full flex items-center justify-center gap-3 bg-gray-900 text-white py-4 px-6 rounded-xl hover:bg-gray-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
                 whileHover={{ scale: isSigningOut ? 1 : 1.02 }}
                 whileTap={{ scale: isSigningOut ? 1 : 0.98 }}
               >

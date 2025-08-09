@@ -85,6 +85,8 @@ const ClerkProviderWrapper: React.FC<{ children: React.ReactNode }> = ({
       routerPush={(to) => navigate(to)}
       routerReplace={(to) => navigate(to, { replace: true })}
       afterSignOutUrl="/landing"
+      signInUrl="/sign-in"
+      signUpUrl="/sign-in"
     >
       {children}
     </ClerkProvider>

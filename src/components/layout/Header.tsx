@@ -76,22 +76,25 @@ const Header: React.FC = () => {
   const handleSignOut = async () => {
     console.log("🔄 Header: Starting sign out process...");
     setIsSigningOut(true);
-    try {
-      console.log("📤 Header: Calling Clerk signOut...");
-      await signOut();
-      console.log("✅ Header: Sign out successful, navigating to landing...");
 
-      // Clear any localStorage data that might interfere
+    try {
+      // Clear any localStorage data that might interfere FIRST
       const userKey = user?.id ? `lumen-welcome-shown-${user.id}` : null;
       if (userKey) {
         localStorage.removeItem(userKey);
+        console.log("🧹 Header: Cleared localStorage data for user");
       }
 
-      // Force navigation to landing page
-      navigate("/landing", { replace: true });
+      console.log("📤 Header: Calling Clerk signOut with explicit redirect...");
+
+      // Force sign out with immediate redirect
+      await signOut(() => navigate("/landing", { replace: true }));
+
+      console.log("✅ Header: Sign out completed successfully");
     } catch (error) {
       console.error("❌ Header: Sign out error:", error);
-      // Even if signOut fails, try to navigate to landing
+      // Fallback: Force navigation to landing if Clerk signOut fails
+      console.log("🔄 Header: Using fallback navigation to landing");
       navigate("/landing", { replace: true });
     } finally {
       setIsSigningOut(false);
