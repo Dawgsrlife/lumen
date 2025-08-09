@@ -6,3 +6,9 @@
   SKIP_PREFLIGHT_CHECK = "true"
   SECRETS_SCAN_OMIT_PATHS = "*.md,backend/**/*.md,env.example,backend/env.example,dist/unity-builds/**/*,public/unity-builds/**/*,unity-build/**/*"
   SECRETS_SCAN_OMIT_KEYS = "VITE_CLERK_PUBLISHABLE_KEY,VITE_GEMINI_API_KEY,NODE_ENV,PORT"
+
+# SPA redirect rule - all routes should serve index.html for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
