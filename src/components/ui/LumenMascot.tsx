@@ -155,15 +155,14 @@ const LumenMascot: React.FC<LumenMascotProps> = ({ currentPage }) => {
       const viewportHeight = window.innerHeight;
 
       // Adjust position based on current page
-      let yOffset = 160; // Default offset from bottom
-
-      // For analytics and other content-heavy pages, position lower
+      let yOffset = 120; // Default offset from bottom
+      // For analytics and other content-heavy pages
       if (
         currentPage === "/analytics" ||
         currentPage === "/chat" ||
         currentPage === "/check-ins"
       ) {
-        yOffset = 120; // Closer to bottom for these pages
+        yOffset = 200; // Closer to bottom for these pages
       }
 
       // Position in bottom right, but not too close to edges

@@ -355,15 +355,9 @@ const UnityGame: React.FC<UnityGameProps> = ({
         >
           <motion.div
             className="text-4xl mb-4"
-            animate={{
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
             {theme.icon}
           </motion.div>
@@ -572,11 +566,23 @@ const UnityGame: React.FC<UnityGameProps> = ({
         {isLoaded && (
           <div className="p-4 bg-gray-50 border-t border-gray-200">
             <div className="flex justify-center">
-              <div
+              <motion.div
                 className="relative overflow-hidden rounded-lg inline-block"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 style={{
                   background:
-                    "linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)",
+                    gameId === "colorbloom"
+                      ? "linear-gradient(135deg, #fb7185 0%, #ec4899 100%)"
+                      : gameId === "rythmgrow"
+                        ? "linear-gradient(135deg, #34d399 0%, #10b981 100%)"
+                        : gameId === "boxbreathing"
+                          ? "linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)"
+                          : gameId === "memorylantern"
+                            ? "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)"
+                            : gameId === "balancingact"
+                              ? "linear-gradient(135deg, #64748b 0%, #475569 100%)"
+                              : "linear-gradient(135deg, #818cf8 0%, #8b5cf6 100%)", // Default
                 }}
               >
                 <button
@@ -593,7 +599,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
                 >
                   Finish
                 </button>
-              </div>
+              </motion.div>
             </div>
           </div>
         )}
