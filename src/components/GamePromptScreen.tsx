@@ -151,7 +151,7 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
 
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-6">
-        <div className="text-center max-w-2xl mx-auto">
+        <div className="text-center w-full mx-auto">
           {/* Emotion Display */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -164,11 +164,12 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
           >
             <div className="text-6xl mb-8">{emotion.emoji}</div>
             <h2
-              className="text-xl md:text-2xl font-light text-gray-600 mb-12 leading-relaxed tracking-wide max-w-lg mx-auto"
+              className="text-xl md:text-2xl font-light text-gray-600 mb-12 leading-relaxed tracking-wide w-full"
               style={{ fontFamily: "Playfair Display, Georgia, serif" }}
             >
               {emotion.encouragingMessage}
             </h2>
+            <div className="mb-12"></div>
           </motion.div>
 
           {/* Simple Question */}
@@ -187,6 +188,7 @@ const GamePromptScreen: React.FC<GamePromptScreenProps> = ({
             >
               Ready for a mindful moment?
             </h1>
+            <div className="mb-16"></div>
           </motion.div>
 
           {/* Action Buttons */}

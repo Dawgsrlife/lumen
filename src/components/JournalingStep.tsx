@@ -111,6 +111,7 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">
             How are you feeling now?
           </h1>
+          <div className="mb-2"></div>
           <p className="text-gray-600 mb-2">
             Take a moment to reflect on your experience.
           </p>

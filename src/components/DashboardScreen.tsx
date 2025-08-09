@@ -21,18 +21,10 @@ const dashboardMessages = [
   "You're creating positive change 🌟",
 ];
 
-// Function to get a consistent random message for the day
-const getDailyMessage = (): string => {
-  const today = new Date().toDateString();
-  // Create a simple hash from the date string
-  let hash = 0;
-  for (let i = 0; i < today.length; i++) {
-    const char = today.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  const index = Math.abs(hash) % dashboardMessages.length;
-  return dashboardMessages[index];
+// Function to get a random message each time the dashboard is viewed
+const getRandomMessage = (): string => {
+  const randomIndex = Math.floor(Math.random() * dashboardMessages.length);
+  return dashboardMessages[randomIndex];
 };
 
 const emotionData: Record<
@@ -157,6 +149,7 @@ const WeeklyProgress: React.FC<{ weeklyData: boolean[] }> = ({
         >
           Weekly Journey
         </h3>
+        <div className="mb-3"></div>
         <div className="flex items-center justify-center gap-2">
           <span className="text-3xl font-bold text-slate-900">
             {loggedDays}
@@ -275,7 +268,7 @@ const StreakCounter: React.FC<{ currentStreak: number }> = ({
         >
           {getStreakEmoji(currentStreak)}
         </motion.div>
-
+        <div className="mb-4"></div>
         <motion.div
           className="text-4xl font-bold text-slate-900 mb-2"
           initial={{ opacity: 0 }}
@@ -335,7 +328,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       ? (selectedEmotion as EmotionType)
       : "happy";
   const emotion = emotionData[safeSelectedEmotion] || emotionData.happy;
-  const dailyMessage = getDailyMessage();
+  const dailyMessage = getRandomMessage();
 
   // Safety check for weeklyData with comprehensive validation
   const safeWeeklyData =
@@ -369,7 +362,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <motion.p
-            className="text-2xl md:text-3xl text-slate-600 font-light leading-relaxed max-w-2xl mx-auto tracking-wide"
+            className="text-2xl md:text-3xl text-slate-600 font-light leading-relaxed mx-auto tracking-wide"
             style={{ fontFamily: "Playfair Display, Georgia, serif" }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -480,6 +473,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             >
               Your Dedication
             </motion.h3>
+            <div className="mb-8"></div>
             <StreakCounter currentStreak={safeCurrentStreak} />
           </motion.div>
         </div>

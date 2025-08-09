@@ -279,7 +279,7 @@ export default function Chat() {
                             ${message.role === "user" ? "justify-end" : "justify-start"}
                           `}
                           >
-                            <Clock className="w-3 h-3" />
+                            <Clock className="w-3 h-3 mt-2" />
                             {message.timestamp.toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -351,6 +351,7 @@ export default function Chat() {
                 </motion.button>
               </div>
 
+              <div className="mt-3"></div>
               {/* Helper text */}
               <p className="text-xs text-slate-500 mt-3 text-center">
                 Press Enter to send • Lumi is here to support your wellness

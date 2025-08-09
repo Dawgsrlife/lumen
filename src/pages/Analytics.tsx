@@ -279,6 +279,8 @@ const Analytics: React.FC = () => {
             Your Journey Insights
           </motion.h1>
 
+          <div className="mb-6"></div>
+
           <motion.div
             className="w-24 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto mb-8"
             initial={{ width: 0, opacity: 0 }}
@@ -287,7 +289,7 @@ const Analytics: React.FC = () => {
           />
 
           <motion.p
-            className="text-lg text-gray-600 font-light max-w-2xl mx-auto leading-relaxed"
+            className="text-lg text-gray-600 font-light mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
@@ -347,6 +349,8 @@ const Analytics: React.FC = () => {
             >
               Your Emotional Patterns
             </motion.h2>
+
+            <div className="mb-3"></div>
 
             <motion.div
               className="w-16 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto mb-6"
@@ -481,6 +485,7 @@ const Analytics: React.FC = () => {
             >
               Average Mood
             </h3>
+            <div className="mb-3"></div>
             <div className="text-3xl font-light text-gray-900 mb-2">
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -492,6 +497,7 @@ const Analytics: React.FC = () => {
                 "—"
               )}
             </div>
+            <div className="mb-2"></div>
             <p className="text-sm text-slate-500 font-light">
               {analytics?.averageMood && analytics.averageMood > 0
                 ? "out of 5"
@@ -520,6 +526,7 @@ const Analytics: React.FC = () => {
             >
               Check-ins
             </h3>
+            <div className="mb-3"></div>
             <div className="text-3xl font-light text-gray-900 mb-2">
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -529,12 +536,14 @@ const Analytics: React.FC = () => {
                 analytics?.totalEntries || 0
               )}
             </div>
+            <div className="mb-2"></div>
             <p className="text-sm text-slate-500 font-light mb-3">
               {selectedTimeRange === "7days" && "past week"}
               {selectedTimeRange === "month" && "past month"}
               {selectedTimeRange === "3months" && "past 3 months"}
               {selectedTimeRange === "alltime" && "total entries"}
             </p>
+            <div className="mb-3"></div>
             <p className="text-xs text-emerald-600 font-medium opacity-75">
               Tap to explore
             </p>
@@ -560,6 +569,7 @@ const Analytics: React.FC = () => {
             >
               Current Streak
             </h3>
+            <div className="mb-3"></div>
             <div className="text-3xl font-light text-gray-900 mb-2">
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -569,6 +579,7 @@ const Analytics: React.FC = () => {
                 currentStreak
               )}
             </div>
+            <div className="mb-2"></div>
             <p className="text-sm text-slate-500 font-light">
               consecutive days
             </p>

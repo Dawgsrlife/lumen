@@ -39,6 +39,7 @@ const EmotionSelectionScreen: React.FC<EmotionSelectionScreenProps> = ({
             >
               How are you feeling today?
             </h1>
+            <div className="mb-12"></div>
           </motion.div>
 
           {/* Emotion Selector */}

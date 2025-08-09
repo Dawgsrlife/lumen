@@ -573,7 +573,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
                 style={{
                   background:
                     gameId === "colorbloom"
-                      ? "linear-gradient(135deg, #fb7185 0%, #ec4899 100%)"
+                      ? "linear-gradient(135deg, #f472b6 0%, #ec4899 100%)" // Brighter pink for Color Bloom
                       : gameId === "rythmgrow"
                         ? "linear-gradient(135deg, #34d399 0%, #10b981 100%)"
                         : gameId === "boxbreathing"
@@ -582,7 +582,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
                             ? "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)"
                             : gameId === "balancingact"
                               ? "linear-gradient(135deg, #64748b 0%, #475569 100%)"
-                              : "linear-gradient(135deg, #818cf8 0%, #8b5cf6 100%)", // Default
+                              : "linear-gradient(135deg, #f472b6 50%, #ec4899 100%)", // Default to pink instead of purple
                 }}
               >
                 <button
@@ -651,6 +651,7 @@ const UnityGame: React.FC<UnityGameProps> = ({
           </motion.div>
         )}
       </motion.div>
+      <div className="mb-12"></div>
     </div>
   );
 };

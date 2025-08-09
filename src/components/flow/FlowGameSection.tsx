@@ -81,60 +81,60 @@ const emotionToGame: Record<
   sad: {
     gameId: "lumen-minigames",
     gameName: "colorbloom",
-    title: "🌸 Color Bloom",
+    title: "Color Bloom",
     description:
       "When you feel numb or hopeless, nurture flowers and watch color return to a quiet world",
   },
   lethargy: {
     gameId: "lumen-minigames",
     gameName: "rythmgrow",
-    title: "🌳 Rhythm Grow",
+    title: "Rhythm Grow",
     description:
       "Energize yourself by pressing to the rhythm of upbeat music and regain your focus",
   },
   grief: {
     gameId: "lumen-minigames",
     gameName: "memorylantern",
-    title: "🏮 Memory Lantern",
+    title: "Memory Lantern",
     description:
       "Write a message to someone you're remembering and release it as a glowing lantern",
   },
   stress: {
     gameId: "lumen-minigames",
     gameName: "balancingact",
-    title: "🪨 Balancing Act",
+    title: "Balancing Act",
     description:
       "Rebuild a tower by carefully stacking stones, symbolizing healing and resilience",
   },
   anxiety: {
     gameId: "lumen-minigames",
     gameName: "boxbreathing",
-    title: "🫁 Box Breathing",
+    title: "Box Breathing",
     description:
       "Calm your mind with structured breathing patterns and find inner peace",
   },
   frustration: {
     gameId: "lumen-minigames",
     gameName: "boxbreathing",
-    title: "🫁 Box Breathing",
+    title: "Box Breathing",
     description: "Release tension with focused breathing techniques",
   },
   loneliness: {
     gameId: "lumen-minigames",
     gameName: "colorbloom",
-    title: "🌸 Color Bloom",
+    title: "Color Bloom",
     description: "Find comfort in nurturing and watching life bloom around you",
   },
   fear: {
     gameId: "lumen-minigames",
     gameName: "boxbreathing",
-    title: "🫁 Box Breathing",
+    title: "Box Breathing",
     description: "Ground yourself with calming breath work and reduce fear",
   },
   happy: {
     gameId: "lumen-minigames",
     gameName: "rythmgrow",
-    title: "🌳 Rhythm Grow",
+    title: "Rhythm Grow",
     description:
       "Celebrate your positive energy with uplifting rhythmic activities",
   },
@@ -192,7 +192,7 @@ const FlowGameSection: React.FC<FlowGameSectionProps> = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* Header with proper top margin */}
-      <div className="pt-8 pb-4 px-6">
+      <div className="pt-12 pb-4 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
             className="text-center mb-6"
@@ -203,6 +203,7 @@ const FlowGameSection: React.FC<FlowGameSectionProps> = ({
             <h1 className="text-3xl font-semibold text-gray-900 mb-2">
               {instructions?.emoji} {gameConfig.title}
             </h1>
+            <div className="mb-2"></div>
             <p className="text-gray-600">{gameConfig.description}</p>
           </motion.div>
         </div>

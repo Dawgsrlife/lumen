@@ -97,6 +97,7 @@ const CheckIns: React.FC = () => {
           >
             Your Check-In History
           </motion.h1>
+          <div className="mb-6"></div>
 
           <motion.p
             className="text-xl leading-relaxed text-gray-600 max-w-3xl mx-auto font-light text-center"
@@ -106,6 +107,7 @@ const CheckIns: React.FC = () => {
           >
             A journey through your thoughts and reflections
           </motion.p>
+          <div className="mt-6"></div>
 
           <motion.div
             className="mt-6 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 shadow-sm"
@@ -142,9 +144,11 @@ const CheckIns: React.FC = () => {
                   <h3 className="text-2xl font-bold text-gray-900 mb-8">
                     No check-ins yet
                   </h3>
-                  <p className="text-gray-600 mb-16 text-lg max-w-md mx-auto">
+                  <div className="mb-8"></div>
+                  <p className="text-gray-600 mb-16 text-lg mx-auto">
                     Start your journey by logging your first emotion
                   </p>
+                  <div className="mb-16"></div>
                   <Link
                     to="/flow?manual=true"
                     className="inline-block px-8 py-4 bg-gray-900 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
