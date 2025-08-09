@@ -553,10 +553,34 @@ const UnityGame: React.FC<UnityGameProps> = ({
                       });
                     }
                   }}
-                  className="px-3 py-2 bg-red-600/50 text-white border border-red-400/20 rounded-lg text-sm hover:bg-red-600/70 transition-all duration-300"
+                  className="px-4 py-2 bg-slate-600/80 hover:bg-slate-700/90 text-white border border-slate-400/30 rounded-lg text-sm font-medium transition-all duration-300 backdrop-blur-sm"
                 >
-                  Stop
+                  Skip Game
                 </button>
+              </div>
+            )}
+
+            {/* Skip Button for Loading State */}
+            {!isLoaded && !error && !loadingError && (
+              <div className="absolute top-4 right-4">
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1, duration: 0.3 }}
+                  onClick={() => {
+                    if (onGameComplete) {
+                      onGameComplete({
+                        gameId: gameId,
+                        score: 0,
+                        duration: 0,
+                        achievements: [],
+                      });
+                    }
+                  }}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-lg text-sm font-medium transition-all duration-300 backdrop-blur-sm shadow-lg"
+                >
+                  Skip Game
+                </motion.button>
               </div>
             )}
           </motion.div>
