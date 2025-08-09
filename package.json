@@ -6,8 +6,8 @@
   "author": "Alex Meng (Project Manager, Frontend Lead & Backend Integration), Zikora (Full Stack Developer), Nathan (Game Development), Vishnu (Backend Integration & API Support)",
   "scripts": {
     "dev": "vite",
-    "build": "npm run type-check && vite build",
-    "type-check": "npx tsc --noEmit",
+    "build": "vite build",
+    "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview"
   },
