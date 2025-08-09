@@ -1,11 +1,45 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send } from "lucide-react";
+import { Send, MessageCircle, Clock } from "lucide-react";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { chatbotService } from "../services/chatbot";
 import type { ChatMessage, ChatContext } from "../services/chatbot";
 import { useClerkUser } from "../hooks/useClerkUser";
 import ChatMascot from "../components/ui/ChatMascot";
+
+// Modern animation variants for better performance
+const messageVariants = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+    scale: 0.95,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 500,
+      damping: 30,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    transition: { duration: 0.2 },
+  },
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
 
 export default function Chat() {
   const { user } = useClerkUser();
@@ -16,18 +50,19 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const scrollToBottom = () => {
+  // Optimized scroll behavior
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "end",
       inline: "nearest",
     });
-  };
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(scrollToBottom, 100);
     return () => clearTimeout(timer);
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   // Global keyboard listener for focusing chat input
   useEffect(() => {
@@ -144,166 +179,183 @@ export default function Chat() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.05),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.8),transparent_50%)]" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50">
+      {/* Modern geometric background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(99,102,241,0.03),transparent_70%),radial-gradient(circle_at_75%_75%,rgba(168,162,158,0.05),transparent_70%)]" />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-8 py-20">
-        {/* Enhanced Header */}
-        <motion.div
-          className="text-center mb-12"
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-6xl">
+        {/* Clean, minimal header */}
+        <motion.header
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
         >
-          <motion.h1
-            className="text-3xl md:text-4xl font-light text-gray-900 mb-4 tracking-wide"
-            style={{ fontFamily: "Playfair Display, Georgia, serif" }}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            Chat with Lumi
-          </motion.h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+              <MessageCircle className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Chat with Lumi
+            </h1>
+          </div>
+          <p className="text-slate-600 text-sm">
+            Your AI wellness companion • Available 24/7
+          </p>
+        </motion.header>
 
-          <motion.div
-            className="w-16 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto mb-6"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 64, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 1.0, ease: "easeOut" }}
-          />
-
-          <motion.p
-            className="text-lg text-gray-600 font-light"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-          >
-            Your compassionate AI companion for mindful conversations
-          </motion.p>
-        </motion.div>
-
-        {/* Elegant Chat Container */}
+        {/* Main chat interface */}
         <motion.div
           className="max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.8 }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/60 min-h-[700px] flex flex-col overflow-hidden">
-            {/* Messages Area - Flexible height with scroll */}
-            <div
-              className="flex-1 overflow-y-auto px-8 pt-8 pb-4 space-y-6"
-              style={{ minHeight: "500px" }}
-            >
-              <AnimatePresence>
-                {messages.map((message) => (
-                  <motion.div
-                    key={message.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`flex items-start space-x-3 max-w-[80%] ${
+          {/* Chat container with modern glass morphism */}
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 overflow-hidden">
+            {/* Messages area with better scroll handling */}
+            <div className="h-[65vh] overflow-y-auto overflow-x-hidden">
+              <div className="p-6 space-y-4">
+                <AnimatePresence mode="popLayout">
+                  {messages.map((message) => (
+                    <motion.div
+                      key={message.id}
+                      variants={messageVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      layout
+                      className={`flex ${
                         message.role === "user"
-                          ? "flex-row-reverse space-x-reverse"
-                          : ""
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
-                      {/* Avatar */}
-                      {message.role === "user" ? (
-                        <img
-                          src={user?.imageUrl || ""}
-                          alt="You"
-                          className="h-8 w-8 rounded-full object-cover bg-gray-200"
-                        />
-                      ) : (
-                        <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gradient-to-r from-yellow-400 to-purple-600">
-                          <ChatMascot size="sm" />
-                        </div>
-                      )}
-
-                      {/* Message Bubble */}
+                      {/* Message bubble with improved design */}
                       <div
-                        className={`px-6 py-4 rounded-2xl max-w-md ${
-                          message.role === "user"
-                            ? "bg-gradient-to-r from-slate-800 to-slate-700 text-white rounded-br-md shadow-lg"
-                            : "bg-white border border-slate-200/60 text-gray-800 rounded-bl-md shadow-sm"
-                        }`}
+                        className={`
+                          flex items-start gap-3 max-w-[85%] sm:max-w-[75%]
+                          ${message.role === "user" ? "flex-row-reverse" : ""}
+                        `}
                       >
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed font-light">
-                          {message.content}
-                        </p>
-                        <p
-                          className={`text-xs mt-3 font-light ${
-                            message.role === "user"
-                              ? "text-slate-300"
-                              : "text-slate-500"
-                          }`}
-                        >
-                          {message.timestamp.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
+                        {/* Avatar */}
+                        <div className="flex-shrink-0">
+                          {message.role === "user" ? (
+                            <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white/50">
+                              <img
+                                src={user?.imageUrl || ""}
+                                alt="You"
+                                className="w-full h-full object-cover bg-slate-200"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center ring-2 ring-white/50">
+                              <ChatMascot size="sm" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Message content */}
+                        <div className="flex flex-col gap-1">
+                          <div
+                            className={`
+                              px-4 py-3 rounded-2xl relative
+                              ${
+                                message.role === "user"
+                                  ? "bg-slate-900 text-white rounded-br-md shadow-sm"
+                                  : "bg-white/90 text-slate-800 border border-slate-200/50 rounded-bl-md shadow-sm"
+                              }
+                            `}
+                          >
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                              {message.content}
+                            </p>
+                          </div>
+
+                          {/* Timestamp */}
+                          <div
+                            className={`
+                            flex items-center gap-1 text-xs text-slate-500
+                            ${message.role === "user" ? "justify-end" : "justify-start"}
+                          `}
+                          >
+                            <Clock className="w-3 h-3" />
+                            {message.timestamp.toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {/* Typing indicator */}
+                {isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex justify-start"
+                  >
+                    <div className="flex items-start gap-3 max-w-[75%]">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center ring-2 ring-white/50">
+                        <ChatMascot size="sm" />
+                      </div>
+                      <div className="bg-white/90 border border-slate-200/50 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
+                        <LoadingSpinner size="sm" />
                       </div>
                     </div>
                   </motion.div>
-                ))}
-              </AnimatePresence>
+                )}
 
-              {/* Loading Indicator */}
-              {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex justify-start"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gradient-to-r from-yellow-400 to-purple-600">
-                      <ChatMascot size="sm" />
-                    </div>
-                    <div className="bg-white border border-slate-200/60 px-6 py-4 rounded-2xl rounded-bl-md shadow-sm">
-                      <LoadingSpinner size="sm" />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} />
+              </div>
             </div>
 
-            {/* Refined Input Area */}
-            <div className="border-t border-slate-200/60 bg-white/95 backdrop-blur-sm p-8">
-              <div className="relative mb-4">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={handleInputKeyDown}
-                  placeholder="Press Enter to focus, then share what's on your mind..."
-                  className="w-full px-6 py-4 pr-14 border border-slate-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-slate-400/50 focus:border-slate-400 bg-slate-50/50 transition-all font-light text-gray-800 placeholder-slate-400"
-                  disabled={isLoading}
-                />
+            {/* Input area with modern styling */}
+            <div className="border-t border-slate-200/50 bg-white/80 backdrop-blur-sm p-4">
+              <div className="flex items-end gap-3">
+                <div className="flex-1 relative">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleInputKeyDown}
+                    placeholder="Share what's on your mind..."
+                    className="
+                      w-full px-4 py-3 rounded-xl border border-slate-200/60 
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50
+                      bg-white/80 backdrop-blur-sm text-slate-800 placeholder-slate-500
+                      text-sm transition-all duration-200
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                    "
+                    disabled={isLoading}
+                  />
+                </div>
+
                 <motion.button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isLoading}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2.5 text-slate-400 hover:text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer rounded-full hover:bg-slate-100"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="
+                    p-3 rounded-xl bg-slate-900 text-white 
+                    hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed
+                    transition-all duration-200 flex items-center justify-center
+                    shadow-sm hover:shadow-md
+                  "
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <Send className="h-5 w-5" />
+                  <Send className="w-4 h-4" />
                 </motion.button>
               </div>
-              <div className="text-center px-4">
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Press Enter anywhere to focus chat • Lumi is here to listen
-                  and support you • For urgent concerns, please contact a mental
-                  health professional.
-                </p>
-              </div>
+
+              {/* Helper text */}
+              <p className="text-xs text-slate-500 mt-3 text-center">
+                Press Enter to send • Lumi is here to support your wellness
+                journey
+              </p>
             </div>
           </div>
         </motion.div>
