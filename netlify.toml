@@ -7,7 +7,48 @@
   SECRETS_SCAN_OMIT_PATHS = "*.md,backend/**/*.md,env.example,backend/env.example,dist/unity-builds/**/*,public/unity-builds/**/*,unity-build/**/*"
   SECRETS_SCAN_OMIT_KEYS = "VITE_CLERK_PUBLISHABLE_KEY,VITE_GEMINI_API_KEY,NODE_ENV,PORT"
 
+# Unity WebGL specific headers for proper MIME types and compression
+[[headers]]
+  for = "*.data"
+  [headers.values]
+    Content-Type = "application/octet-stream"
+
+[[headers]]
+  for = "*.data.br"
+  [headers.values]
+    Content-Type = "application/octet-stream"
+    Content-Encoding = "br"
+
+[[headers]]
+  for = "*.wasm"
+  [headers.values]
+    Content-Type = "application/wasm"
+
+[[headers]]
+  for = "*.wasm.br"
+  [headers.values]
+    Content-Type = "application/wasm"
+    Content-Encoding = "br"
+
+[[headers]]
+  for = "*.js.br"
+  [headers.values]
+    Content-Type = "application/javascript"
+    Content-Encoding = "br"
+
+[[headers]]
+  for = "/unity-builds/**"
+  [headers.values]
+    Cross-Origin-Embedder-Policy = "require-corp"
+    Cross-Origin-Opener-Policy = "same-origin"
+
 # SPA redirect rule - all routes should serve index.html for client-side routing
+# This should come AFTER the Unity files to avoid conflicts
+[[redirects]]
+  from = "/unity-builds/*"
+  to = "/unity-builds/:splat"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
