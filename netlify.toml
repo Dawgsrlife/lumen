@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_ENV = "production"
+  SECRETS_SCAN_OMIT_PATHS = "*.md,backend/**/*.md,env.example,backend/env.example,dist/unity-builds/**/*,public/unity-builds/**/*,unity-build/**/*"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_CLERK_PUBLISHABLE_KEY,VITE_GEMINI_API_KEY,NODE_ENV,PORT"
