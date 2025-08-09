@@ -28,7 +28,9 @@ const FlowPage: React.FC = () => {
   useEffect(() => {
     const checkDailyStatus = async () => {
       if (!user || hasInitialized) {
-        console.log("No user available or already initialized, skipping daily status check");
+        console.log(
+          "No user available or already initialized, skipping daily status check"
+        );
         return;
       }
 
@@ -152,8 +154,11 @@ const FlowPage: React.FC = () => {
   }, [flowState.currentStep]);
 
   const handleFlowComplete = () => {
-    console.log("Flow completed, navigating to dashboard");
+    console.log("🎯 FlowPage - handleFlowComplete called!");
+    console.log("🎯 FlowPage - Current location:", window.location.pathname);
+    console.log("🎯 FlowPage - About to navigate to /dashboard");
     navigate("/dashboard", { replace: true });
+    console.log("🎯 FlowPage - Navigate called successfully");
   };
 
   // Early returns for loading and error states

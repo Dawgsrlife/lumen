@@ -76,6 +76,7 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
         },
       });
 
+      console.log("🎯 JournalingStep - handleSave - About to call onComplete");
       onComplete();
     } catch (error: unknown) {
       console.error("Error submitting journal entry:", error);
@@ -86,6 +87,7 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
         (error as Error & { code?: string })?.code === "ECONNABORTED"
       ) {
         console.log("API unavailable, completing flow without saving");
+        console.log("🎯 JournalingStep - handleSave (API error) - About to call onComplete");
         onComplete();
       } else {
         setError("Failed to save your reflection. Please try again.");
@@ -96,9 +98,15 @@ const JournalingStep: React.FC<JournalingStepProps> = ({
   };
 
   const handleSkip = () => {
+    console.log("🎯 JournalingStep - handleSkip called!");
+    console.log("🎯 JournalingStep - onSkip exists:", !!onSkip);
+    console.log("🎯 JournalingStep - onComplete exists:", !!onComplete);
+    
     if (onSkip) {
+      console.log("🎯 JournalingStep - Calling onSkip");
       onSkip();
     } else {
+      console.log("🎯 JournalingStep - Calling onComplete");
       onComplete();
     }
   };

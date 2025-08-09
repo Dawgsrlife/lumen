@@ -24,7 +24,8 @@ const Features = lazy(() => import("./pages/Features"));
 const Contact = lazy(() => import("./pages/Contact"));
 const SignInPage = lazy(() => import("./pages/SignInPage"));
 const WelcomePage = lazy(() => import("./pages/WelcomePage"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
+// Temporarily import Dashboard directly to fix module loading issue
+import Dashboard from "./pages/Dashboard";
 const FlowPage = lazy(() => import("./pages/FlowPage"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Profile = lazy(() => import("./pages/Profile"));
