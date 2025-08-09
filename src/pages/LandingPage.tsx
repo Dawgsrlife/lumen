@@ -18,6 +18,7 @@ const LandingPage: React.FC = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const [showIntro, setShowIntro] = useState(true);
   const [showContent, setShowContent] = useState(false);
+  const [isBeginLoading, setIsBeginLoading] = useState(false);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
   const iconRef = useRef<HTMLDivElement>(null);
@@ -331,10 +332,18 @@ const LandingPage: React.FC = () => {
                 <div ref={buttonRef}>
                   <button
                     onClick={() => {
-                      // Simple, clean navigation - Clerk handles sign-up automatically
-                      window.location.href = "/sign-in";
+                      setIsBeginLoading(true);
+                      // Add a small delay to show loading state before navigation
+                      setTimeout(() => {
+                        window.location.href = "/sign-in";
+                      }, 100); // Small delay to show loading
                     }}
-                    className="hero-button relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer"
+                    disabled={isBeginLoading}
+                    className={`hero-button relative overflow-hidden px-8 py-4 rounded-xl font-semibold text-white text-base tracking-normal transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
+                      isBeginLoading
+                        ? "cursor-wait opacity-90"
+                        : "cursor-pointer"
+                    }`}
                     style={{
                       background:
                         "linear-gradient(135deg, #fbbf24 0%, #8b5cf6 100%)",
@@ -343,17 +352,49 @@ const LandingPage: React.FC = () => {
                   >
                     {/* Minimal shimmer effect - subtle and elegant */}
                     <div
-                      className="absolute inset-0 rounded-xl opacity-30"
+                      className={`absolute inset-0 rounded-xl opacity-30 ${
+                        isBeginLoading ? "animate-pulse" : ""
+                      }`}
                       style={{
                         background:
                           "linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%)",
                         backgroundSize: "200% 200%",
-                        animation: "shimmer 3s ease-in-out infinite",
+                        animation: isBeginLoading
+                          ? "shimmer 1s ease-in-out infinite"
+                          : "shimmer 3s ease-in-out infinite",
                       }}
                     ></div>
 
-                    {/* Clean, minimal button text */}
-                    <span className="relative z-10">Begin</span>
+                    {/* Clean, minimal button text with loading state */}
+                    <span className="relative z-10 flex items-center gap-2">
+                      {isBeginLoading ? (
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Starting...
+                        </>
+                      ) : (
+                        "Begin"
+                      )}
+                    </span>
                   </button>
                 </div>
               </div>
