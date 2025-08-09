@@ -422,6 +422,9 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               >
                 Today's Emotion
               </motion.h3>
+              <div className="mb-4"></div>
+
+              {/* Emotion Label with Sophisticated Styling */}
 
               <motion.div
                 className={`inline-block px-6 py-3 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/40 mb-6`}

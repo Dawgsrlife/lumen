@@ -12,6 +12,7 @@ const FlowPage: React.FC = () => {
   const { user } = useClerkUser();
   const flowState = useFlowState();
   const [isCheckingDailyStatus, setIsCheckingDailyStatus] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false); // Prevent re-initialization
 
   // Add initial state logging
   useEffect(() => {
@@ -23,13 +24,16 @@ const FlowPage: React.FC = () => {
     });
   }, [flowState, user]);
 
-  // Check daily emotion status on mount
+  // Check daily emotion status on mount - ONLY ONCE
   useEffect(() => {
     const checkDailyStatus = async () => {
-      if (!user) {
-        console.log("No user available, skipping daily status check");
+      if (!user || hasInitialized) {
+        console.log("No user available or already initialized, skipping daily status check");
         return;
       }
+
+      console.log("Initializing FlowPage for user:", user.id);
+      setHasInitialized(true); // Prevent re-runs
 
       // Check for URL parameters
       const urlParams = new URLSearchParams(window.location.search);
@@ -110,11 +114,12 @@ const FlowPage: React.FC = () => {
       }
     };
 
-    // Only check once when user is available
-    if (user && isCheckingDailyStatus) {
+    // Only check once when user is available and we haven't initialized
+    if (user && !hasInitialized) {
       checkDailyStatus();
     }
-  }, [user, flowState.actions, isCheckingDailyStatus, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, hasInitialized]); // Intentionally excluding flowState.actions to prevent loop
 
   // Memoized background theme
   const backgroundTheme = useMemo(() => {
