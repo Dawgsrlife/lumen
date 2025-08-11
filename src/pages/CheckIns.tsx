@@ -13,23 +13,41 @@ const CheckIns: React.FC = () => {
   const [totalEntries, setTotalEntries] = useState(0);
   const entriesPerPage = 10;
 
+  // Convert emotion entry to journal entry format for display
+  const emotionToJournal = (emotion: any): JournalEntry => ({
+    id: emotion._id || emotion.id || '',
+    title: `${emotion.emotion.charAt(0).toUpperCase() + emotion.emotion.slice(1)} Check-in`,
+    content: emotion.context || 'No reflection provided',
+    mood: emotion.intensity,
+    tags: [emotion.emotion],
+    isPrivate: false,
+    createdAt: emotion.createdAt || new Date().toISOString(),
+    updatedAt: emotion.updatedAt || emotion.createdAt || new Date().toISOString(),
+    userId: emotion.userId || '',
+  });
+
   useEffect(() => {
     const fetchCheckIns = async () => {
       if (!user) return;
 
       try {
         setIsLoading(true);
-        const response = await apiService.getJournalEntries({
+        console.log('CheckIns: Fetching emotion entries for page:', currentPage);
+        
+        // Fetch emotion entries (which contain the check-in data)
+        const response = await apiService.getEmotionEntries({
           page: currentPage,
           limit: entriesPerPage,
-          includePrivate: true,
         });
 
-        setJournalEntries(response.entries);
-        setTotalEntries(
-          (response.pagination as { total?: number })?.total ||
-            response.entries.length
-        );
+        console.log('CheckIns: Emotion entries response:', response);
+        
+        // Convert emotion entries to journal entry format for display
+        const convertedEntries = response.emotions.map(emotionToJournal);
+        console.log('CheckIns: Converted entries:', convertedEntries);
+        
+        setJournalEntries(convertedEntries);
+        setTotalEntries(response.pagination?.total || response.emotions.length);
       } catch (error) {
         console.error("Error fetching check-ins:", error);
         // Fallback to empty array on error

@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 // Security middleware
 app.use(helmet({
@@ -77,6 +77,105 @@ app.post('/api/test', (req, res) => {
     data: {
       received: req.body,
       timestamp: new Date().toISOString()
+    }
+  });
+});
+
+// Mock API endpoints to test frontend integration
+app.post('/api/users/register', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      user: { id: '1', email: 'test@example.com', ...req.body },
+      token: 'mock-jwt-token'
+    },
+    message: 'User registered successfully (mock)'
+  });
+});
+
+app.post('/api/users/login', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      user: { id: '1', email: 'test@example.com' },
+      token: 'mock-jwt-token'
+    },
+    message: 'User logged in successfully (mock)'
+  });
+});
+
+app.get('/api/users/profile', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      id: '1',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User'
+    }
+  });
+});
+
+app.post('/emotions', (req, res) => {
+  res.json({
+    success: true,
+    emotionEntry: {
+      id: '1',
+      emotion: req.body.emotion,
+      intensity: req.body.intensity || 5,
+      context: req.body.context,
+      createdAt: new Date().toISOString(),
+      ...req.body
+    },
+    userData: {
+      currentStreak: 1,
+      longestStreak: 1,
+      weeklyData: [true, false, false, false, false, false, false],
+      totalEmotionEntries: 1,
+      averageMood: req.body.intensity || 5
+    },
+    message: 'Emotion logged successfully (mock)'
+  });
+});
+
+app.get('/emotions', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      emotions: [],
+      userData: {
+        currentStreak: 0,
+        longestStreak: 0,
+        weeklyData: [false, false, false, false, false, false, false],
+        totalEmotionEntries: 0,
+        averageMood: 5,
+        hasLoggedToday: false
+      },
+      pagination: {
+        page: 1,
+        limit: 50,
+        total: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrev: false
+      }
+    }
+  });
+});
+
+app.get('/emotions/today', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      hasLoggedToday: false,
+      todayEntry: null,
+      userData: {
+        currentStreak: 0,
+        longestStreak: 0,
+        weeklyData: [false, false, false, false, false, false, false],
+        currentEmotion: null,
+        hasPlayedGameToday: false
+      }
     }
   });
 });

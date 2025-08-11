@@ -29,56 +29,13 @@ const Analytics: React.FC = () => {
     Array<{ date: string; mood: number }>
   >([]);
 
-  // Calculate streak from journal entries
-  const calculateStreak = async (): Promise<number> => {
+  // Get streak from user data - no need to calculate manually
+  const getStreakFromUserData = async (): Promise<number> => {
     try {
-      const journalResponse = await apiService.getJournalEntries({
-        limit: 365, // Get up to a year of data to calculate streak
-        includePrivate: true,
-      });
-
-      const entries = journalResponse.entries;
-      if (entries.length === 0) return 0;
-
-      // Sort by date (newest first)
-      const sortedEntries = entries.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-
-      let streak = 0;
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0); // Reset to start of day
-
-      // Check if today has an entry
-      const today = new Date().toDateString();
-      const hasEntryToday = sortedEntries.some(
-        (entry) => new Date(entry.createdAt).toDateString() === today
-      );
-
-      if (!hasEntryToday) {
-        // If no entry today, start from yesterday
-        currentDate.setDate(currentDate.getDate() - 1);
-      }
-
-      // Count consecutive days with entries
-      for (let i = 0; i < 365; i++) {
-        const dateStr = currentDate.toDateString();
-        const hasEntry = sortedEntries.some(
-          (entry) => new Date(entry.createdAt).toDateString() === dateStr
-        );
-
-        if (hasEntry) {
-          streak++;
-          currentDate.setDate(currentDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-
-      return streak;
+      const todayData = await apiService.getTodayEmotion();
+      return todayData.userData?.currentStreak || 0;
     } catch (error) {
-      console.error("Error calculating streak:", error);
+      console.error("Error getting streak data:", error);
       return 0;
     }
   };
@@ -100,13 +57,15 @@ const Analytics: React.FC = () => {
                 ? 90
                 : 365;
 
-        // Get journal entries for the selected time range to calculate real analytics
-        const journalResponse = await apiService.getJournalEntries({
+        // Get emotion entries for the selected time range to calculate real analytics
+        console.log('Analytics: Fetching emotion entries for time range:', selectedTimeRange);
+        const emotionResponse = await apiService.getEmotionEntries({
           limit: 1000, // Get more entries to ensure we capture the time range
-          includePrivate: true,
         });
+        console.log('Analytics: Emotion response:', emotionResponse);
 
-        const allEntries = journalResponse.entries;
+        const allEntries = emotionResponse.emotions;
+        const userData = emotionResponse.userData;
 
         // Filter entries by the selected time range
         const cutoffDate = new Date();
@@ -120,52 +79,51 @@ const Analytics: React.FC = () => {
           (entry) => new Date(entry.createdAt) >= cutoffDate
         );
 
-        // Calculate real analytics from filtered entries
-        const realAnalytics: Partial<UserAnalytics> = {
-          totalEntries: filteredEntries.length,
-          averageMood: 0,
-          emotionDistribution: {
-            happy: 0,
-            sad: 0,
-            loneliness: 0,
-            anxiety: 0,
-            frustration: 0,
-            stress: 0,
-            lethargy: 0,
-            fear: 0,
-            grief: 0,
-          },
+        // Calculate real analytics from filtered emotion entries
+        const emotionCounts = {
+          happy: 0,
+          sad: 0,
+          loneliness: 0,
+          anxiety: 0,
+          frustration: 0,
+          stress: 0,
+          lethargy: 0,
+          fear: 0,
+          grief: 0,
         };
 
-        // Calculate average mood from entries that have mood data
-        const entriesWithMood = filteredEntries.filter(
-          (entry) => entry.mood && entry.mood > 0
-        );
-        if (entriesWithMood.length > 0) {
-          const totalMood = entriesWithMood.reduce(
-            (sum, entry) => sum + (entry.mood || 0),
-            0
-          );
-          realAnalytics.averageMood = totalMood / entriesWithMood.length;
-        }
+        // Count emotions and calculate average intensity
+        let totalIntensity = 0;
+        filteredEntries.forEach((entry) => {
+          if (entry.emotion && emotionCounts.hasOwnProperty(entry.emotion)) {
+            emotionCounts[entry.emotion as keyof typeof emotionCounts]++;
+          }
+          totalIntensity += entry.intensity || 0;
+        });
+
+        const realAnalytics: Partial<UserAnalytics> = {
+          totalEntries: filteredEntries.length,
+          averageMood: filteredEntries.length > 0 ? totalIntensity / filteredEntries.length : 0,
+          emotionDistribution: emotionCounts,
+        };
 
         setAnalytics(realAnalytics);
 
-        // Calculate current streak (this should be based on all entries, not just filtered ones)
-        const streak = await calculateStreak();
+        // Get current streak from user data
+        const streak = userData?.currentStreak || await getStreakFromUserData();
         setCurrentStreak(streak);
 
-        // Generate mood trends chart data from filtered entries
+        // Generate mood trends chart data from emotion entries
         if (filteredEntries.length > 0) {
           // Group entries by date and calculate daily averages
           const dailyMoods: Record<string, number[]> = {};
 
-          entriesWithMood.forEach((entry) => {
+          filteredEntries.forEach((entry) => {
             const dateKey = new Date(entry.createdAt).toDateString();
             if (!dailyMoods[dateKey]) {
               dailyMoods[dateKey] = [];
             }
-            dailyMoods[dateKey].push(entry.mood || 0);
+            dailyMoods[dateKey].push(entry.intensity || 0);
           });
 
           // Create chart data
@@ -436,7 +394,7 @@ const Analytics: React.FC = () => {
                   backdropFilter: "blur(10px)",
                 }}
                 formatter={(value) => {
-                  return [`${value}/5 😊`, "Mood"];
+                  return [`${value}/10 ✨`, "Intensity"];
                 }}
               />
               <Area
@@ -445,7 +403,7 @@ const Analytics: React.FC = () => {
                 stroke="#111827"
                 fill="url(#moodGradient)"
                 strokeWidth={2}
-                name="Mood"
+                name="Intensity"
                 dot={{
                   fill: "#111827",
                   strokeWidth: 2,
@@ -483,7 +441,7 @@ const Analytics: React.FC = () => {
               className="text-xl font-light text-gray-800 mb-3 tracking-wide"
               style={{ fontFamily: "Playfair Display, Georgia, serif" }}
             >
-              Average Mood
+              Average Intensity
             </h3>
             <div className="mb-3"></div>
             <div className="text-3xl font-light text-gray-900 mb-2">
@@ -500,8 +458,8 @@ const Analytics: React.FC = () => {
             <div className="mb-2"></div>
             <p className="text-sm text-slate-500 font-light">
               {analytics?.averageMood && analytics.averageMood > 0
-                ? "out of 5"
-                : "Start tracking your mood"}
+                ? "out of 10"
+                : "Start tracking your emotions"}
             </p>
           </motion.div>
 

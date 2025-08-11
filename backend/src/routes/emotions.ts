@@ -59,7 +59,7 @@ const calculateStreak = async (clerkId: string): Promise<number> => {
 };
 
 // Helper function to update weekly data
-const updateWeeklyData = async (clerkId: string, user: Document): Promise<boolean[]> => {
+const updateWeeklyData = async (clerkId: string, user: any): Promise<boolean[]> => {
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
   
@@ -125,7 +125,7 @@ router.post('/',
 
       // Check if user has already logged an emotion today
       const today = new Date();
-      const hasLoggedToday = user.hasLoggedToday();
+      const hasLoggedToday = (user as any).hasLoggedToday();
       
       if (hasLoggedToday) {
         return res.status(400).json({
@@ -252,12 +252,12 @@ router.get('/',
       }
       
       if (startDate || endDate) {
-        query.createdAt = {};
+        query.createdAt = {} as any;
         if (startDate) {
-          query.createdAt.$gte = new Date(startDate as string);
+          (query.createdAt as any).$gte = new Date(startDate as string);
         }
         if (endDate) {
-          query.createdAt.$lte = new Date(endDate as string);
+          (query.createdAt as any).$lte = new Date(endDate as string);
         }
       }
 
@@ -272,14 +272,14 @@ router.get('/',
       ]);
 
       // Get user data for enhanced response
-      const user = await UserModel.findOne({ clerkId }).lean();
+      const user = await UserModel.findOne({ clerkId });
       const userData = user ? {
         currentStreak: user.currentStreak,
         longestStreak: user.longestStreak,
         weeklyData: user.weeklyData,
         totalEmotionEntries: user.totalEmotionEntries,
         averageMood: user.averageMood,
-        hasLoggedToday: user.hasLoggedToday()
+        hasLoggedToday: (user as any).hasLoggedToday()
       } : null;
 
       const totalPages = Math.ceil(total / limitNum);

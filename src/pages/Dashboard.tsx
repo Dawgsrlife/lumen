@@ -10,6 +10,8 @@ const Dashboard: React.FC = () => {
   const { getToken, isSignedIn } = useAuth();
   const [analytics, setAnalytics] = useState<UserAnalytics | null>(null);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
+  const [todayEmotion, setTodayEmotion] = useState<string | null>(null);
+  const [hasLoggedToday, setHasLoggedToday] = useState(false);
 
   // Debug logging
   console.log("Dashboard: Current state", {
@@ -75,11 +77,62 @@ const Dashboard: React.FC = () => {
           console.warn("Dashboard: Could not get auth token", tokenError);
         }
 
-        // Try to fetch analytics data, but use fallback if it fails
+        // Try to fetch today's emotion data from our working endpoint
         try {
-          const analyticsData = await apiService.getAnalyticsOverview(7);
-          setAnalytics(analyticsData);
-          console.log("Dashboard: Analytics loaded", analyticsData);
+          const todayData = await apiService.getTodayEmotion();
+          console.log("Dashboard: Today's data loaded", todayData);
+          console.log("Dashboard: Raw API userData:", todayData.userData);
+          
+          // Store today's emotion and logging status
+          setTodayEmotion(todayData.userData?.currentEmotion || null);
+          setHasLoggedToday(todayData.hasLoggedToday || false);
+          
+          const mappedAnalytics = {
+            userId: state.user.userId,
+            totalEntries: todayData.userData?.totalEmotionEntries || 0,
+            averageMood: todayData.userData?.averageMood || 5,
+            emotionDistribution: {
+              happy: todayData.userData?.currentEmotion === 'happy' ? 1 : 0,
+              sad: todayData.userData?.currentEmotion === 'sad' ? 1 : 0,
+              loneliness: todayData.userData?.currentEmotion === 'loneliness' ? 1 : 0,
+              anxiety: todayData.userData?.currentEmotion === 'anxiety' ? 1 : 0,
+              frustration: todayData.userData?.currentEmotion === 'frustration' ? 1 : 0,
+              stress: todayData.userData?.currentEmotion === 'stress' ? 1 : 0,
+              lethargy: todayData.userData?.currentEmotion === 'lethargy' ? 1 : 0,
+              fear: todayData.userData?.currentEmotion === 'fear' ? 1 : 0,
+              grief: todayData.userData?.currentEmotion === 'grief' ? 1 : 0,
+            },
+            streakData: { 
+              current: todayData.userData?.currentStreak || 0, 
+              longest: todayData.userData?.longestStreak || 0 
+            },
+            weeklyProgress: todayData.userData?.weeklyData || [false, false, false, false, false, false, false],
+            gamesPlayed: 0,
+            achievementsUnlocked: [],
+            weeklyStats: {
+              averageMood: todayData.userData?.averageMood || 5,
+              totalEntries: todayData.userData?.totalEmotionEntries || 0,
+              moodTrend: [],
+              topEmotions: todayData.userData?.currentEmotion ? [todayData.userData.currentEmotion] : [],
+            },
+            monthlyStats: {
+              averageMood: todayData.userData?.averageMood || 5,
+              totalEntries: todayData.userData?.totalEmotionEntries || 0,
+              streakData: { 
+                current: todayData.userData?.currentStreak || 0, 
+                longest: todayData.userData?.longestStreak || 0 
+              },
+              gameActivity: { gamesPlayed: 0, averageScore: 0 },
+            },
+            insights: [],
+            lastUpdated: new Date(),
+          };
+          
+          console.log("Dashboard: Mapped analytics:", mappedAnalytics);
+          console.log("Dashboard: Streak data:", mappedAnalytics.streakData);
+          console.log("Dashboard: Weekly progress:", mappedAnalytics.weeklyProgress);
+          
+          setAnalytics(mappedAnalytics);
         } catch (apiError) {
           console.warn(
             "Dashboard: API request failed, using defaults",
@@ -173,12 +226,13 @@ const Dashboard: React.FC = () => {
         selectedEmotion="happy"
         currentStreak={0}
         weeklyData={[false, false, false, false, false, false, false]}
+        hasLoggedToday={false}
       />
     );
   }
 
-  // Default to 'happy' if no current emotion is set
-  const currentEmotion = (state.user?.currentEmotion as EmotionType) || "happy";
+  // Use today's emotion from API, default to 'happy' if none is set
+  const currentEmotion = (todayEmotion as EmotionType) || "happy";
   const currentStreak = analytics?.streakData?.current || 0;
   // Convert weeklyProgress to boolean array or use default
   const weeklyData = Array.isArray(analytics?.weeklyProgress)
@@ -194,6 +248,7 @@ const Dashboard: React.FC = () => {
       selectedEmotion={currentEmotion}
       currentStreak={currentStreak}
       weeklyData={weeklyData}
+      hasLoggedToday={hasLoggedToday}
     />
   );
 };

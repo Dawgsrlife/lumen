@@ -178,6 +178,7 @@ class ApiService {
   async createEmotionEntry(data: CreateEmotionRequest): Promise<EmotionEntry> {
     try {
       const response = await this.api.post<{
+        success: boolean;
         emotionEntry: EmotionEntry;
         userData: {
           currentStreak: number;
@@ -269,26 +270,29 @@ class ApiService {
       if (params?.sort) queryParams.append("sort", params.sort);
 
       const response = await this.api.get<{
-        emotions: EmotionEntry[];
-        userData?: {
-          currentStreak: number;
-          longestStreak: number;
-          weeklyData: boolean[];
-          totalEmotionEntries: number;
-          averageMood: number;
-          hasLoggedToday: boolean;
-        };
-        pagination: {
-          page: number;
-          limit: number;
-          total: number;
-          totalPages: number;
-          hasNext: boolean;
-          hasPrev: boolean;
+        success: boolean;
+        data: {
+          emotions: EmotionEntry[];
+          userData?: {
+            currentStreak: number;
+            longestStreak: number;
+            weeklyData: boolean[];
+            totalEmotionEntries: number;
+            averageMood: number;
+            hasLoggedToday: boolean;
+          };
+          pagination: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+            hasNext: boolean;
+            hasPrev: boolean;
+          };
         };
       }>(`/emotions?${queryParams.toString()}`);
 
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error("Error fetching emotion entries:", error);
       throw error;
@@ -311,18 +315,21 @@ class ApiService {
   }> {
     try {
       const response = await this.api.get<{
-        hasLoggedToday: boolean;
-        todayEntry?: EmotionEntry;
-        userData?: {
-          currentStreak: number;
-          longestStreak: number;
-          weeklyData: boolean[];
-          currentEmotion?: string | null;
-          hasPlayedGameToday: boolean;
+        success: boolean;
+        data: {
+          hasLoggedToday: boolean;
+          todayEntry?: EmotionEntry;
+          userData?: {
+            currentStreak: number;
+            longestStreak: number;
+            weeklyData: boolean[];
+            currentEmotion?: string | null;
+            hasPlayedGameToday: boolean;
+          };
         };
       }>("/emotions/today");
 
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error("Error checking today's emotion:", error);
       throw error;

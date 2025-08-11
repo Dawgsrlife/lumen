@@ -91,8 +91,51 @@ const FlowRouter: React.FC<FlowRouterProps> = ({ onComplete }) => {
     }
   };
 
+  // Check if user has already logged today and redirect to dashboard
+  useEffect(() => {
+    if (flowState.hasLoggedToday && flowState.currentStep !== "journaling" && flowState.currentStep !== "feedback") {
+      console.log("User has already logged today, redirecting to dashboard");
+      // Redirect to dashboard
+      window.location.href = "/dashboard";
+      return;
+    }
+  }, [flowState.hasLoggedToday, flowState.currentStep]);
+
   const renderStep = () => {
-    console.log("Rendering step:", flowState.currentStep);
+    console.log("Rendering step:", flowState.currentStep, "hasLoggedToday:", flowState.hasLoggedToday);
+
+    // Show loading while checking daily status
+    if (flowState.isLoading) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lumen-primary mx-auto mb-4"></div>
+            <p className="text-slate-600">Checking today's progress...</p>
+          </div>
+        </div>
+      );
+    }
+
+    // If user has already logged today, show completion message
+    if (flowState.hasLoggedToday && flowState.currentStep !== "journaling" && flowState.currentStep !== "feedback") {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto p-8">
+            <div className="text-6xl mb-6">✅</div>
+            <h2 className="text-2xl font-semibold text-slate-900 mb-4">Already Logged Today!</h2>
+            <p className="text-slate-600 mb-6">
+              You've already logged your emotion today. Check your dashboard to see your progress.
+            </p>
+            <button
+              onClick={() => window.location.href = "/dashboard"}
+              className="bg-lumen-primary text-white px-6 py-3 rounded-lg hover:bg-lumen-primary/90 transition-colors"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+        </div>
+      );
+    }
 
     switch (flowState.currentStep) {
       case "welcome":

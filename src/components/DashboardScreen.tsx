@@ -305,18 +305,21 @@ interface DashboardScreenProps {
   selectedEmotion: EmotionType;
   currentStreak: number;
   weeklyData: boolean[];
+  hasLoggedToday: boolean;
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = ({
   selectedEmotion,
   currentStreak,
   weeklyData,
+  hasLoggedToday,
 }) => {
   // Debug logging with comprehensive checks
   console.log("DashboardScreen props:", {
     selectedEmotion,
     currentStreak,
     weeklyData,
+    hasLoggedToday,
     typeOfSelectedEmotion: typeof selectedEmotion,
     typeOfCurrentStreak: typeof currentStreak,
     isArrayWeeklyData: Array.isArray(weeklyData),
@@ -489,21 +492,27 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           transition={{ delay: 1.6, duration: 0.8 }}
         >
           <motion.button
-            onClick={() => (window.location.href = "/flow?manual=true")}
-            className="group relative overflow-hidden px-10 py-5 rounded-2xl font-medium text-white text-lg tracking-wide transition-all duration-500 shadow-xl shadow-slate-900/20 hover:shadow-2xl hover:shadow-slate-900/30 cursor-pointer bg-gradient-to-r from-slate-900 to-slate-800"
-            whileHover={{
+            onClick={() => hasLoggedToday ? null : (window.location.href = "/flow?manual=true")}
+            className={`group relative overflow-hidden px-10 py-5 rounded-2xl font-medium text-lg tracking-wide transition-all duration-500 shadow-xl shadow-slate-900/20 ${
+              hasLoggedToday 
+                ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-gray-200 cursor-not-allowed' 
+                : 'bg-gradient-to-r from-slate-900 to-slate-800 text-white cursor-pointer hover:shadow-2xl hover:shadow-slate-900/30'
+            }`}
+            whileHover={hasLoggedToday ? {} : {
               scale: 1.02,
               y: -3,
               transition: { duration: 0.2 },
             }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={hasLoggedToday ? {} : { scale: 0.98 }}
           >
-            {/* Sophisticated shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+            {/* Sophisticated shimmer effect - only show if not logged */}
+            {!hasLoggedToday && (
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+            )}
 
             <div className="relative flex items-center gap-3">
-              <span className="text-xl">💭</span>
-              <span>Reflect on Today</span>
+              <span className="text-xl">{hasLoggedToday ? '✅' : '💭'}</span>
+              <span>{hasLoggedToday ? 'Feeling Already Logged' : 'Reflect on Today'}</span>
             </div>
           </motion.button>
 
